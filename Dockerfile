@@ -36,5 +36,5 @@ RUN curl --create-dirs -sSLo /usr/share/jenkins/slave.jar https://repo.jenkins-c
 
 USER jenkins
 RUN mkdir /home/jenkins/.jenkins
-VOLUME /home/jenkins/.jenkins
+VOLUME /home/jenkins
 WORKDIR /home/jenkins
