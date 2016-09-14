@@ -20,19 +20,21 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM java:8-jdk
-
-RUN curl --create-dirs -sSLo /usr/share/jenkins/slave.jar http://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/2.62/remoting-2.62.jar \
-  && chmod 755 /usr/share/jenkins \
-  && chmod 644 /usr/share/jenkins/slave.jar
+FROM openjdk:8-jdk
+MAINTAINER Nicolas De Loof <nicolas.deloof@gmail.com>
 
 ENV HOME /home/jenkins
 RUN groupadd -g 10000 jenkins
 RUN useradd -c "Jenkins user" -d $HOME -u 10000 -g 10000 -m jenkins
 
-WORKDIR $HOME
+ARG VERSION=2.62
+
+RUN curl --create-dirs -sSLo /usr/share/jenkins/slave.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
+  && chmod 755 /usr/share/jenkins \
+  && chmod 644 /usr/share/jenkins/slave.jar
+
+
 USER jenkins
-
-RUN mkdir /home/jenkins/.tmp
-
-VOLUME ["/home/jenkins"]
+RUN mkdir /home/jenkins/.jenkins
+VOLUME /home/jenkins/.jenkins
+WORKDIR /home/jenkins
