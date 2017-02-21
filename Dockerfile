@@ -1,6 +1,6 @@
 # The MIT License
 #
-#  Copyright (c) 2015, CloudBees, Inc.
+#  Copyright (c) 2015-2017, CloudBees, Inc. and other Jenkins contributors
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@ MAINTAINER Nicolas De Loof <nicolas.deloof@gmail.com>
 ENV HOME /home/jenkins
 RUN groupadd -g 10000 jenkins
 RUN useradd -c "Jenkins user" -d $HOME -u 10000 -g 10000 -m jenkins
+LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="3.5"
 
 ARG VERSION=3.5
 
