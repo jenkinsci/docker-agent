@@ -25,7 +25,7 @@ MAINTAINER Nicolas De Loof <nicolas.deloof@gmail.com>
 
 ENV HOME /home/jenkins
 RUN addgroup -S -g 10000 jenkins
-RUN adduser -S -u 10000 -h $HOME jenkins jenkins
+RUN adduser -S -u 10000 -h $HOME -G jenkins jenkins
 
 ARG VERSION=2.62
 
