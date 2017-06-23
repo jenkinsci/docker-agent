@@ -10,7 +10,16 @@ This executable is an instance of the [Jenkins Remoting library](https://github.
 
 ## Usage
 
-This image is being used in the [Docker JNLP Agent](https://github.com/jenkinsci/docker-jnlp-slave/) image.
+This image is used as the basis for the [Docker JNLP Agent](https://github.com/jenkinsci/docker-jnlp-slave/) image.
+In that image, the container is launched externally and attaches to Jenkins.
+
+This image may instead be used to launch an agent using the **Launch method** of **Launch agent via execution of command on the master**. Try for example
+
+```sh
+docker run -i --rm --name agent jenkinsci/slave:3.7-1 java -jar /usr/share/jenkins/slave.jar
+```
+
+after setting **Remote root directory** to `/home/jenkins`.
 
 ## Configurations
 
