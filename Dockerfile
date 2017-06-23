@@ -37,6 +37,6 @@ RUN apk add --update --no-cache curl bash git openssh-client openssl \
   && apk del curl
 
 USER jenkins
-RUN mkdir /home/jenkins/.jenkins
+RUN mkdir /home/jenkins/.jenkins /home/jenkins/workspace
 VOLUME /home/jenkins/.jenkins
 WORKDIR /home/jenkins
