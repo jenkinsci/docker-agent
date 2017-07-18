@@ -19,7 +19,7 @@ This image may instead be used to launch an agent using the **Launch method** of
 docker run -i --rm --name agent jenkinsci/slave:3.7-1 java -jar /usr/share/jenkins/slave.jar
 ```
 
-after setting **Remote root directory** to `/var/lib/jenkins/agent`.
+after setting **Remote root directory** to `/home/jenkins/agent`.
 
 ### Agent Work Directories
 
