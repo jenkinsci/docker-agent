@@ -26,7 +26,7 @@ MAINTAINER Nicolas De Loof <nicolas.deloof@gmail.com>
 ENV HOME /home/jenkins
 RUN addgroup -S -g 10000 jenkins
 RUN adduser -S -u 10000 -h $HOME -G jenkins jenkins
-LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="3.7"
+LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="3.10"
 
 ARG VERSION=3.10
 ARG AGENT_WORKDIR=/home/jenkins/agent
