@@ -20,8 +20,8 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM openjdk:8-jdk-alpine
-MAINTAINER Nicolas De Loof <nicolas.deloof@gmail.com>
+FROM openjdk:7-jdk-alpine
+MAINTAINER Ankur Sawhney <ankur.sawhney@atmecs.com>
 
 ENV HOME /home/jenkins
 RUN addgroup -S -g 10000 jenkins
