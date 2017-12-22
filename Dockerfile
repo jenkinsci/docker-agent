@@ -21,14 +21,14 @@
 #  THE SOFTWARE.
 
 FROM openjdk:8-jdk-alpine
-MAINTAINER Nicolas De Loof <nicolas.deloof@gmail.com>
+MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 
 ENV HOME /home/jenkins
 RUN addgroup -S -g 10000 jenkins
 RUN adduser -S -u 10000 -h $HOME -G jenkins jenkins
-LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="3.14"
+LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="3.15"
 
-ARG VERSION=3.14
+ARG VERSION=3.15
 ARG AGENT_WORKDIR=/home/jenkins/agent
 
 RUN apk add --update --no-cache curl bash git openssh-client openssl \
