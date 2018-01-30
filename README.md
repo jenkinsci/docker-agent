@@ -29,7 +29,7 @@ which provides logging by default and change the JAR Caching behavior.
 Call example:
 
 ```sh
-docker run -i --rm --name agent1 --init --v agent1-workdir:/home/jenkins/agent jenkinsci/slave:3.10-1 java -jar /usr/share/jenkins/slave.jar -workDir /home/jenkins/agent
+docker run -i --rm --name agent1 --init -v agent1-workdir:/home/jenkins/agent jenkinsci/slave:3.10-1 java -jar /usr/share/jenkins/slave.jar -workDir /home/jenkins/agent
 ```
 
 ## Configurations
