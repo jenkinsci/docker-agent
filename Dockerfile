@@ -23,23 +23,28 @@
 FROM openjdk:8-jdk-alpine
 MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 
-ENV HOME /home/jenkins
-RUN addgroup -S -g 10000 jenkins
-RUN adduser -S -u 10000 -h $HOME -G jenkins jenkins
-LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="3.19"
+ARG user=jenkins
+ARG group=jenkins
+ARG uid=10000
+ARG gid=10000
 
-ARG VERSION=3.19
-ARG AGENT_WORKDIR=/home/jenkins/agent
+ENV HOME /home/${user}
+RUN groupadd -g ${gid} ${group}
+RUN useradd -c "Jenkins user" -d $HOME -u ${uid} -g ${gid} -m ${user}
+LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="3.20"
+
+ARG VERSION=3.20
+ARG AGENT_WORKDIR=/home/${user}/agent
 
 RUN apk add --update --no-cache curl bash git openssh-client openssl \
   && curl --create-dirs -sSLo /usr/share/jenkins/slave.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/slave.jar \
   && apk del curl
-USER jenkins
+USER ${user}
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
-RUN mkdir /home/jenkins/.jenkins && mkdir -p ${AGENT_WORKDIR}
+RUN mkdir /home/${user}/.jenkins && mkdir -p ${AGENT_WORKDIR}
 
-VOLUME /home/jenkins/.jenkins
+VOLUME /home/${user}/.jenkins
 VOLUME ${AGENT_WORKDIR}
-WORKDIR /home/jenkins
+WORKDIR /home/${user}
