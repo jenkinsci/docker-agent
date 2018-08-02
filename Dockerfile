@@ -36,7 +36,7 @@ LABEL Description="This is a base image, which provides the Jenkins agent execut
 ARG VERSION=3.20
 ARG AGENT_WORKDIR=/home/${user}/agent
 
-RUN apk add --update --no-cache curl bash git openssh-client openssl \
+RUN apk add --update --no-cache curl bash git openssh-client openssl procps \
   && curl --create-dirs -sSLo /usr/share/jenkins/slave.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/slave.jar \
