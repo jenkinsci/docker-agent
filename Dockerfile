@@ -31,9 +31,10 @@ ARG gid=10000
 ENV HOME /home/${user}
 RUN addgroup -g ${gid} ${group}
 RUN adduser -h $HOME -u ${uid} -G ${group} -D ${user}
-LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="3.23"
+LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="3.27"
 
-ARG VERSION=3.26
+ARG VERSION=3.27
+
 ARG AGENT_WORKDIR=/home/${user}/agent
 
 RUN apk add --update --no-cache curl bash git openssh-client openssl procps \
