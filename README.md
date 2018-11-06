@@ -37,6 +37,16 @@ docker run -i --rm --name agent1 --init -v agent1-workdir:/home/jenkins/agent je
 The image has several supported configurations, which can be accessed via the following tags:
 
 * `latest`: Latest version with the newest remoting (based on `openjdk:8-jdk`)
+* `latest-jdk11`: Latest version with the newest remoting and Java 11 (based on `openjdk:11-jdk`)
 * `alpine`: Small image based on Alpine Linux (based on `openjdk:8-jdk-alpine`)
 * `2.62`: This version bundles [Remoting 2.x](https://github.com/jenkinsci/remoting#remoting-2]), which is compatible with Jenkins servers running on Java 6 (`1.609.4` and below)
 * `2.62-alpine`: Small image with Remoting 2.x
+* `2.62-jdk11`: Versioned image for Java 11
+
+## Java 11 Support
+
+Java 11 support is available in a preview mode.
+Only Debian-based images are provided right now.
+(see [JENKINS-54487](https://issues.jenkins-ci.org/browse/JENKINS-54487)).
+There is a probability that images for Java 11 will be changed to AdoptOpenJDK
+before the final release of Java 11 support in Jenkins.
