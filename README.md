@@ -16,7 +16,7 @@ In that image, the container is launched externally and attaches to Jenkins.
 This image may instead be used to launch an agent using the **Launch method** of **Launch agent via execution of command on the master**. Try for example
 
 ```sh
-docker run -i --rm --name agent --init jenkinsci/slave:3.7-1 java -jar /usr/share/jenkins/slave.jar
+docker run -i --rm --name agent --init jenkinsci/slave java -jar /usr/share/jenkins/slave.jar
 ```
 
 after setting **Remote root directory** to `/home/jenkins/agent`.
