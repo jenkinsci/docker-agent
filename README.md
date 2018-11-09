@@ -1,9 +1,9 @@
 Jenkins Agent Docker image
 ===
 
-[![Docker Stars](https://img.shields.io/docker/stars/jenkinsci/slave.svg)](https://hub.docker.com/r/jenkinsci/slave/)
-[![Docker Pulls](https://img.shields.io/docker/pulls/jenkinsci/slave.svg)](https://hub.docker.com/r/jenkinsci/slave/)
-[![Docker Automated build](https://img.shields.io/docker/automated/jenkinsci/slave.svg)](https://hub.docker.com/r/jenkinsci/slave/)
+[![Docker Stars](https://img.shields.io/docker/stars/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
+[![Docker Automated build](https://img.shields.io/docker/automated/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
 
 This is a base image for Docker, which includes OpenJDK 8 and the Jenkins agent executable (slave.jar).
 This executable is an instance of the [Jenkins Remoting library](https://github.com/jenkinsci/remoting).
@@ -16,7 +16,7 @@ In that image, the container is launched externally and attaches to Jenkins.
 This image may instead be used to launch an agent using the **Launch method** of **Launch agent via execution of command on the master**. Try for example
 
 ```sh
-docker run -i --rm --name agent --init jenkinsci/slave java -jar /usr/share/jenkins/slave.jar
+docker run -i --rm --name agent --init jenkins/slave java -jar /usr/share/jenkins/slave.jar
 ```
 
 after setting **Remote root directory** to `/home/jenkins/agent`.
@@ -29,7 +29,7 @@ which provides logging by default and change the JAR Caching behavior.
 Call example:
 
 ```sh
-docker run -i --rm --name agent1 --init -v agent1-workdir:/home/jenkins/agent jenkinsci/slave:3.10-1 java -jar /usr/share/jenkins/slave.jar -workDir /home/jenkins/agent
+docker run -i --rm --name agent1 --init -v agent1-workdir:/home/jenkins/agent jenkins/slave java -jar /usr/share/jenkins/slave.jar -workDir /home/jenkins/agent
 ```
 
 ## Configurations
