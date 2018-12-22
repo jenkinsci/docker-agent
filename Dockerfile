@@ -26,8 +26,8 @@ MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 ARG VERSION=3.28
 ARG user=jenkins
 ARG group=jenkins
-ARG uid=10000
-ARG gid=10000
+ARG uid=1000
+ARG gid=1000
 
 ENV HOME /home/${user}
 RUN groupadd -g ${gid} ${group}
