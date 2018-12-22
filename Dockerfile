@@ -25,8 +25,8 @@ MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 
 ARG user=jenkins
 ARG group=jenkins
-ARG uid=10000
-ARG gid=10000
+ARG uid=1000
+ARG gid=1000
 
 ENV HOME /home/${user}
 RUN addgroup -g ${gid} ${group}
