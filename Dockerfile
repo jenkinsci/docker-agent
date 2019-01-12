@@ -23,6 +23,7 @@
 FROM openjdk:8-jdk-alpine
 MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 
+ARG VERSION=3.28
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
@@ -31,9 +32,7 @@ ARG gid=1000
 ENV HOME /home/${user}
 RUN addgroup -g ${gid} ${group}
 RUN adduser -h $HOME -u ${uid} -G ${group} -D ${user}
-LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="3.27"
-
-ARG VERSION=3.27
+LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
