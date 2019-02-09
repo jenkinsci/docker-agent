@@ -40,6 +40,15 @@ RUN curl --create-dirs -sSLo /usr/share/jenkins/slave.jar https://repo.jenkins-c
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/slave.jar
 
+ARG TINI_VERSION=v0.18.0
+COPY tini_pub.gpg /usr/share/jenkins/tini_pub.gpg
+RUN curl -fsSL https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static-$(dpkg --print-architecture) -o /sbin/tini \
+    && curl -fsSL https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static-$(dpkg --print-architecture).asc -o /sbin/tini.asc \
+    && gpg --no-tty --import /usr/share/jenkins/tini_pub.gpg \
+    && gpg --batch --no-tty --verify /sbin/tini.asc /sbin/tini \
+    && rm -rf /sbin/tini.asc $HOME/.gnupg \
+    && chmod +x /sbin/tini
+
 USER ${user}
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 RUN mkdir /home/${user}/.jenkins && mkdir -p ${AGENT_WORKDIR}
