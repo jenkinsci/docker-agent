@@ -9,8 +9,8 @@ do
         dockertag='latest'
     fi
     echo "Building $dockerfile => tag=$dockertag"
-    docker build -t jenkins/slave:$dockertag .
-    docker build -t jenkins/agent:$dockertag .
+    docker build -f $dockerfile -t jenkins/slave:$dockertag .
+    docker build -f $dockerfile -t jenkins/agent:$dockertag .
 done
 
 echo "Build finished successfully"
