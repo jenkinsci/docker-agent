@@ -1,0 +1,8 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+
+install:
+  - docker version
+
+build_script:
+  - docker build -t jenkins4eval/agent-windows:latest .
