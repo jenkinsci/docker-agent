@@ -3,6 +3,8 @@ image: Visual Studio 2017
 
 install:
   - docker version
+  - docker info
 
 build_script:
-  - docker build -t jenkins4eval/agent-windows:latest .
+  - docker build -f Dockerfile-windows -t jenkins4eval/agent-windows:latest .
+  - docker build -f Dockerfile-windows-jdk11 -t jenkins4eval/agent-windows-jdk11:latest .
