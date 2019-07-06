@@ -22,7 +22,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM openjdk:11.0-jdk-windowsservercore-1607
+FROM openjdk:11.0-jdk-windowsservercore-ltsc2016
 MAINTAINER Alex Earl <slide.o.mix@gmail.com>
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
