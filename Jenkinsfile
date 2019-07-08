@@ -17,13 +17,7 @@ pipeline {
                 steps {
                     sh './build.sh'
                 }
-            }
-            stage('Build Windows Images') {
-                agent { label 'docker-windows' }
-                steps {
-                    powershell './build.ps1'
-                }
-            }
+            }            
         }
     }
 }
