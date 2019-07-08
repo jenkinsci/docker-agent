@@ -64,9 +64,7 @@ FROM mcr.microsoft.com/windows/nanoserver:$WINDOWS_DOCKER_TAG
 ARG JAVA_HOME
 ARG POWERSHELL_HOME
 
-USER ContainerAdministrator
-RUN setx /M PATH "%PATH%;%POWERSHELL_HOME%;%JAVA_HOME%\bin"
-USER ContainerUser
+RUN setx PATH "%PATH%;%POWERSHELL_HOME%;%JAVA_HOME%\bin"
 
 SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
