@@ -6,5 +6,4 @@ install:
   - docker info
 
 build_script:
-  - docker build -f Dockerfile-windows -t jenkins4eval/agent-windows:latest .
-  - docker build -f Dockerfile-windows-jdk11 -t jenkins4eval/agent-windows-jdk11:latest .
+  - ps: ./build.ps1

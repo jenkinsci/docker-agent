@@ -32,7 +32,6 @@ ARG JAVA_HOME=C:/openjdk-${JAVA_VERSION}
 FROM mcr.microsoft.com/windows/servercore:$WINDOWS_DOCKER_TAG
 MAINTAINER Alex Earl <slide.o.mix@gmail.com>
 
-
 ARG JAVA_VERSION
 ARG JAVA_ZIP_VERSION
 ARG JAVA_SHA256
