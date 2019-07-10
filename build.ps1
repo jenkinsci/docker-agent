@@ -6,7 +6,7 @@ Param(
 )
 
 $builds = @{
-    '' = @{ 'Dockerfile' = 'Dockerfile-windows' ; 'BuildArgs' = '' };
+    '' = @{ 'Dockerfile' = 'Dockerfile-windows' ; 'BuildArgs' = '--build-arg `"JAVA_BASE_VERSION=8u212-b04`"' };
     #'jdk11' = @{ 'Dockerfile' = 'Dockerfile-windows' ; 'BuildArgs' = '--build-arg `"JAVA_BASE_VERSION=11.0.3`"'};    
 }
 
