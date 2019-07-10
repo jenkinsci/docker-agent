@@ -7,7 +7,7 @@ Param(
 
 $builds = @{
     '' = @{ 'Dockerfile' = 'Dockerfile-windows' ; 'BuildArgs' = '' };
-    'jdk11' = @{ 'Dockerfile' = 'Dockerfile-windows' ; 'BuildArgs' = '--build-arg `"JAVA_BASE_VERSION=11`"'};    
+    'jdk11' = @{ 'Dockerfile' = 'Dockerfile-windows' ; 'BuildArgs' = '--build-arg `"JAVA_BASE_VERSION=11.0.3`"'};    
 }
 
 if(![System.String]::IsNullOrWhiteSpace($Build) -and ($builds.ContainsKey($Build) -or ($Build -eq 'default'))) {
