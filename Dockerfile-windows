@@ -25,7 +25,7 @@
 ARG WINDOWS_DOCKER_TAG=ltsc2016
 ARG JAVA_BASE_VERSION=8
 
-FROM openjdk/$JAVA_BASE_VERSION-jdk-windowsservercore-$WINDOWS_DOCKER_TAG
+FROM openjdk:$JAVA_BASE_VERSION-jdk-windowsservercore-$WINDOWS_DOCKER_TAG
 MAINTAINER Alex Earl <slide.o.mix@gmail.com>
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
