@@ -32,22 +32,29 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 ARG VERSION=3.29
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
+ARG user=jenkins
+
 ARG AGENT_FILENAME=agent.jar
 ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 
-ARG AGENT_ROOT=C:/Jenkins
+RUN net user "$env:user" /add
+RUN mkdir C:/ProgramData/Jenkins | Out-Null
+
+ARG AGENT_ROOT=C:/Users/$user/Jenkins
 ARG AGENT_WORKDIR=${AGENT_ROOT}/Agent
 
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
-RUN New-Item -Type Directory 'C:/ProgramData/Jenkins' | Out-Null ; `
-    New-Item -Type Directory $('{0}/.jenkins' -f $env:AGENT_ROOT) | Out-Null ; `
-    New-Item -Type Directory $env:AGENT_WORKDIR | Out-Null
 
 # Get the Agent from the Jenkins Artifacts Repository
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar' -f $env:VERSION) -OutFile $(Join-Path C:/ProgramData/Jenkins $env:AGENT_FILENAME) -UseBasicParsing ;`
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar.sha1' -f $env:VERSION) -OutFile (Join-Path C:/ProgramData/Jenkins $env:AGENT_HASH_FILENAME) -UseBasicParsing ;`
     if ((Get-FileHash (Join-Path C:/ProgramData/Jenkins $env:AGENT_FILENAME) -Algorithm SHA1).Hash -ne (Get-Content (Join-Path C:/ProgramData/Jenkins $env:AGENT_HASH_FILENAME))) {exit 1}
+
+USER $user
+
+RUN New-Item -Type Directory $('{0}/.jenkins' -f $env:AGENT_ROOT) | Out-Null ; `
+    New-Item -Type Directory $env:AGENT_WORKDIR | Out-Null
 
 VOLUME ${AGENT_ROOT}/.jenkins
 VOLUME ${AGENT_WORKDIR}
