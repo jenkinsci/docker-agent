@@ -6,4 +6,4 @@ install:
   - docker info
 
 build_script:
-  - ps: ./build.ps1 -AdditionalArgs '--build-arg "WINDOWS_DOCKER_TAG=ltsc2016"'
+  - ps: ./build.ps1
