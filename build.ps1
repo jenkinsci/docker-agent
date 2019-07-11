@@ -8,7 +8,7 @@ Param(
 
 $builds = @{
     'default' = @{'Dockerfile' = 'Dockerfile-windows' ; 'TagSuffix' = '-windows' };
-    'jdk11' = @{'DockerFile' = 'Dockerfile-windows-jdk11'; 'TagSuffix' = '-windows-jdk' };
+    'jdk11' = @{'DockerFile' = 'Dockerfile-windows-jdk11'; 'TagSuffix' = '-windows-jdk11' };
     #'nanoserver' = 'Dockerfile-windows-nanoserver';
     #'nanoserver-jdk11' = 'Dockerfile-windows-nanoserver-jdk11';
 }
