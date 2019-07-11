@@ -24,7 +24,7 @@
 
 ARG WINDOWS_DOCKER_TAG=ltsc2016
 
-FROM openjdk:8-jdk-windowsservercore-$WINDOWS_DOCKER_TAG
+FROM openjdk:11-jdk-windowsservercore-$WINDOWS_DOCKER_TAG
 MAINTAINER Alex Earl <slide.o.mix@gmail.com>
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]

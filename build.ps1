@@ -2,37 +2,34 @@
 Param(
     [String] $Tag = 'latest',
     [String] $AdditionalArgs = '',
-    [String] $Build = ''
+    [String] $Build = '',
+    [String] $Repository = 'jenkins4eval'
 )
 
 $builds = @{
-    'default' = @{ 'Dockerfile' = 'Dockerfile-windows' ; 'BuildArgs' = '' };
-    'jdk11' = @{ 'Dockerfile' = 'Dockerfile-windows' ; 'BuildArgs' = '--build-arg `"JAVA_BASE_VERSION=11`"'};    
+    'default' = 'Dockerfile-windows' ;
+    'jdk11' = 'Dockerfile-windows-jdk11';
+    'nanoserver' = 'Dockerfile-windows-nanoserver';
+    'nanoserver-jdk11' = 'Dockerfile-windows-nanoserver-jdk11';
 }
 
-if(![System.String]::IsNullOrWhiteSpace($Build) -and ($builds.ContainsKey($Build) -or ($Build -eq 'default'))) {
+if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
     Write-Host "Building $Build => tag=$Tag"
-    if($Build -eq 'default') {
-        $Build = ''
-    } 
-
-    $type = $Build
-    if($Build -ne '') {
+    $type = ''
+    if($Build -ne 'default') {
         $type = "-$Build"
     }
-    $cmd = "docker build -f {0} -t jenkins/agent-windows{1}:{2} {3} {4} ." -f $builds[$build]['Dockerfile'], $type, $Tag, $builds[$build]['BuildArgs'], $AdditionalArgs
+    $cmd = "docker build -f {0} -t {1}/agent-windows{2}:{3} {4} ." -f $builds[$build], $Repository, $type, $Tag, $AdditionalArgs
     Invoke-Expression $cmd
-
 } else {
     foreach($build in $builds.Keys) {
-        $type = $build
+        $type = ''
         Write-Host "Building $build => tag=$Tag"
         if($build -ne 'default') {
             $type = "-$build"
         }
-        $cmd = "docker build -f {0} -t jenkins/agent-windows{1}:{2} {3} {4} ." -f $builds[$build]['Dockerfile'], $type, $Tag, $builds[$build]['BuildArgs'], $AdditionalArgs
+        $cmd = "docker build -f {0} -t {1}/agent-windows{2}:{3} {4} ." -f $builds[$build], $Repository, $type, $Tag, $AdditionalArgs
         Invoke-Expression $cmd
-        break
     }
 }
 
