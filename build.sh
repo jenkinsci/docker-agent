@@ -4,6 +4,10 @@ set -euxo pipefail
 
 for dockerfile in Dockerfile*
 do
+    # skip windows build
+    if [[ $dockerfile == *windows* ]]; then
+        continue
+    fi    
     dockertag=$( echo "$dockerfile" | cut -d ' ' -f 2 )
     if [[ "$dockertag" = "$dockerfile" ]]; then
         dockertag='latest'

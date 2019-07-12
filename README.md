@@ -13,7 +13,7 @@ This executable is an instance of the [Jenkins Remoting library](https://github.
 This image is used as the basis for the [Docker JNLP Agent](https://github.com/jenkinsci/docker-jnlp-slave/) image.
 In that image, the container is launched externally and attaches to Jenkins.
 
-This image may instead be used to launch an agent using the **Launch method** of **Launch agent via execution of command on the master**. Try for example
+This image may instead be used to launch an agent using the **Launch method** of **Launch agent via execution of command on the master**. For example on Linux you can try
 
 ```sh
 docker run -i --rm --name agent --init jenkins/slave java -jar /usr/share/jenkins/slave.jar
@@ -21,15 +21,30 @@ docker run -i --rm --name agent --init jenkins/slave java -jar /usr/share/jenkin
 
 after setting **Remote root directory** to `/home/jenkins/agent`.
 
+or if using Windows
+
+```
+docker run -i --rm --name agent --init jenkins/agent:latest-windows java -jar C:/ProgramData/Jenkins/agent.jar
+```
+
+after setting **Remote root directory** to `C:\Users\jenkins\Agent`.
+
+
 ### Agent Work Directories
 
 Starting from [Remoting 3.8](https://github.com/jenkinsci/remoting/blob/master/CHANGELOG.md#38) there is a support of Work directories, 
 which provides logging by default and change the JAR Caching behavior.
 
-Call example:
+Call example for Linux:
 
 ```sh
 docker run -i --rm --name agent1 --init -v agent1-workdir:/home/jenkins/agent jenkins/slave java -jar /usr/share/jenkins/slave.jar -workDir /home/jenkins/agent
+```
+
+Call example for Windows:
+
+```
+docker run -i --rm --name agent1 --init -v agent1-workdir:C:/Users/jenkins/Agent jenkins/agent:latest-windows java -jar C:/ProgramData/Jenkins/agent.jar -workDir C:/Users/jenkins/Agent
 ```
 
 ## Configurations
@@ -39,6 +54,8 @@ The image has several supported configurations, which can be accessed via the fo
 * `latest`: Latest version with the newest remoting (based on `openjdk:8-jdk`)
 * `latest-jdk11`: Latest version with the newest remoting and Java 11 (based on `openjdk:11-jdk`)
 * `alpine`: Small image based on Alpine Linux (based on `openjdk:8-jdk-alpine`)
+* `latest-windows`: Latest version with the newest remoting (based on `openjdk:8-jdk-windowsservercore-1809`)
+* `latest-windows-jdk11`: Latest version with the newest remoting and Java 11 (based on `openjdk:11.0-jdk-windowsservercore-1809`)
 * `2.62`: This version bundles [Remoting 2.x](https://github.com/jenkinsci/remoting#remoting-2]), which is compatible with Jenkins servers running on Java 6 (`1.609.4` and below)
 * `2.62-alpine`: Small image with Remoting 2.x
 * `2.62-jdk11`: Versioned image for Java 11
@@ -46,7 +63,7 @@ The image has several supported configurations, which can be accessed via the fo
 ## Java 11 Support
 
 Java 11 support is available in a preview mode.
-Only Debian-based images are provided right now.
+Only Debian-based images and Windows images are provided right now.
 (see [JENKINS-54487](https://issues.jenkins-ci.org/browse/JENKINS-54487)).
 There is a probability that images for Java 11 will be changed to AdoptOpenJDK
 before the final release of Java 11 support in Jenkins.
