@@ -1,0 +1,86 @@
+# escape=`
+
+# The MIT License
+#
+#  Copyright (c) 2019, Alex Earl and other Jenkins Contributors
+#
+#  Permission is hereby granted, free of charge, to any person obtaining a copy
+#  of this software and associated documentation files (the "Software"), to deal
+#  in the Software without restriction, including without limitation the rights
+#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#  copies of the Software, and to permit persons to whom the Software is
+#  furnished to do so, subject to the following conditions:
+#
+#  The above copyright notice and this permission notice shall be included in
+#  all copies or substantial portions of the Software.
+#
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+#  THE SOFTWARE.
+
+ARG WINDOWS_DOCKER_TAG=1809
+ARG JAVA_BASE_VERSION=1.8.0
+ARG JAVA_VERSION=1.8.0.212-1
+ARG JAVA_ZIP_VERSION=${JAVA_VERSION}.b04
+ARG JAVA_SHA256=a40d7ab150bb2c2b3ad19e388942c4fe47b92a89dd49c468e09ce9d8bc631934
+ARG JAVA_HOME=C:/openjdk-${JAVA_VERSION}
+ARG POWERSHELL_VERSION=6.2.1
+
+FROM mcr.microsoft.com/powershell:$POWERSHELL_VERSION-nanoserver-$WINDOWS_DOCKER_TAG 
+MAINTAINER Alex Earl <slide.o.mix@gmail.com>
+
+ARG JAVA_VERSION
+ARG JAVA_ZIP_VERSION
+ARG JAVA_SHA256
+ARG JAVA_HOME
+ARG JAVA_BASE_VERSION
+
+SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+USER Administrator
+
+RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
+    $javaRoot = 'java-{0}-openjdk-{1}.ojdkbuild.windows.x86_64' -f $env:JAVA_BASE_VERSION, $env:JAVA_ZIP_VERSION ; `
+    Write-Host "Retrieving $('https://github.com/ojdkbuild/ojdkbuild/releases/download/{0}/{1}.zip' -f $env:JAVA_VERSION, $javaRoot)..." ; `
+    Invoke-WebRequest $('https://github.com/ojdkbuild/ojdkbuild/releases/download/{0}/{1}.zip' -f $env:JAVA_VERSION, $javaRoot) -OutFile 'openjdk.zip' -UseBasicParsing ; `
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne $env:JAVA_SHA256) { Write-Error 'Java SHA256 mismatch' ; exit 1} ; `
+    Expand-Archive openjdk.zip -DestinationPath C:/ ; `
+    Move-Item -Path $('C:/{0}' -f $javaRoot) -Destination $('C:/openjdk-{0}' -f $env:JAVA_VERSION) ; `
+    Remove-Item -Path openjdk.zip
+
+ARG JAVA_HOME
+
+ARG VERSION=3.29
+ARG user=jenkins
+
+ARG AGENT_FILENAME=agent.jar
+ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
+
+RUN NET USER "$env:user" /add
+RUN setx /M PATH '%PATH%;%JAVA_HOME%\bin' ; mkdir C:/ProgramData/Jenkins | Out-Null
+
+LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
+
+ARG AGENT_ROOT=C:/Users/$user/Jenkins
+ARG AGENT_WORKDIR=${AGENT_ROOT}/Agent
+
+ENV AGENT_WORKDIR=${AGENT_WORKDIR}
+
+# Get the Agent from the Jenkins Artifacts Repository
+RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
+    Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar' -f $env:VERSION) -OutFile $(Join-Path C:/ProgramData/Jenkins $env:AGENT_FILENAME) -UseBasicParsing ;`
+    Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar.sha1' -f $env:VERSION) -OutFile (Join-Path C:/ProgramData/Jenkins $env:AGENT_HASH_FILENAME) -UseBasicParsing ;`
+    if ((Get-FileHash (Join-Path C:/ProgramData/Jenkins $env:AGENT_FILENAME) -Algorithm SHA1).Hash -ne (Get-Content (Join-Path C:/ProgramData/Jenkins $env:AGENT_HASH_FILENAME))) {exit 1}
+
+USER $user
+
+RUN mkdir (Join-Path $env:AGENT_ROOT .jenkins) | Out-Null ; `
+    mkdir "$env:AGENT_WORKDIR" | Out-Null
+
+VOLUME ${AGENT_ROOT}/.jenkins
+VOLUME ${AGENT_WORKDIR}
+WORKDIR ${AGENT_ROOT}
