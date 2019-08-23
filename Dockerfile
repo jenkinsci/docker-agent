@@ -23,7 +23,7 @@
 FROM openjdk:8-jdk
 MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 
-ARG VERSION=3.29
+ARG VERSION=3.34
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
