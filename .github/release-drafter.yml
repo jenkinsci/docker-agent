@@ -1,0 +1,6 @@
+# https://github.com/jenkinsci/.github/blob/master/.github/release-drafter.adoc
+_extends: .github
+# Operates on the top of the common 2-digit versioning in Remoting
+version-template: $MAJOR.$MINOR-$PATCH
+tag-template: $NEXT_PATCH_VERSION
+name-template: $NEXT_PATCH_VERSION
