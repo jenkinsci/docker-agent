@@ -19,7 +19,7 @@ pipeline {
                         label "windock"
                     }
                     steps {
-                        bat "powershell -File ./build.ps1"
+                        powershell "& ./build.ps1"
                     }
                 }
                 stage('Linux') {
