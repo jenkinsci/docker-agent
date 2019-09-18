@@ -1,6 +1,7 @@
 Jenkins Agent Docker image
 ===
 
+[![Join the chat at https://gitter.im/jenkinsci/docker-slave](https://badges.gitter.im/jenkinsci/docker-slave.svg)](https://gitter.im/jenkinsci/docker-slave?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Docker Stars](https://img.shields.io/docker/stars/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
 [![Docker Automated build](https://img.shields.io/docker/automated/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
