@@ -5,8 +5,9 @@ Jenkins Agent Docker image
 [![Docker Pulls](https://img.shields.io/docker/pulls/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
 [![Docker Automated build](https://img.shields.io/docker/automated/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
 
-This is a base image for Docker, which includes OpenJDK 8 and the Jenkins agent executable (agent.jar).
+This is a base image for Docker, which includes JDK and the Jenkins agent executable (agent.jar).
 This executable is an instance of the [Jenkins Remoting library](https://github.com/jenkinsci/remoting).
+JDK version depends on the image and the platform, see the _Configurations_ section below.
 
 ## Usage
 
