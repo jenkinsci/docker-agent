@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -t stretch-backports git-lfs
 RUN curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/agent.jar \
-  && ln -sf /usr/share/jenkins/slave.jar /usr/share/jenkins/agent.jar
+  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
 USER ${user}
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
