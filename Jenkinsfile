@@ -12,9 +12,24 @@ pipeline {
     }
 
     stages {
-        stage('Prepare Workspace') {
-            steps {
-                sh './build.sh'
+        stage('Build') {
+            parallel {
+                stage('Windows') {
+                    agent {
+                        label "windock"
+                    }
+                    steps {
+                        powershell "& ./build.ps1"
+                    }
+                }
+                stage('Linux') {
+                    agent {
+                        label "docker"
+                    }
+                    steps {
+                        sh "./build.sh"
+                    }
+                }
             }
         }
     }
