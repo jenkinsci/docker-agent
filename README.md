@@ -1,12 +1,20 @@
 Jenkins Agent Docker image
 ===
 
+[![Join the chat at https://gitter.im/jenkinsci/docker-slave](https://badges.gitter.im/jenkinsci/docker-slave.svg)](https://gitter.im/jenkinsci/docker-slave?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Docker Stars](https://img.shields.io/docker/stars/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
 [![Docker Automated build](https://img.shields.io/docker/automated/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
+[![GitHub release](https://img.shields.io/github/release/jenkinsci/docker-slave.svg?label=chanelog)](https://github.com/jenkinsci/docker-slave/releases/latest)
 
-This is a base image for Docker, which includes OpenJDK 8 and the Jenkins agent executable (slave.jar).
+This is a base image for Docker, which includes JDK and the Jenkins agent executable (agent.jar).
 This executable is an instance of the [Jenkins Remoting library](https://github.com/jenkinsci/remoting).
+JDK version depends on the image and the platform, see the _Configurations_ section below.
+
+## Changelog
+
+See [GitHub releases](https://github.com/jenkinsci/docker-slave/releases) for versions `3.35-1` and above.
+There is no changelog for previous versions, see the commit history.
 
 ## Usage
 
@@ -16,7 +24,7 @@ In that image, the container is launched externally and attaches to Jenkins.
 This image may instead be used to launch an agent using the **Launch method** of **Launch agent via execution of command on the master**. For example on Linux you can try
 
 ```sh
-docker run -i --rm --name agent --init jenkins/slave java -jar /usr/share/jenkins/slave.jar
+docker run -i --rm --name agent --init jenkins/slave java -jar /usr/share/jenkins/agent.jar
 ```
 
 after setting **Remote root directory** to `/home/jenkins/agent`.
@@ -38,7 +46,7 @@ which provides logging by default and change the JAR Caching behavior.
 Call example for Linux:
 
 ```sh
-docker run -i --rm --name agent1 --init -v agent1-workdir:/home/jenkins/agent jenkins/slave java -jar /usr/share/jenkins/slave.jar -workDir /home/jenkins/agent
+docker run -i --rm --name agent1 --init -v agent1-workdir:/home/jenkins/agent jenkins/slave java -jar /usr/share/jenkins/agent.jar -workDir /home/jenkins/agent
 ```
 
 Call example for Windows:

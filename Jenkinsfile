@@ -12,7 +12,7 @@ pipeline {
     }
 
     stages {
-        stage('Build Image') {
+        stage('Build') {
             parallel {
                 stage('Windows') {
                     agent {

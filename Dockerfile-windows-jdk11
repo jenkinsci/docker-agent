@@ -29,7 +29,7 @@ MAINTAINER Alex Earl <slide.o.mix@gmail.com>
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ARG VERSION=3.29
+ARG VERSION=3.35
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
 ARG user=jenkins
