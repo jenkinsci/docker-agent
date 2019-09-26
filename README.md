@@ -70,8 +70,6 @@ The image has several supported configurations, which can be accessed via the fo
 
 ## Java 11 Support
 
-Java 11 support is available in a preview mode.
-Only Debian-based images and Windows images are provided right now.
-(see [JENKINS-54487](https://issues.jenkins-ci.org/browse/JENKINS-54487)).
-There is a probability that images for Java 11 will be changed to AdoptOpenJDK
-before the final release of Java 11 support in Jenkins.
+Java 11 support is available for Debian-based images and Windows images.
+Alpine image for Java 11 will not be provided, see [JENKINS-54487](https://issues.jenkins-ci.org/browse/JENKINS-54487).
+There is a probability that images for Java 11 will be changed to AdoptOpenJDK base images in the future.
