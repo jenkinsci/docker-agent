@@ -24,8 +24,6 @@ pipeline {
                         DOCKERHUB_ORGANISATION = 'jenkins4eval'
                     }
                     steps {
-                        deleteDir()
-                        checkout scm
                         script {
                             // we can't use dockerhub builds for windows
                             // so we publish here
@@ -47,8 +45,6 @@ pipeline {
                         timeout(time: 30, unit: 'MINUTES')
                     }
                     steps {
-                        deleteDir()
-                        checkout scm
                         sh './build.sh'
                     }
                 }
