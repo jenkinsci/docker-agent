@@ -24,13 +24,13 @@ $builds = @{
 }
 
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-    Write-Host "Building $build => tag=$TagPrefix$($builds[$build]['TagSuffix'])"
-    $cmd = "docker build -f {0} -t {1}/{2}:{3}{4} {5} ." -f $builds[$build]['Dockerfile'], $Organization, $Repository, $TagPrefix, $builds[$build]['TagSuffix'], $AdditionalArgs
+    Write-Host "Building $Build => tag=$TagPrefix$($builds[$Build]['TagSuffix'])"
+    $cmd = "docker build -f {0} -t {1}/{2}:{3}{4} {5} ." -f $builds[$Build]['Dockerfile'], $Organization, $Repository, $TagPrefix, $builds[$Build]['TagSuffix'], $AdditionalArgs
     Invoke-Expression $cmd
 } else {
-    foreach($build in $builds.Keys) {
-        Write-Host "Building $build => tag=$TagPrefix$($builds[$build]['TagSuffix'])"
-        $cmd = "docker build -f {0} -t {1}/{2}:{3}{4} {5} ." -f $builds[$build]['Dockerfile'], $Organization, $Repository, $TagPrefix, $builds[$build]['TagSuffix'], $AdditionalArgs
+    foreach($b in $builds.Keys) {
+        Write-Host "Building $b => tag=$TagPrefix$($builds[$b]['TagSuffix'])"
+        $cmd = "docker build -f {0} -t {1}/{2}:{3}{4} {5} ." -f $builds[$b]['Dockerfile'], $Organization, $Repository, $TagPrefix, $builds[$b]['TagSuffix'], $AdditionalArgs
         Invoke-Expression $cmd
     }
 }
@@ -41,13 +41,13 @@ if($lastExitCode -ne 0) {
 
 if($target -eq "publish") {
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-        Write-Host "Publishing $build => tag=$TagPrefix$($builds[$build]['TagSuffix'])"
-        $cmd = "docker push {0}/{1}:{2}{3}" -f $Organization, $Repository, $TagPrefix, $builds[$build]['TagSuffix']
+        Write-Host "Publishing $Build => tag=$TagPrefix$($builds[$Build]['TagSuffix'])"
+        $cmd = "docker push {0}/{1}:{2}{3}" -f $Organization, $Repository, $TagPrefix, $builds[$Build]['TagSuffix']
         Invoke-Expression $cmd
     } else {
-        foreach($build in $builds.Keys) {
-            Write-Host "Publishing $build => tag=$TagPrefix$($builds[$build]['TagSuffix'])"
-            $cmd = "docker push {0}/{1}:{2}{3}" -f $Organization, $Repository, $TagPrefix, $builds[$build]['TagSuffix']
+        foreach($b in $builds.Keys) {
+            Write-Host "Publishing $b => tag=$TagPrefix$($builds[$b]['TagSuffix'])"
+            $cmd = "docker push {0}/{1}:{2}{3}" -f $Organization, $Repository, $TagPrefix, $builds[$b]['TagSuffix']
             Invoke-Expression $cmd
         }
     }
