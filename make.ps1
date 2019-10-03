@@ -42,6 +42,7 @@ if($lastExitCode -ne 0) {
 }
 
 if($target -eq "publish") {
+    & docker login
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
         Write-Host "Publishing $build => tag=$TagPrefix$($builds[$build]['TagSuffix'])"
         $cmd = "docker push {0}/{1}:{2}{3}" -f $Organization, $Repository, $TagPrefix, $builds[$build]['TagSuffix']
