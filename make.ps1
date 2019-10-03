@@ -54,9 +54,9 @@ if($target -eq "publish") {
 }
 
 if($lastExitCode -ne 0) {
-    Write-Host "Build failed!"
+    Write-Error "Build failed!"
 } else {
-    Write-Error "Build finished successfully"
+    Write-Host "Build finished successfully"
 }
 Write-Host "Cleaning up docker images..."
 & docker system prune --force --all
