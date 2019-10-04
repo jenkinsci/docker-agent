@@ -45,7 +45,11 @@ pipeline {
                         timeout(time: 30, unit: 'MINUTES')
                     }
                     steps {
-                        sh './build.sh'
+                        script {
+                            if(!infra.isTrusted()) {
+                                sh './build.sh'
+                            }
+                        }
                     }
                 }
             }
