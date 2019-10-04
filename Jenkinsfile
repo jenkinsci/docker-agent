@@ -1,8 +1,7 @@
 pipeline {
-    agent { label 'docker' }
+    agent none
 
-    options {
-        timeout(time: 30, unit: 'MINUTES')
+    options {        
         buildDiscarder(logRotator(daysToKeepStr: '10'))
         timestamps()
     }
@@ -18,16 +17,35 @@ pipeline {
                     agent {
                         label "windock"
                     }
+                    options {
+                        timeout(time: 30, unit: 'MINUTES')
+                    }
+                    environment {
+                        DOCKERHUB_ORGANISATION = 'jenkins4eval'
+                    }
                     steps {
-                        powershell "& ./build.ps1"
+                        script {
+                            // we can't use dockerhub builds for windows
+                            // so we publish here
+                            if (infra.isTrusted()) {
+                                env.DOCKERHUB_ORGANISATION = 'jenkins'
+                            }
+
+                            infra.withDockerCredentials {
+                                powershell '& ./make.ps1 publish'
+                            }
+                        }
                     }
                 }
                 stage('Linux') {
                     agent {
-                        label "docker"
+                        label "docker&&linux"
+                    }
+                    options {
+                        timeout(time: 30, unit: 'MINUTES')
                     }
                     steps {
-                        sh "./build.sh"
+                        sh './build.sh'
                     }
                 }
             }
