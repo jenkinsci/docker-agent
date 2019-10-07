@@ -34,6 +34,8 @@ pipeline {
                             infra.withDockerCredentials {
                                 powershell '& ./make.ps1 publish'
                             }
+                            
+                            powershell '& docker system prune --force --all'
                         }
                     }
                 }
@@ -47,7 +49,7 @@ pipeline {
                     steps {
                         script {
                             if(!infra.isTrusted()) {
-                                sh './build.sh'
+                                sh './build.sh ; docker system prune --force --all'
                             }
                         }
                     }
