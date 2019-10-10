@@ -58,6 +58,4 @@ if($lastExitCode -ne 0) {
 } else {
     Write-Host "Build finished successfully"
 }
-Write-Host "Cleaning up docker images..."
-& docker system prune --force --all
 exit $lastExitCode
