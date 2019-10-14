@@ -21,7 +21,7 @@ pipeline {
                         timeout(time: 30, unit: 'MINUTES')
                     }
                     environment {
-                        DOCKERHUB_ORGANISATION = infra.isTrusted() ? 'jenkins' : 'jenkins4eval'
+                        DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
                     }
                     steps {
                         script {
