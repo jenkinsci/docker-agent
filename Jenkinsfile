@@ -21,20 +21,17 @@ pipeline {
                         timeout(time: 30, unit: 'MINUTES')
                     }
                     environment {
-                        DOCKERHUB_ORGANISATION = 'jenkins4eval'
+                        DOCKERHUB_ORGANISATION = infra.isTrusted() ? 'jenkins' : 'jenkins4eval'
                     }
                     steps {
                         script {
                             // we can't use dockerhub builds for windows
                             // so we publish here
-                            if (infra.isTrusted()) {
-                                env.DOCKERHUB_ORGANISATION = 'jenkins'
-                            }
-
                             infra.withDockerCredentials {
                                 powershell '& ./make.ps1 publish'
                             }
                             
+                            // cleanup any docker images
                             powershell '& docker system prune --force --all'
                         }
                     }
