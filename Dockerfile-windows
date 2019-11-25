@@ -32,6 +32,15 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 ARG VERSION=3.35
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
+ARG GIT_VERSION=2.24.0
+ARG GIT_PATCH_VERSION=2
+
+RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
+    Invoke-WebRequest $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}.{1}-busybox-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) -OutFile 'mingit.zip' -UseBasicParsing ; `
+    Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
+    Remove-Item mingit.zip -Force ; `
+    setx /M PATH $('c:\mingit\cmd;{0}' -f $env:PATH)
+
 ARG user=jenkins
 
 ARG AGENT_FILENAME=agent.jar
