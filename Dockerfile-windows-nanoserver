@@ -63,7 +63,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Remove-Item mingit.zip -Force ; `
     setx /M PATH $('c:\mingit\cmd;{0}' -f $env:PATH)
 
-ARG VERSION=3.35
+ARG VERSION=3.36
 ARG user=jenkins
 
 ARG AGENT_FILENAME=agent.jar
