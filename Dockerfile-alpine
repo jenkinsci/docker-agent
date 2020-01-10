@@ -1,6 +1,6 @@
 # The MIT License
 #
-#  Copyright (c) 2015-2019, CloudBees, Inc. and other Jenkins contributors
+#  Copyright (c) 2015-2020, CloudBees, Inc. and other Jenkins contributors
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
 FROM openjdk:8-jdk-alpine
 MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 
-ARG VERSION=3.36
+ARG VERSION=3.40
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
