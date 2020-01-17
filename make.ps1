@@ -4,7 +4,8 @@ Param(
     [String] $target = "build",
     [String] $TagPrefix = 'latest',
     [String] $AdditionalArgs = '',
-    [String] $Build = ''
+    [String] $Build = '',
+    [String] $Flavor = ''
 )
 
 $Repository = 'agent'
@@ -19,19 +20,41 @@ if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_ORGANISATION)) {
 }
 
 $builds = @{
-    'default' = @{'Dockerfile' = 'Dockerfile-windows' ; 'TagSuffix' = '-windows' };
-    'jdk11' = @{'DockerFile' = 'Dockerfile-windows-jdk11'; 'TagSuffix' = '-windows-jdk11' };
+    'jdk8' = @{
+        'nanoserver' = @{ 'Folder' = '8\windows\nanoserver-1809'; 'TagSuffix' = '-nanoserver' };
+        'servercore' = @{ 'Folder' = '8\windows\servercore-1809'; 'TagSuffix' = '-windows' };
+    };
+    'jdk11' = @{
+        'nanoserver' = @{ 'Folder' = '11\windows\nanoserver-1809'; 'TagSuffix' = '-nanoserver-jdk11' };
+        'servercore' = @{ 'Folder' = '11\windows\servercore-1809'; 'TagSuffix' = '-windows-jdk11' };
+    };
 }
 
-if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-    Write-Host "Building $Build => tag=$TagPrefix$($builds[$Build]['TagSuffix'])"
-    $cmd = "docker build -f {0} -t {1}/{2}:{3}{4} {5} ." -f $builds[$Build]['Dockerfile'], $Organization, $Repository, $TagPrefix, $builds[$Build]['TagSuffix'], $AdditionalArgs
+function Build-Image([String] $JdkVersion, [String] $Flavor, [String] $TagSuffix, [String] $Folder) {
+    Write-Host "Building $JdkVersion => flavor=$Flavor tag=$TagPrefix$TagSuffix)"
+    $cmd = "docker build -t {0}/{1}:{2}{3} {4} {5}" -f $Organization, $Repository, $TagPrefix, $TagSuffix, $AdditionalArgs, $Folder
     Invoke-Expression $cmd
+}
+
+function Publish-Image([String] $JdkVersion, [String] $Flavor, [String] $TagSuffix) {
+    Write-Host "Publishing $JdkVersion => flavor=$Flavor tag=$TagPrefix$TagSuffix"
+    $cmd = "docker push {0}/{1}:{2}{3}" -f $Organization, $Repository, $TagPrefix, $TagSuffix
+    Invoke-Expression $cmd
+}
+
+if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build) ) {
+    if(![System.String]::IsNullOrWhiteSpace($Flavor) -and $builds[$Build].ContainsKey($Flavor)){
+        Build-Image($Build, $Flavor, $builds[$Build][$Flavor]['TagSuffix'], $builds[$Build][$Flavor]['Folder'])
+    } else {
+        foreach($Flavor in $builds[$Build].Keys){
+            Build-Image($Build, $Flavor, $builds[$Build][$Flavor]['TagSuffix'], $builds[$Build][$Flavor]['Folder'])
+        }
+    }
 } else {
-    foreach($b in $builds.Keys) {
-        Write-Host "Building $b => tag=$TagPrefix$($builds[$b]['TagSuffix'])"
-        $cmd = "docker build -f {0} -t {1}/{2}:{3}{4} {5} ." -f $builds[$b]['Dockerfile'], $Organization, $Repository, $TagPrefix, $builds[$b]['TagSuffix'], $AdditionalArgs
-        Invoke-Expression $cmd
+    foreach($Build in $builds.Keys) {
+        foreach($Flavor in $Build.Keys) {
+            Build-Image($Build, $Flavor, $builds[$Build][$Flavor]['TagSuffix'], $builds[$Build][$Flavor]['Folder'])
+        }
     }
 }
 
@@ -41,14 +64,18 @@ if($lastExitCode -ne 0) {
 
 if($target -eq "publish") {
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-        Write-Host "Publishing $Build => tag=$TagPrefix$($builds[$Build]['TagSuffix'])"
-        $cmd = "docker push {0}/{1}:{2}{3}" -f $Organization, $Repository, $TagPrefix, $builds[$Build]['TagSuffix']
-        Invoke-Expression $cmd
+        if(![System.String]::IsNullOrWhiteSpace($Flavor) -and $builds[$Build].ContainsKey($Flavor)) {
+            Publish-Image($Build, $Flavor, $builds[$Build][$Flavor]['TagSuffix'])
+        } else {
+            foreach($Flavor in $builds[$Build].Keys){
+                Publish-Image($Build, $Flavor, $builds[$Build][$Flavor]['TagSuffix'])
+            }
+        }
     } else {
-        foreach($b in $builds.Keys) {
-            Write-Host "Publishing $b => tag=$TagPrefix$($builds[$b]['TagSuffix'])"
-            $cmd = "docker push {0}/{1}:{2}{3}" -f $Organization, $Repository, $TagPrefix, $builds[$b]['TagSuffix']
-            Invoke-Expression $cmd
+        foreach($Build in $builds.Keys) {
+            foreach($Flavor in $Build.Keys) {
+                Build-Image($Build, $Flavor, $builds[$Build][$Flavor]['TagSuffix'])
+            }
         }
     }
 }
