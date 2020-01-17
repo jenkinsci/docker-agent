@@ -48,11 +48,11 @@ function retry {
 }
 
 function clean_test_container {
-	docker kill "${SLAVE_CONTAINER}" &>/dev/null || :
-	docker rm -fv "${SLAVE_CONTAINER}" &>/dev/null || :
+	docker kill "${AGENT_CONTAINER}" &>/dev/null || :
+	docker rm -fv "${AGENT_CONTAINER}" &>/dev/null || :
 }
 
-function is_slave_container_running {
+function is_agent_container_running {
 	sleep 1
-	retry 3 1 assert "true" docker inspect -f '{{.State.Running}}' "${SLAVE_CONTAINER}"
+	retry 3 1 assert "true" docker inspect -f '{{.State.Running}}' "${AGENT_CONTAINER}"
 }
