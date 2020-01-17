@@ -51,7 +51,8 @@ pipeline {
                     steps {
                         script {
                             if(!infra.isTrusted()) {
-                                sh './build.sh ; docker system prune --force --all'
+                                sh 'make tests && make build'
+                                sh 'docker system prune --force --all'
                             }
                         }
                     }
