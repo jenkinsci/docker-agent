@@ -1,7 +1,5 @@
 #!/usr/bin/env bats
 
-set -u
-
 AGENT_IMAGE=jenkins-agent
 AGENT_CONTAINER=bats-jenkins-agent
 
@@ -15,7 +13,6 @@ else
   echo "Wrong folder format or folder does not exist: ${FOLDER}"
   exit 1
 fi
-
 
 if [[ "${JDK}" = "11" ]]
 then
