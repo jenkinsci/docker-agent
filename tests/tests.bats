@@ -75,7 +75,22 @@ function teardown () {
   [ "AGENT_WORKDIR=/home/jenkins/agent" = "${output}" ]
 }
 
-@test "[${FLAVOR}] use build args correctly" {
+@test "[${JDK} ${FLAVOR}] check user access to folders" {
+  docker run -d -it --name "${AGENT_CONTAINER}" -P "${AGENT_IMAGE}" /bin/sh
+
+  is_agent_container_running
+
+  run docker exec "${AGENT_CONTAINER}" touch /home/jenkins/a
+  [ "${status}" -eq 0 ]
+
+  run docker exec "${AGENT_CONTAINER}" touch /home/jenkins/.jenkins/a
+  [ "${status}" -eq 0 ]
+
+  run docker exec "${AGENT_CONTAINER}" touch /home/jenkins/agent/a
+  [ "${status}" -eq 0 ]
+}
+
+@test "[${JDK} ${FLAVOR}] use build args correctly" {
   cd "${BATS_TEST_DIRNAME}"/.. || false
 
   local TEST_VERSION="3.36"
@@ -119,4 +134,13 @@ function teardown () {
 
   run docker exec "${AGENT_CONTAINER}" sh -c 'stat -c "%U:%G" "${AGENT_WORKDIR}"'
   [ "${TEST_USER}:${TEST_GROUP}" = "${lines[0]}" ]
+
+  run docker exec "${AGENT_CONTAINER}" touch /home/test-user/a
+  [ "${status}" -eq 0 ]
+
+  run docker exec "${AGENT_CONTAINER}" touch /home/test-user/.jenkins/a
+  [ "${status}" -eq 0 ]
+
+  run docker exec "${AGENT_CONTAINER}" touch /home/test-user/something/a
+  [ "${status}" -eq 0 ]
 }
