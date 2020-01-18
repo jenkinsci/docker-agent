@@ -1,3 +1,3 @@
 #!/bin/bash
 
-make build
+make tests && make build
