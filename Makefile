@@ -1,19 +1,37 @@
 ROOT:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+
 IMAGE_NAME:=jenkins4eval/slave
 IMAGE_NAME_AGENT:=jenkins4eval/agent
 
-build:
-	docker build -t ${IMAGE_NAME}:latest -t ${IMAGE_NAME_AGENT}:latest .
-	docker build -t ${IMAGE_NAME}:alpine -t ${IMAGE_NAME_AGENT}:alpine -f Dockerfile-alpine .
-	docker build -t ${IMAGE_NAME}:jdk11  -t ${IMAGE_NAME_AGENT}:jdk11  -f Dockerfile-jdk11  .
+.PHONY: build
+build: build-alpine build-debian build-jdk11
 
-.PHONY: tests
-tests: bats
-	@FLAVOR=       bats-core/bin/bats tests/tests.bats
-	@FLAVOR=alpine bats-core/bin/bats tests/tests.bats
-	@FLAVOR=jdk11  bats-core/bin/bats tests/tests.bats
+build-alpine:
+	docker build -t ${IMAGE_NAME}:alpine -t ${IMAGE_NAME_AGENT}:alpine --file Dockerfile-alpine .
+
+build-debian:
+	docker build -t ${IMAGE_NAME}:test -t ${IMAGE_NAME_AGENT}:test --file Dockerfile .
+
+build-jdk11:
+	docker build -t ${IMAGE_NAME}:jdk11  -t ${IMAGE_NAME_AGENT}:jdk11 --file Dockerfile-jdk11 .
+
 
 bats:
 # The lastest version is v1.1.0
-	@if [ ! -d bats-core ]; then git clone https://github.com/bats-core/bats-core.git; fi
-	@cd bats-core && git reset --hard c706d1470dd1376687776bbe985ac22d09780327 &> /dev/null
+	@if [ ! -d bats-core ]; then git clone https://github.com/bats-core/bats-core.git &>/dev/null; fi
+	@git -C bats-core reset --hard c706d1470dd1376687776bbe985ac22d09780327 &>/dev/null
+
+.PHONY: test
+test: test-alpine test-debian test-jdk11
+
+.PHONY: test-alpine
+test-alpine: bats
+	@FLAVOR=alpine bats-core/bin/bats tests/tests.bats
+
+.PHONY: test-debian
+test-debian: bats
+	@bats-core/bin/bats tests/tests.bats
+
+.PHONY: test-jdk11
+test-jdk11: bats
+	@FLAVOR=jdk11 bats-core/bin/bats tests/tests.bats

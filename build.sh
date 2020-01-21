@@ -1,3 +1,7 @@
 #!/bin/bash
 
-make tests && make build
+set -e
+
+make build
+
+make test
