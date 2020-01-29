@@ -20,8 +20,8 @@ build-jdk11:
 
 bats:
 # The lastest version is v1.1.0
-	@if [ ! -d bats-core ]; then git clone https://github.com/bats-core/bats-core.git &>/dev/null; fi
-	@git -C bats-core reset --hard c706d1470dd1376687776bbe985ac22d09780327 &>/dev/null
+	@if [ ! -d bats-core ]; then git clone https://github.com/bats-core/bats-core.git; fi
+	@git -C bats-core reset --hard c706d1470dd1376687776bbe985ac22d09780327
 
 
 test: test-alpine test-debian test-jdk11
