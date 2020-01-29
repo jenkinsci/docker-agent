@@ -31,7 +31,7 @@ $builds = @{
 }
 
 function Build-Image([String] $JdkVersion, [String] $Flavor, [String] $TagSuffix, [String] $Folder) {
-    Write-Host "Building $JdkVersion => flavor=$Flavor tag=$TagPrefix$TagSuffix)"
+    Write-Host "Building $JdkVersion => flavor=$Flavor tag=$TagPrefix$TagSuffix"
     $cmd = "docker build -t {0}/{1}:{2}{3} {4} {5}" -f $Organization, $Repository, $TagPrefix, $TagSuffix, $AdditionalArgs, $Folder
     Invoke-Expression $cmd
 }
