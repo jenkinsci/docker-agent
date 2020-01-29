@@ -5,7 +5,7 @@ Jenkins Agent Docker image
 [![Docker Stars](https://img.shields.io/docker/stars/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
 [![Docker Automated build](https://img.shields.io/docker/automated/jenkins/slave.svg)](https://hub.docker.com/r/jenkins/slave/)
-[![GitHub release](https://img.shields.io/github/release/jenkinsci/docker-slave.svg?label=chanelog)](https://github.com/jenkinsci/docker-slave/releases/latest)
+[![GitHub release](https://img.shields.io/github/release/jenkinsci/docker-slave.svg?label=changelog)](https://github.com/jenkinsci/docker-slave/releases/latest)
 
 This is a base image for Docker, which includes JDK and the Jenkins agent executable (agent.jar).
 This executable is an instance of the [Jenkins Remoting library](https://github.com/jenkinsci/remoting).

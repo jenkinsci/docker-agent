@@ -2,7 +2,7 @@
 
 # The MIT License
 #
-#  Copyright (c) 2019, Alex Earl and other Jenkins Contributors
+#  Copyright (c) 2019-2020, Alex Earl and other Jenkins Contributors
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -63,7 +63,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Remove-Item mingit.zip -Force ; `
     setx /M PATH $('c:\mingit\cmd;{0}' -f $env:PATH)
 
-ARG VERSION=3.35
+ARG VERSION=4.0
 ARG user=jenkins
 
 ARG AGENT_FILENAME=agent.jar
