@@ -1,20 +1,7 @@
 #!/bin/bash
 
-set -euxo pipefail
+set -e
 
-for dockerfile in Dockerfile*
-do
-    # skip windows build
-    if [[ $dockerfile == *windows* ]]; then
-        continue
-    fi    
-    dockertag=$( echo "$dockerfile" | cut -d ' ' -f 2 )
-    if [[ "$dockertag" = "$dockerfile" ]]; then
-        dockertag='latest'
-    fi
-    echo "Building $dockerfile => tag=$dockertag"
-    docker build -f $dockerfile -t jenkins/slave:$dockertag .
-    docker build -f $dockerfile -t jenkins/agent:$dockertag .
-done
+make build
 
-echo "Build finished successfully"
+make test
