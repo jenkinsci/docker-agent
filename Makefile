@@ -1,7 +1,7 @@
 ROOT:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-IMAGE_NAME:=jenkins4eval/slave
-IMAGE_NAME_AGENT:=jenkins4eval/agent
+IMAGE_NAME:=jenkins4eval/agent
+IMAGE_NAME_SLAVE:=jenkins4eval/slave
 
 .PHONY: build build-alpine build-debian build-jdk11
 .PHONY: test test-alpine test-debian test-jdk11
@@ -9,13 +9,22 @@ IMAGE_NAME_AGENT:=jenkins4eval/agent
 build: build-alpine build-debian build-jdk11
 
 build-alpine:
-	docker build -t ${IMAGE_NAME}:alpine -t ${IMAGE_NAME_AGENT}:alpine 8/alpine3.6/
+	docker build -t ${IMAGE_NAME}:alpine \
+                 -t ${IMAGE_NAME}:alpine-3.9 \
+                 -t ${IMAGE_NAME_SLAVE}:alpine \
+                 8/alpine3.9/
 
 build-debian:
-	docker build -t ${IMAGE_NAME}:latest -t ${IMAGE_NAME_AGENT}:latest 8/stretch/
+	docker build -t ${IMAGE_NAME}:latest \
+                 -t ${IMAGE_NAME}:stretch \
+                 -t ${IMAGE_NAME_SLAVE}:latest \
+                 8/stretch/
 
 build-jdk11:
-	docker build -t ${IMAGE_NAME}:jdk11  -t ${IMAGE_NAME_AGENT}:jdk11 11/stretch/
+	docker build -t ${IMAGE_NAME}:jdk11 \
+                 -t ${IMAGE_NAME}:jdk11-stretch \
+                 -t ${IMAGE_NAME_SLAVE}:jdk11 \
+                 11/stretch/
 
 
 bats:
@@ -27,7 +36,7 @@ bats:
 test: test-alpine test-debian test-jdk11
 
 test-alpine: bats
-	@FOLDER="8/alpine3.6" bats-core/bin/bats tests/tests.bats
+	@FOLDER="8/alpine3.9" bats-core/bin/bats tests/tests.bats
 
 test-debian: bats
 	@FOLDER="8/stretch"   bats-core/bin/bats tests/tests.bats

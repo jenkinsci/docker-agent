@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM openjdk:8-jdk
+FROM openjdk:8-jdk-stretch
 MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 
 ARG VERSION=4.0.1
