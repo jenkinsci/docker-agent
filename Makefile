@@ -10,13 +10,16 @@ build: build-alpine build-debian build-jdk11
 
 build-alpine:
 	docker build -t ${IMAGE_NAME}:alpine \
-                 -t ${IMAGE_NAME}:alpine-3.9 \
+                 -t ${IMAGE_NAME}:jdk8-alpine \
+                 -t ${IMAGE_NAME}:jdk8-alpine3.9 \
                  -t ${IMAGE_NAME_SLAVE}:alpine \
                  8/alpine3.9/
 
 build-debian:
 	docker build -t ${IMAGE_NAME}:latest \
+                 -t ${IMAGE_NAME}:jdk8 \
                  -t ${IMAGE_NAME}:stretch \
+                 -t ${IMAGE_NAME}:jdk8-stretch \
                  -t ${IMAGE_NAME_SLAVE}:latest \
                  8/stretch/
 
