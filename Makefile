@@ -4,7 +4,7 @@ IMAGE_NAME:=jenkins4eval/slave
 IMAGE_NAME_AGENT:=jenkins4eval/agent
 
 .PHONY: build
-build: build-alpine build-debian build-jdk11
+build: build-alpine build-debian build-jdk11 build-jdk11-buster
 
 build-alpine:
 	docker build -t ${IMAGE_NAME}:alpine -t ${IMAGE_NAME_AGENT}:alpine --file Dockerfile-alpine .
@@ -13,7 +13,10 @@ build-debian:
 	docker build -t ${IMAGE_NAME}:test -t ${IMAGE_NAME_AGENT}:test --file Dockerfile .
 
 build-jdk11:
-	docker build -t ${IMAGE_NAME}:jdk11  -t ${IMAGE_NAME_AGENT}:jdk11 --file Dockerfile-jdk11 .
+	docker build -t ${IMAGE_NAME}:jdk11 -t ${IMAGE_NAME_AGENT}:jdk11 --file Dockerfile-jdk11 .
+
+build-jdk11-buster:
+	docker build -t ${IMAGE_NAME}:jdk11-buster -t ${IMAGE_NAME_AGENT}:jdk11-buster --file Dockerfile-jdk11-buster .
 
 
 bats:
@@ -22,7 +25,7 @@ bats:
 	@git -C bats-core reset --hard c706d1470dd1376687776bbe985ac22d09780327
 
 .PHONY: test
-test: test-alpine test-debian test-jdk11
+test: test-alpine test-debian test-jdk11 test-jdk11-buster
 
 .PHONY: test-alpine
 test-alpine: bats
@@ -35,3 +38,7 @@ test-debian: bats
 .PHONY: test-jdk11
 test-jdk11: bats
 	@FLAVOR=jdk11 bats-core/bin/bats tests/tests.bats
+
+.PHONY: test-jdk11-buster
+test-jdk11-buster: bats
+	@FLAVOR=jdk11-buster bats-core/bin/bats tests/tests.bats
