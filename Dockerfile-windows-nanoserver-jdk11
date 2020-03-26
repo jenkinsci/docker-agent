@@ -69,7 +69,7 @@ ARG user=jenkins
 ARG AGENT_FILENAME=agent.jar
 ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 
-RUN NET USER "$env:user" /add
+RUN NET USER "$env:user" /add /expire:never /passwordreq:no
 RUN setx /M PATH '%PATH%;%JAVA_HOME%\bin' ; mkdir C:/ProgramData/Jenkins | Out-Null
 
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
