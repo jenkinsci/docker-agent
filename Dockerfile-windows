@@ -46,7 +46,7 @@ ARG user=jenkins
 ARG AGENT_FILENAME=agent.jar
 ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 
-RUN net user "$env:user" /add
+RUN net user "$env:user" /add /expire:never /passwordreq:no
 RUN mkdir C:/ProgramData/Jenkins | Out-Null
 
 ARG AGENT_ROOT=C:/Users/$user/Jenkins
