@@ -53,7 +53,12 @@ if($lastExitCode -ne 0) {
 if($target -eq "test") {
     $mod = Get-InstalledModule -Name Pester -RequiredVersion 4.9.0 -ErrorAction SilentlyContinue
     if($null -eq $mod) {
-        Install-Module -Force -Name Pester -RequiredVersion 4.9.0 -Scope CurrentUser
+        $module = "c:\Program Files\WindowsPowerShell\Modules\Pester"
+        takeown /F $module /A /R
+        icacls $module /reset
+        icacls $module /grant Administrators:'F' /inheritance:d /T
+        Remove-Item -Path $module -Recurse -Force -Confirm:$false
+        Install-Module -Force -Name Pester -RequiredVersion 4.9.0
     }
 
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
