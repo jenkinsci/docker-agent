@@ -26,7 +26,9 @@ pipeline {
                     steps {
                         script {
                             powershell '& ./make.ps1 build'
-                            
+
+                            powershell '& ./make.ps1 test'
+
                             def branchName = "${env.BRANCH_NAME}"
                             if (branchName ==~ 'master') {
                                 // we can't use dockerhub builds for windows
@@ -35,7 +37,7 @@ pipeline {
                                     powershell '& ./make.ps1 publish'
                                 }
                             }
-                            
+
                             // cleanup any docker images
                             powershell '& docker system prune --force --all'
                         }

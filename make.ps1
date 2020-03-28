@@ -1,10 +1,11 @@
 [CmdletBinding()]
 Param(
     [Parameter(Position=1)]
-    [String] $target = "build",
-    [String] $TagPrefix = 'latest',
+    [String] $Target = "build",
     [String] $AdditionalArgs = '',
-    [String] $Build = ''
+    [String] $Build = '',
+    [String] $Version = '4.3',
+    [int] $WindowsTag = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ReleaseId
 )
 
 $Repository = 'agent'
@@ -19,39 +20,72 @@ if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_ORGANISATION)) {
 }
 
 $builds = @{
-    'default' = @{'Dockerfile' = 'Dockerfile-windows' ; 'TagSuffix' = '-windows' };
-    'jdk11' = @{'DockerFile' = 'Dockerfile-windows-jdk11'; 'TagSuffix' = '-windows-jdk11' };
+    'jdk8' = @{'Dockerfile' = 'Dockerfile-windows' ; 'Tags' = @( "latest", "windowsservercore-$WindowsTag", "jdk8", "windowsservercore-$WindowsTag-jdk8" ) };
+    'jdk11' = @{'DockerFile' = 'Dockerfile-windows-jdk11'; 'Tags' = @( "windowsservercore-$WindowsTag-jdk11", "jdk11" ) };
+    'nanoserver' = @{'DockerFile' = 'Dockerfile-windows-nanoserver'; 'Tags' = @( "nanoserver-$WindowsTag", "nanoserver-$WindowsTag-jdk8" ) };
+    'nanoserver-jdk11' = @{'DockerFile' = 'Dockerfile-windows-nanoserver-jdk11'; 'Tags' = @( "nanoserver-$WindowsTag-jdk11" ) };
 }
 
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-    Write-Host "Building $Build => tag=$TagPrefix$($builds[$Build]['TagSuffix'])"
-    $cmd = "docker build -f {0} -t {1}/{2}:{3}{4} {5} ." -f $builds[$Build]['Dockerfile'], $Organization, $Repository, $TagPrefix, $builds[$Build]['TagSuffix'], $AdditionalArgs
-    Invoke-Expression $cmd
-} else {
-    foreach($b in $builds.Keys) {
-        Write-Host "Building $b => tag=$TagPrefix$($builds[$b]['TagSuffix'])"
-        $cmd = "docker build -f {0} -t {1}/{2}:{3}{4} {5} ." -f $builds[$b]['Dockerfile'], $Organization, $Repository, $TagPrefix, $builds[$b]['TagSuffix'], $AdditionalArgs
+    foreach($tag in $builds[$Build]['Tags']) {
+        Write-Host "Building $Build => tag=$tag"
+        $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$Version' -t {1}/{2}:{3} {4} ." -f $builds[$Build]['Dockerfile'], $Organization, $Repository, $tag, $AdditionalArgs
         Invoke-Expression $cmd
     }
+} else {
+    foreach($b in $builds.Keys) {
+        foreach($tag in $builds[$b]['Tags']) {
+            Write-Host "Building $b => tag=$tag"
+            $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$Version' -t {1}/{2}:{3} {4} ." -f $builds[$b]['Dockerfile'], $Organization, $Repository, $tag, $AdditionalArgs
+            Invoke-Expression $cmd
+        }
+    }
+
+    Write-Host "Building $Build => tag=$tag"
+    $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$Version' -t {1}/{2}:{3} {4} ." -f $builds['default']['Dockerfile'], $Organization, $Repository, $Version, $AdditionalArgs
+    Invoke-Expression $cmd
 }
 
 if($lastExitCode -ne 0) {
     exit $lastExitCode
 }
 
-if($target -eq "publish") {
+if($target -eq "test") {
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-        Write-Host "Publishing $Build => tag=$TagPrefix$($builds[$Build]['TagSuffix'])"
-        $cmd = "docker push {0}/{1}:{2}{3}" -f $Organization, $Repository, $TagPrefix, $builds[$Build]['TagSuffix']
-        Invoke-Expression $cmd
+        $env:FLAVOR = $Build
+        Invoke-Pester -Path tests -EnableExit
+        Remove-Item env:\FLAVOR
     } else {
         foreach($b in $builds.Keys) {
-            Write-Host "Publishing $b => tag=$TagPrefix$($builds[$b]['TagSuffix'])"
-            $cmd = "docker push {0}/{1}:{2}{3}" -f $Organization, $Repository, $TagPrefix, $builds[$b]['TagSuffix']
-            Invoke-Expression $cmd
+            $env:FLAVOR = $b
+            Invoke-Pester -Path tests -EnableExit
+            Remove-Item env:\FLAVOR
         }
     }
 }
+
+if($target -eq "publish") {
+    if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
+        foreach($tag in $Builds[$Build]['Tags']) {
+            Write-Host "Publishing $Build => tag=$tag"
+            $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $tag
+            Invoke-Expression $cmd
+        }
+    } else {
+        foreach($b in $builds.Keys) {
+            foreach($tag in $Builds[$b]['Tags']) {
+                Write-Host "Publishing $b => tag=$tag"
+                $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $tag
+                Invoke-Expression $cmd
+            }
+        }
+
+        Write-Host "Publishing $b => tag=$Version"
+        $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $Version
+        Invoke-Expression $cmd
+    }
+}
+
 
 if($lastExitCode -ne 0) {
     Write-Error "Build failed!"

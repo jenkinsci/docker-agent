@@ -29,10 +29,10 @@ docker run -i --rm --name agent --init jenkins/slave java -jar /usr/share/jenkin
 
 after setting **Remote root directory** to `/home/jenkins/agent`.
 
-or if using Windows
+or if using Windows Containers
 
 ```
-docker run -i --rm --name agent --init jenkins/agent:latest-windows java -jar C:/ProgramData/Jenkins/agent.jar
+docker run -i --rm --name agent --init jenkins/agent java -jar C:/ProgramData/Jenkins/agent.jar
 ```
 
 after setting **Remote root directory** to `C:\Users\jenkins\Agent`.
@@ -49,10 +49,10 @@ Call example for Linux:
 docker run -i --rm --name agent1 --init -v agent1-workdir:/home/jenkins/agent jenkins/slave java -jar /usr/share/jenkins/agent.jar -workDir /home/jenkins/agent
 ```
 
-Call example for Windows:
+Call example for Windows Containers:
 
 ```
-docker run -i --rm --name agent1 --init -v agent1-workdir:C:/Users/jenkins/Agent jenkins/agent:latest-windows java -jar C:/ProgramData/Jenkins/agent.jar -workDir C:/Users/jenkins/Agent
+docker run -i --rm --name agent1 --init -v agent1-workdir:C:/Users/jenkins/Work jenkins/agent java -jar C:/ProgramData/Jenkins/agent.jar -workDir C:/Users/jenkins/Work
 ```
 
 ## Configurations
@@ -62,11 +62,10 @@ The image has several supported configurations, which can be accessed via the fo
 * `latest`: Latest version with the newest remoting (based on `openjdk:8-jdk`)
 * `latest-jdk11`: Latest version with the newest remoting and Java 11 (based on `openjdk:11-jdk`)
 * `alpine`: Small image based on Alpine Linux (based on `openjdk:8-jdk-alpine`)
-* `jenkins4eval/agent:latest-windows`: Latest version with the newest remoting (based on `openjdk:8-jdk-windowsservercore-1809`)
-* `jenkins4eval/agent:latest-windows-jdk11`: Latest version with the newest remoting and Java 11 (based on `openjdk:11.0-jdk-windowsservercore-1809`)
-* `2.62`: This version bundles [Remoting 2.x](https://github.com/jenkinsci/remoting#remoting-2]), which is compatible with Jenkins servers running on Java 6 (`1.609.4` and below)
-* `2.62-alpine`: Small image with Remoting 2.x
-* `2.62-jdk11`: Versioned image for Java 11
+* `jenkins4eval/agent:windowsservercore-1809`: Latest version with the newest remoting (based on `adoptopenjdk:8-jdk-hotspot-windowsservercore-1809`)
+* `jenkins4eval/agent:windowsservercore-1809-jdk11`: Latest version with the newest remoting and Java 11 (based on `adoptopenjdk:11-jdk-hotspot-windowsservercore-1809`)
+* `jenkins4eval/agent:nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server
+* `jenkins4eval/agent:nanoserver-1809-jdk11`: Latest version with the newest remoting with Windows Nano Server and Java 11
 
 ## Java 11 Support
 
