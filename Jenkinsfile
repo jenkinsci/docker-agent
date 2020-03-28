@@ -18,7 +18,7 @@ pipeline {
                         label "windock"
                     }
                     options {
-                        timeout(time: 30, unit: 'MINUTES')
+                        timeout(time: 60, unit: 'MINUTES')
                     }
                     environment {
                         DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
