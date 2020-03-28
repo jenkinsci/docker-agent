@@ -51,9 +51,9 @@ if($lastExitCode -ne 0) {
 }
 
 if($target -eq "test") {
-    $mod = Get-InstalledModule -Name Pester -Version 4.9.0 -ErrorAction SilentlyContinue
+    $mod = Get-InstalledModule -Name Pester -RequiredVersion 4.9.0 -ErrorAction SilentlyContinue
     if($null -eq $mod) {
-        Install-Module -Force -Name Pester -Version 4.9.0 -Scope CurrentUser
+        Install-Module -Force -Name Pester -RequiredVersion 4.9.0 -Scope CurrentUser
     }
 
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
