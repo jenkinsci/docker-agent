@@ -51,6 +51,11 @@ if($lastExitCode -ne 0) {
 }
 
 if($target -eq "test") {
+    $mod = Get-InstalledModule -Name Pester -Version 4.9.0 -ErrorAction SilentlyContinue
+    if($null -eq $mod) {
+        Install-Module -Force -Name Pester -Version 4.9.0 -Scope CurrentUser
+    }
+
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
         $env:FLAVOR = $Build
         Invoke-Pester -Path tests -EnableExit
