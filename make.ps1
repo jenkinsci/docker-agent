@@ -4,7 +4,8 @@ Param(
     [String] $Target = "build",
     [String] $AdditionalArgs = '',
     [String] $Build = '',
-    [String] $Version = '4.3',
+    [String] $RemotingVersion = '4.3',
+    [String] $BuildNumber = "1",
     [int] $WindowsTag = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ReleaseId
 )
 
@@ -29,21 +30,33 @@ $builds = @{
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
     foreach($tag in $builds[$Build]['Tags']) {
         Write-Host "Building $Build => tag=$tag"
-        $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$Version' -t {1}/{2}:{3} {4} ." -f $builds[$Build]['Dockerfile'], $Organization, $Repository, $tag, $AdditionalArgs
+        $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {1}/{2}:{3} {4} ." -f $builds[$Build]['Dockerfile'], $Organization, $Repository, $tag, $AdditionalArgs
+        Invoke-Expression $cmd
+
+        $buildTag = "$RemotingVersion-$BuildNumber-$tag"
+        if($tag -eq 'latest') {
+            $buildTag = "$RemotingVersion-$BuildNumber"
+        }
+        Write-Host "Building $Build => tag=$buildTag"
+        $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {1}/{2}:{3} {4} ." -f $builds[$Build]['Dockerfile'], $Organization, $Repository, $buildTag, $AdditionalArgs
         Invoke-Expression $cmd
     }
 } else {
     foreach($b in $builds.Keys) {
         foreach($tag in $builds[$b]['Tags']) {
             Write-Host "Building $b => tag=$tag"
-            $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$Version' -t {1}/{2}:{3} {4} ." -f $builds[$b]['Dockerfile'], $Organization, $Repository, $tag, $AdditionalArgs
+            $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {1}/{2}:{3} {4} ." -f $builds[$b]['Dockerfile'], $Organization, $Repository, $tag, $AdditionalArgs
+            Invoke-Expression $cmd
+
+            $buildTag = "$RemotingVersion-$BuildNumber-$tag"
+            if($tag -eq 'latest') {
+                $buildTag = "$RemotinvVersion-$BuildNumber"
+            }
+            Write-Host "Building $Build => tag=$buildTag"
+            $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {1}/{2}:{3} {4} ." -f $builds[$b]['Dockerfile'], $Organization, $Repository, $buildTag, $AdditionalArgs
             Invoke-Expression $cmd
         }
     }
-
-    Write-Host "Building $Build => tag=$tag"
-    $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$Version' -t {1}/{2}:{3} {4} ." -f $builds['default']['Dockerfile'], $Organization, $Repository, $Version, $AdditionalArgs
-    Invoke-Expression $cmd
 }
 
 if($lastExitCode -ne 0) {
