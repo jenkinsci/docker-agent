@@ -24,7 +24,7 @@
 
 ARG WINDOWS_DOCKER_TAG=1809
 
-FROM openjdk:8-jdk-windowsservercore-$WINDOWS_DOCKER_TAG
+FROM adoptopenjdk:8-jdk-hotspot-windowsservercore-$WINDOWS_DOCKER_TAG
 MAINTAINER Alex Earl <slide.o.mix@gmail.com>
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
@@ -32,25 +32,36 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 ARG VERSION=4.3
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
-ARG GIT_VERSION=2.24.0
-ARG GIT_PATCH_VERSION=2
-
+ARG GIT_VERSION=2.26.0
+ARG GIT_PATCH_VERSION=1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
-    Invoke-WebRequest $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}.{1}-busybox-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) -OutFile 'mingit.zip' -UseBasicParsing ; `
+    $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}-busybox-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
+    Write-Host "Retrieving $url..." ; `
+    Invoke-WebRequest $url -OutFile 'mingit.zip' -UseBasicParsing ; `
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
     Remove-Item mingit.zip -Force ; `
     setx /M PATH $('c:\mingit\cmd;{0}' -f $env:PATH)
+
+ARG GIT_LFS_VERSION=2.10.0
+RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
+    $url = $('https://github.com/git-lfs/git-lfs/releases/download/v{0}/git-lfs-windows-amd64-v{0}.zip' -f $env:GIT_LFS_VERSION) ; `
+    Write-Host "Retrieving $url..." ; `
+    Invoke-WebRequest $url -OutFile 'GitLfs.zip' -UseBasicParsing ; `
+    Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ; `
+    Remove-Item GitLfs.zip -Force ; `
+    & C:\mingit\cmd\git.exe lfs install
 
 ARG user=jenkins
 
 ARG AGENT_FILENAME=agent.jar
 ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 
-RUN net user "$env:user" /add /expire:never /passwordreq:no
-RUN mkdir C:/ProgramData/Jenkins | Out-Null
+RUN net user "$env:user" /add /expire:never /passwordreq:no ; `
+    net localgroup Administrators /add $env:user ; `
+    New-Item -ItemType Directory -Path C:/ProgramData/Jenkins | Out-Null
 
-ARG AGENT_ROOT=C:/Users/$user/Jenkins
-ARG AGENT_WORKDIR=${AGENT_ROOT}/Agent
+ARG AGENT_ROOT=C:/Users/$user
+ARG AGENT_WORKDIR=${AGENT_ROOT}/Work
 
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 
