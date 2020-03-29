@@ -93,6 +93,14 @@ if($target -eq "publish") {
             Write-Host "Publishing $Build => tag=$tag"
             $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $tag
             Invoke-Expression $cmd
+
+            $buildTag = "$RemotingVersion-$BuildNumber-$tag"
+            if($tag -eq 'latest') {
+                $buildTag = "$RemotingVersion-$BuildNumber"
+            }
+            Write-Host "Publishing $Build => tag=$buildTag"
+            $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $buildTag
+            Invoke-Expression $cmd
         }
     } else {
         foreach($b in $builds.Keys) {
@@ -100,12 +108,16 @@ if($target -eq "publish") {
                 Write-Host "Publishing $b => tag=$tag"
                 $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $tag
                 Invoke-Expression $cmd
+
+                $buildTag = "$RemotingVersion-$BuildNumber-$tag"
+                if($tag -eq 'latest') {
+                    $buildTag = "$RemotingVersion-$BuildNumber"
+                }
+                Write-Host "Publishing $Build => tag=$buildTag"
+                $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $buildTag
+                Invoke-Expression $cmd
             }
         }
-
-        Write-Host "Publishing $b => tag=$Version"
-        $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $Version
-        Invoke-Expression $cmd
     }
 }
 
