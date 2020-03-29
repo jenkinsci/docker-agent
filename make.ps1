@@ -50,7 +50,7 @@ if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)
 
             $buildTag = "$RemotingVersion-$BuildNumber-$tag"
             if($tag -eq 'latest') {
-                $buildTag = "$RemotinvVersion-$BuildNumber"
+                $buildTag = "$RemotingVersion-$BuildNumber"
             }
             Write-Host "Building $Build => tag=$buildTag"
             $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {1}/{2}:{3} {4} ." -f $builds[$b]['Dockerfile'], $Organization, $Repository, $buildTag, $AdditionalArgs
