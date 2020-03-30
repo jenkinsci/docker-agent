@@ -18,6 +18,12 @@ if [[ "${JDK}" = "11" ]]
 then
   AGENT_IMAGE+=":jdk11"
   AGENT_CONTAINER+="-jdk11"
+elif [[ "${FLAVOR}" = "jdk11-buster" ]]
+then
+  DOCKERFILE+="-jdk11-buster"
+  JDK=11
+  AGENT_IMAGE+=":jdk11-buster"
+  AGENT_CONTAINER+="-jdk11-buster"
 else
   if [[ "${FLAVOR}" = "alpine*" ]]
   then
