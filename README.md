@@ -16,6 +16,8 @@ JDK version depends on the image and the platform, see the _Configurations_ sect
 See [GitHub releases](https://github.com/jenkinsci/docker-slave/releases) for versions `3.35-1` and above.
 There is no changelog for previous versions, see the commit history.
 
+Jenkins remoting changelogs are available [here](https://github.com/jenkinsci/remoting/releases).
+
 ## Usage
 
 This image is used as the basis for the [Docker JNLP Agent](https://github.com/jenkinsci/docker-jnlp-slave/) image.
