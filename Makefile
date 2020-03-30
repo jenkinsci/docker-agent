@@ -3,7 +3,7 @@ ROOT:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 IMAGE_NAME:=jenkins4eval/agent
 IMAGE_NAME_AGENT:=jenkins4eval/slave
 
-.PHONY: build build-alpine build-debian build-jdk11 build-jdk11-buster
+.PHONY: build
 .PHONY: test test-alpine test-debian test-jdk11 test-jdk11-buster
 
 build: build-alpine build-debian build-jdk11 build-jdk11-buster

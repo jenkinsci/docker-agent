@@ -133,7 +133,6 @@ if($target -eq "publish") {
     }
 }
 
-
 if($lastExitCode -ne 0) {
     Write-Error "Build failed!"
 } else {
