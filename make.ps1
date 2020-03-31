@@ -22,11 +22,11 @@ if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_ORGANISATION)) {
 
 $builds = @{
     'jdk8' = @{
-        'Folder' = '8\windows\servercore-1809';
+        'Folder' = '8\windows\windowsservercore-1809';
         'Tags' = @( "latest", "windowsservercore-$WindowsTag", "jdk8", "windowsservercore-$WindowsTag-jdk8" )
     };
     'jdk11' = @{
-        'Folder' = '11\windows\servercore-1809';
+        'Folder' = '11\windows\windowsservercore-1809';
         'Tags' = @( "windowsservercore-$WindowsTag-jdk11", "jdk11" )
     };
     'nanoserver' = @{

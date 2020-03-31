@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM openjdk:8-jdk-alpine3.9
+FROM openjdk:8-jdk-alpine
 MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 
 ARG VERSION=4.3
