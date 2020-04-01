@@ -13,7 +13,7 @@ build-alpine:
                  -t ${IMAGE_NAME}:jdk8-alpine \
                  -t ${IMAGE_NAME}:jdk8-alpine3.9 \
                  -t ${IMAGE_NAME_AGENT}:alpine \
-                 8/alpine3.9/
+                 8/alpine/
 
 build-debian:
 	docker build -t ${IMAGE_NAME}:latest \
@@ -42,7 +42,7 @@ bats:
 test: test-alpine test-debian test-jdk11 test-jdk11-buster
 
 test-alpine: bats
-	@FOLDER="8/alpine3.9" bats-core/bin/bats tests/tests.bats
+	@FOLDER="8/alpine" bats-core/bin/bats tests/tests.bats
 
 test-debian: bats
 	@FOLDER="8/stretch"   bats-core/bin/bats tests/tests.bats
