@@ -1,6 +1,6 @@
 Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
 
-$DOCKERFILE='Dockerfile-windows'
+$FOLDER='8\windows\servercore-1809'
 $JDK=8
 $AGENT_IMAGE='jenkins-agent'
 $AGENT_CONTAINER='pester-jenkins-agent'
@@ -10,18 +10,18 @@ $FLAVOR = Get-EnvOrDefault 'FLAVOR' ''
 
 if([System.String]::IsNullOrWhiteSpace($FLAVOR)) {
     $FLAVOR = 'jdk8'
-} elseif($flavor -eq "jdk11") {
-    $DOCKERFILE += "-jdk11"
+} elseif($FLAVOR -eq "jdk11") {
+    $FOLDER = '11\windows\servercore-1809'
     $JDK=11
     $AGENT_IMAGE += ":jdk11"
     $AGENT_CONTAINER += "-jdk11"
-} elseif($flavor -eq "nanoserver") {
-    $DOCKERFILE += "-nanoserver"
+} elseif($FLAVOR -eq "nanoserver") {
+    $FOLDER = '8\windows\nanoserver-1809'
     $AGENT_IMAGE += ":nanoserver-1809"
     $AGENT_CONTAINER += "-nanoserver"
     $SHELL="pwsh.exe"
-} elseif($flavor -eq "nanoserver-jdk11") {
-    $DOCKERFILE += "-nanoserver-jdk11"
+} elseif($FLAVOR -eq "nanoserver-jdk11") {
+    $FOLDER = '11\windows\nanoserver-1809'
     $JDK=11
     $AGENT_IMAGE += ":nanoserver-1809-jdk11"
     $AGENT_CONTAINER += "-nanoserver-jdk11"
@@ -30,13 +30,13 @@ if([System.String]::IsNullOrWhiteSpace($FLAVOR)) {
 
 Cleanup($AGENT_CONTAINER)
 
-Describe "[$FLAVOR] build image" {
+Describe "[$JDK $FLAVOR] build image" {
     BeforeEach {
       Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
     }
 
     It 'builds image' {
-      $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "build -t $AGENT_IMAGE -f ./$DOCKERFILE ."
+      $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "build -t $AGENT_IMAGE $FOLDER"
       $exitCode | Should -Be 0
     }
 
@@ -45,7 +45,7 @@ Describe "[$FLAVOR] build image" {
     }
 }
 
-Describe "[$FLAVOR] correct image metadata" {
+Describe "[$JDK $FLAVOR] correct image metadata" {
     It 'has correct volumes' {
         $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "inspect -f '{{.Config.Volumes}}' $AGENT_IMAGE"
         $stdout | Should -Match 'C:/Users/jenkins/.jenkins'
@@ -53,13 +53,9 @@ Describe "[$FLAVOR] correct image metadata" {
     }
 }
 
-Describe "[$FLAVOR] image has correct applications in the PATH" {
+Describe "[$JDK $FLAVOR] image has correct applications in the PATH" {
     BeforeAll {
-        if($DOCKERFILE.Contains('nanoserver')) {
-            docker run -d -it --name "$AGENT_CONTAINER" -P "$AGENT_IMAGE" pwsh
-        } else {
-            docker run -d -it --name "$AGENT_CONTAINER" -P "$AGENT_IMAGE" powershell
-        }
+        docker run -d -it --name "$AGENT_CONTAINER" -P "$AGENT_IMAGE" "$SHELL"
         Is-AgentContainerRunning $AGENT_CONTAINER
     }
 
@@ -92,13 +88,9 @@ Describe "[$FLAVOR] image has correct applications in the PATH" {
     }
 }
 
-Describe "[$FLAVOR] check user access to directories" {
+Describe "[$JDK $FLAVOR] check user access to directories" {
     BeforeAll {
-        if($DOCKERFILE.Contains('nanoserver')) {
-            docker run -d -it --name "$AGENT_CONTAINER" -P "$AGENT_IMAGE" pwsh
-        } else {
-            docker run -d -it --name "$AGENT_CONTAINER" -P "$AGENT_IMAGE" powershell
-        }
+        docker run -d -it --name "$AGENT_CONTAINER" -P "$AGENT_IMAGE" "$SHELL"
         Is-AgentContainerRunning $AGENT_CONTAINER
     }
 
@@ -126,18 +118,14 @@ $TEST_VERSION="3.36"
 $TEST_USER="test-user"
 $TEST_AGENT_WORKDIR="C:/test-user/something"
 
-Describe "[$FLAVOR] use build args correctly" {
+Describe "[$JDK $FLAVOR] use build args correctly" {
     BeforeAll {
         Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "build --build-arg `"VERSION=${TEST_VERSION}`" --build-arg `"user=${TEST_USER}`" --build-arg `"AGENT_WORKDIR=${TEST_AGENT_WORKDIR}`" -t ${AGENT_IMAGE} -f ./${DOCKERFILE} ."
+        $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "build --build-arg `"VERSION=${TEST_VERSION}`" --build-arg `"user=${TEST_USER}`" --build-arg `"AGENT_WORKDIR=${TEST_AGENT_WORKDIR}`" -t ${AGENT_IMAGE} ${FOLDER}"
         $exitCode | Should -Be 0
 
-        if($DOCKERFILE.Contains('nanoserver')) {
-            docker run -d -it --name "$AGENT_CONTAINER" -P "$AGENT_IMAGE" pwsh
-        } else {
-            docker run -d -it --name "$AGENT_CONTAINER" -P "$AGENT_IMAGE" powershell
-        }
+        docker run -d -it --name "$AGENT_CONTAINER" -P "$AGENT_IMAGE" "$SHELL"
         Is-AgentContainerRunning $AGENT_CONTAINER
     }
 

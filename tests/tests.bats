@@ -1,17 +1,21 @@
 #!/usr/bin/env bats
 
-DOCKERFILE=Dockerfile
-JDK=8
 AGENT_IMAGE=jenkins-agent
 AGENT_CONTAINER=bats-jenkins-agent
 
-if [[ -z "${FLAVOR}" ]]
+REGEX='^([0-9]+)/(.+)$'
+
+if [[ ${FOLDER} =~ ${REGEX} ]] && [[ -d "${FOLDER}" ]]
 then
-  FLAVOR="debian"
-elif [[ "${FLAVOR}" = "jdk11" ]]
+  JDK="${BASH_REMATCH[1]}"
+  FLAVOR="${BASH_REMATCH[2]}"
+else
+  echo "Wrong folder format or folder does not exist: ${FOLDER}"
+  exit 1
+fi
+
+if [[ "${JDK}" = "11" ]]
 then
-  DOCKERFILE+="-jdk11"
-  JDK=11
   AGENT_IMAGE+=":jdk11"
   AGENT_CONTAINER+="-jdk11"
 elif [[ "${FLAVOR}" = "jdk11-buster" ]]
@@ -21,9 +25,13 @@ then
   AGENT_IMAGE+=":jdk11-buster"
   AGENT_CONTAINER+="-jdk11-buster"
 else
-  DOCKERFILE+="-alpine"
-  AGENT_IMAGE+=":alpine"
-  AGENT_CONTAINER+="-alpine"
+  if [[ "${FLAVOR}" = "alpine*" ]]
+  then
+    AGENT_IMAGE+=":alpine"
+    AGENT_CONTAINER+="-alpine"
+  else
+    AGENT_IMAGE+=":latest"
+  fi
 fi
 
 load test_helpers
@@ -34,12 +42,12 @@ function teardown () {
   clean_test_container
 }
 
-@test "[${FLAVOR}] build image" {
+@test "[${JDK} ${FLAVOR}] build image" {
   cd "${BATS_TEST_DIRNAME}"/.. || false
-  docker build -t "${AGENT_IMAGE}" -f "${DOCKERFILE}" .
+  docker build -t "${AGENT_IMAGE}" "${FOLDER}"
 }
 
-@test "[${FLAVOR}] checking image metadata" {
+@test "[${JDK} ${FLAVOR}] checking image metadata" {
   local VOLUMES_MAP
   VOLUMES_MAP="$(docker inspect -f '{{.Config.Volumes}}' ${AGENT_IMAGE})"
 
@@ -47,7 +55,7 @@ function teardown () {
   echo "${VOLUMES_MAP}" | grep '/home/jenkins/agent'
 }
 
-@test "[${FLAVOR}] image has bash and java installed and in the PATH" {
+@test "[${JDK} ${FLAVOR}] image has bash and java installed and in the PATH" {
   docker run -d -it --name "${AGENT_CONTAINER}" -P "${AGENT_IMAGE}" /bin/sh
 
   is_agent_container_running
@@ -114,7 +122,7 @@ function teardown () {
     --build-arg "gid=${TEST_GID}" \
     --build-arg "AGENT_WORKDIR=${TEST_AGENT_WORKDIR}" \
     -t "${AGENT_IMAGE}" \
-    -f "${DOCKERFILE}" .
+    "${FOLDER}"
 
   docker run -d -it --name "${AGENT_CONTAINER}" -P "${AGENT_IMAGE}" /bin/sh
 

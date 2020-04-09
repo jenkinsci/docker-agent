@@ -21,16 +21,28 @@ if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_ORGANISATION)) {
 }
 
 $builds = @{
-    'jdk8' = @{'Dockerfile' = 'Dockerfile-windows' ; 'Tags' = @( "latest", "windowsservercore-$WindowsTag", "jdk8", "windowsservercore-$WindowsTag-jdk8" ) };
-    'jdk11' = @{'DockerFile' = 'Dockerfile-windows-jdk11'; 'Tags' = @( "windowsservercore-$WindowsTag-jdk11", "jdk11" ) };
-    'nanoserver' = @{'DockerFile' = 'Dockerfile-windows-nanoserver'; 'Tags' = @( "nanoserver-$WindowsTag", "nanoserver-$WindowsTag-jdk8" ) };
-    'nanoserver-jdk11' = @{'DockerFile' = 'Dockerfile-windows-nanoserver-jdk11'; 'Tags' = @( "nanoserver-$WindowsTag-jdk11" ) };
+    'jdk8' = @{
+        'Folder' = '8\windows\windowsservercore-1809';
+        'Tags' = @( "latest", "windowsservercore-$WindowsTag", "jdk8", "windowsservercore-$WindowsTag-jdk8" )
+    };
+    'jdk11' = @{
+        'Folder' = '11\windows\windowsservercore-1809';
+        'Tags' = @( "windowsservercore-$WindowsTag-jdk11", "jdk11" )
+    };
+    'nanoserver' = @{
+        'Folder' = '8\windows\nanoserver-1809';
+        'Tags' = @( "nanoserver-$WindowsTag", "nanoserver-$WindowsTag-jdk8" )
+    };
+    'nanoserver-jdk11' = @{
+        'Folder' = '11\windows\nanoserver-1809';
+        'Tags' = @( "nanoserver-$WindowsTag-jdk11" )
+    };
 }
 
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
     foreach($tag in $builds[$Build]['Tags']) {
         Write-Host "Building $Build => tag=$tag"
-        $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {1}/{2}:{3} {4} ." -f $builds[$Build]['Dockerfile'], $Organization, $Repository, $tag, $AdditionalArgs
+        $cmd = "docker build --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$Build]['Folder']
         Invoke-Expression $cmd
 
         $buildTag = "$RemotingVersion-$BuildNumber-$tag"
@@ -38,14 +50,14 @@ if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)
             $buildTag = "$RemotingVersion-$BuildNumber"
         }
         Write-Host "Building $Build => tag=$buildTag"
-        $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {1}/{2}:{3} {4} ." -f $builds[$Build]['Dockerfile'], $Organization, $Repository, $buildTag, $AdditionalArgs
+        $cmd = "docker build --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$Build]['Folder']
         Invoke-Expression $cmd
     }
 } else {
     foreach($b in $builds.Keys) {
         foreach($tag in $builds[$b]['Tags']) {
             Write-Host "Building $b => tag=$tag"
-            $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {1}/{2}:{3} {4} ." -f $builds[$b]['Dockerfile'], $Organization, $Repository, $tag, $AdditionalArgs
+            $cmd = "docker build --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$b]['Folder']
             Invoke-Expression $cmd
 
             $buildTag = "$RemotingVersion-$BuildNumber-$tag"
@@ -53,7 +65,7 @@ if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)
                 $buildTag = "$RemotingVersion-$BuildNumber"
             }
             Write-Host "Building $Build => tag=$buildTag"
-            $cmd = "docker build -f {0} --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {1}/{2}:{3} {4} ." -f $builds[$b]['Dockerfile'], $Organization, $Repository, $buildTag, $AdditionalArgs
+            $cmd = "docker build --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$b]['Folder']
             Invoke-Expression $cmd
         }
     }
@@ -120,7 +132,6 @@ if($target -eq "publish") {
         }
     }
 }
-
 
 if($lastExitCode -ne 0) {
     Write-Error "Build failed!"
