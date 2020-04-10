@@ -24,7 +24,7 @@ build-debian:
 build-debian-buster:
 	docker build -t ${IMAGE_NAME}:latest \
                  -t ${IMAGE_NAME}:jdk8 \
-		 -t ${IMAGE_NAME}:jdk8-buster \
+                 -t ${IMAGE_NAME}:jdk8-buster \
                  -t ${IMAGE_NAME_AGENT}:latest \
                  8/buster/
 
@@ -36,7 +36,7 @@ build-jdk11:
 build-jdk11-buster:
 	docker build -t ${IMAGE_NAME}:jdk11-buster \
                 -t ${IMAGE_NAME_AGENT}:jdk11-buster \
-		-t ${IMAGE_NAME_AGENT}:jdk11 \
+                -t ${IMAGE_NAME_AGENT}:jdk11 \
                 11/buster/
 
 bats:
