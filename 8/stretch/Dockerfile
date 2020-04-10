@@ -21,7 +21,6 @@
 #  THE SOFTWARE.
 
 FROM openjdk:8-jdk-stretch
-MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 
 ARG VERSION=4.3
 ARG user=jenkins

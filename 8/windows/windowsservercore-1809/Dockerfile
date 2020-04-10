@@ -22,10 +22,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-ARG WINDOWS_DOCKER_TAG=1809
-
-FROM adoptopenjdk:8-jdk-hotspot-windowsservercore-$WINDOWS_DOCKER_TAG
-MAINTAINER Alex Earl <slide.o.mix@gmail.com>
+FROM adoptopenjdk:8-jdk-hotspot-windowsservercore-1809
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 

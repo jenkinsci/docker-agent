@@ -21,7 +21,6 @@
 #  THE SOFTWARE.
 
 FROM openjdk:11-jdk-buster
-MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 
 ARG VERSION=4.3
 ARG user=jenkins

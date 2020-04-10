@@ -22,20 +22,14 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-ARG WINDOWS_DOCKER_TAG=1809
-ARG JAVA_VERSION=8u242-b08
-ARG JAVA_SHA256=8288e4d0983019706db89c153d18bfce28d033f646be65c8ae1c33c6c65b943e
-ARG JAVA_HOME=C:\jdk${JAVA_VERSION}
 # If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
 # use the 'latest'
 ARG POWERSHELL_VERSION=
+FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
 
-FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-$WINDOWS_DOCKER_TAG
-MAINTAINER Alex Earl <slide.o.mix@gmail.com>
-
-ARG JAVA_VERSION
-ARG JAVA_SHA256
-ARG JAVA_HOME
+ARG JAVA_VERSION=8u242-b08
+ARG JAVA_SHA256=8288e4d0983019706db89c153d18bfce28d033f646be65c8ae1c33c6c65b943e
+ARG JAVA_HOME=C:\jdk${JAVA_VERSION}
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
@@ -50,9 +44,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive openjdk.zip -DestinationPath C:/ ; `
     Remove-Item -Path openjdk.zip
 
-ARG JAVA_HOME
-
-ARG VERSION=4.0.1
+ARG VERSION=4.3
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
 ARG GIT_VERSION=2.26.0

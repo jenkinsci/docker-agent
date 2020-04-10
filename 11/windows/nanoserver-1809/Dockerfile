@@ -22,26 +22,18 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-ARG WINDOWS_DOCKER_TAG=1809
-ARG JAVA_VERSION=11.0.6+10
-ARG JAVA_SHA256=6fb8b6c254ec0e1091acd421ac79c1bb07b295de0b679c0595fd284caf7734e5
-ARG JAVA_HOME=C:\jdk-${JAVA_VERSION}
 # If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
 # use the 'latest'
 ARG POWERSHELL_VERSION=
+FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
 
-FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-$WINDOWS_DOCKER_TAG
-MAINTAINER Alex Earl <slide.o.mix@gmail.com>
-
-ARG JAVA_VERSION
-ARG JAVA_SHA256
-ARG JAVA_HOME
+ARG JAVA_VERSION=11.0.6+10
+ARG JAVA_SHA256=6fb8b6c254ec0e1091acd421ac79c1bb07b295de0b679c0595fd284caf7734e5
+ARG JAVA_HOME=C:\jdk-${JAVA_VERSION}
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 USER ContainerAdministrator
-
-# https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10/OpenJDK11U-jdk_x64_windows_hotspot_11.0.6_10.zip
 
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     $javaRoot = 'OpenJDK11U-jdk_x64_windows_hotspot_{0}' -f $env:JAVA_VERSION.Replace('+', '_') ; `
@@ -52,9 +44,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive openjdk.zip -DestinationPath C:/ ; `
     Remove-Item -Path openjdk.zip
 
-ARG JAVA_HOME
-
-ARG VERSION=4.0.1
+ARG VERSION=4.3
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
 ARG GIT_VERSION=2.26.0
