@@ -1,31 +1,33 @@
 Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
 
-$FOLDER='8\windows\servercore-1809'
-$JDK=8
-$AGENT_IMAGE='jenkins-agent'
-$AGENT_CONTAINER='pester-jenkins-agent'
+$AGENT_IMAGE='jenkins-jnlp-agent'
+$AGENT_CONTAINER='pester-jenkins-jnlp-agent'
 $SHELL="powershell.exe"
 
-$FLAVOR = Get-EnvOrDefault 'FLAVOR' ''
+$FOLDER = Get-EnvOrDefault 'FOLDER' ''
+$VERSION = Get-EnvOrDefault 'VERSION' '4.3-1'
 
-if([System.String]::IsNullOrWhiteSpace($FLAVOR)) {
-    $FLAVOR = 'jdk8'
-} elseif($FLAVOR -eq "jdk11") {
-    $FOLDER = '11\windows\servercore-1809'
-    $JDK=11
+$REAL_FOLDER=Resolve-Path -Path "$PSScriptRoot/../${FOLDER}"
+
+if(($FOLDER -match '^(?<jdk>[0-9]+)[\\/](?<flavor>.+)$') -and (Test-Path $REAL_FOLDER)) {
+    $JDK = $Matches['jdk']
+    $FLAVOR = $Matches['flavor']
+} else {
+    Write-Error "Wrong folder format or folder does not exist: $FOLDER"
+    exit 1
+}
+
+if($FLAVOR -match "nanoserver") {
+    $AGENT_IMAGE += "-nanoserver"
+    $AGENT_CONTAINER += "-nanoserver-1809"
+    $SHELL = "pwsh.exe"
+}
+
+if($JDK -eq "11") {
     $AGENT_IMAGE += ":jdk11"
     $AGENT_CONTAINER += "-jdk11"
-} elseif($FLAVOR -eq "nanoserver") {
-    $FOLDER = '8\windows\nanoserver-1809'
-    $AGENT_IMAGE += ":nanoserver-1809"
-    $AGENT_CONTAINER += "-nanoserver"
-    $SHELL="pwsh.exe"
-} elseif($FLAVOR -eq "nanoserver-jdk11") {
-    $FOLDER = '11\windows\nanoserver-1809'
-    $JDK=11
-    $AGENT_IMAGE += ":nanoserver-1809-jdk11"
-    $AGENT_CONTAINER += "-nanoserver-jdk11"
-    $SHELL="pwsh.exe"
+} else {
+    $AGENT_IMAGE += ":latest"
 }
 
 Cleanup($AGENT_CONTAINER)
@@ -48,6 +50,7 @@ Describe "[$JDK $FLAVOR] build image" {
 Describe "[$JDK $FLAVOR] correct image metadata" {
     It 'has correct volumes' {
         $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "inspect -f '{{.Config.Volumes}}' $AGENT_IMAGE"
+        $stdout = $stdout.Trim()
         $stdout | Should -Match 'C:/Users/jenkins/.jenkins'
         $stdout | Should -Match 'C:/Users/jenkins/Work'
     }
@@ -80,7 +83,7 @@ Describe "[$JDK $FLAVOR] image has correct applications in the PATH" {
     It 'has AGENT_WORKDIR in the envrionment' {
         $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "exec $AGENT_CONTAINER $SHELL -C `"Get-ChildItem env:`""
         $exitCode | Should -Be 0
-        $stdout | Should -Match "AGENT_WORKDIR.*C:/Users/jenkins/Work"
+        $stdout.Trim() | Should -Match "AGENT_WORKDIR.*C:/Users/jenkins/Work"
     }
 
     AfterAll {
@@ -114,7 +117,7 @@ Describe "[$JDK $FLAVOR] check user access to directories" {
     }
 }
 
-$TEST_VERSION="3.36"
+$TEST_VERSION="4.0"
 $TEST_USER="test-user"
 $TEST_AGENT_WORKDIR="C:/test-user/something"
 
@@ -132,13 +135,13 @@ Describe "[$JDK $FLAVOR] use build args correctly" {
     It 'has the correct version of remoting' {
         $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "exec $AGENT_CONTAINER $SHELL -C `"`$version = java -cp C:/ProgramData/Jenkins/agent.jar hudson.remoting.jnlp.Main -version ; Write-Host `$version`""
         $exitCode | Should -Be 0
-        $stdout | Should -Match $TEST_VERSION
+        $stdout.Trim() | Should -Match $TEST_VERSION
     }
 
     It 'has correct user' {
         $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "exec $AGENT_CONTAINER $SHELL -C `"(Get-ChildItem env:\ | Where-Object { `$_.Name -eq 'USERNAME' }).Value`""
         $exitCode | Should -Be 0
-        $stdout | Should -Match $TEST_USER
+        $stdout.Trim() | Should -Match $TEST_USER
     }
 
     It 'has correct AGENT_WORKDIR' {

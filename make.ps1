@@ -6,7 +6,7 @@ Param(
     [String] $Build = '',
     [String] $RemotingVersion = '4.3',
     [String] $BuildNumber = "1",
-    [int] $WindowsTag = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ReleaseId
+    [switch] $PushVersions = $false
 )
 
 $Repository = 'agent'
@@ -23,50 +23,54 @@ if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_ORGANISATION)) {
 $builds = @{
     'jdk8' = @{
         'Folder' = '8\windows\windowsservercore-1809';
-        'Tags' = @( "latest", "windowsservercore-$WindowsTag", "jdk8", "windowsservercore-$WindowsTag-jdk8" )
+        'Tags' = @( "latest", "windowsservercore-1809", "jdk8", "jdk8-windowsservercore-1809" )
     };
     'jdk11' = @{
         'Folder' = '11\windows\windowsservercore-1809';
-        'Tags' = @( "windowsservercore-$WindowsTag-jdk11", "jdk11" )
+        'Tags' = @( "jdk11-windowsservercore-1809", "jdk11" )
     };
     'nanoserver' = @{
         'Folder' = '8\windows\nanoserver-1809';
-        'Tags' = @( "nanoserver-$WindowsTag", "nanoserver-$WindowsTag-jdk8" )
+        'Tags' = @( "nanoserver-1809", "jdk8-nanoserver-1809" )
     };
     'nanoserver-jdk11' = @{
         'Folder' = '11\windows\nanoserver-1809';
-        'Tags' = @( "nanoserver-$WindowsTag-jdk11" )
+        'Tags' = @( "jdk11-nanoserver-1809" )
     };
 }
 
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
     foreach($tag in $builds[$Build]['Tags']) {
         Write-Host "Building $Build => tag=$tag"
-        $cmd = "docker build --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$Build]['Folder']
+        $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$Build]['Folder']
         Invoke-Expression $cmd
 
-        $buildTag = "$RemotingVersion-$BuildNumber-$tag"
-        if($tag -eq 'latest') {
-            $buildTag = "$RemotingVersion-$BuildNumber"
-        }
-        Write-Host "Building $Build => tag=$buildTag"
-        $cmd = "docker build --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$Build]['Folder']
-        Invoke-Expression $cmd
-    }
-} else {
-    foreach($b in $builds.Keys) {
-        foreach($tag in $builds[$b]['Tags']) {
-            Write-Host "Building $b => tag=$tag"
-            $cmd = "docker build --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$b]['Folder']
-            Invoke-Expression $cmd
-
+        if($PushVersions) {
             $buildTag = "$RemotingVersion-$BuildNumber-$tag"
             if($tag -eq 'latest') {
                 $buildTag = "$RemotingVersion-$BuildNumber"
             }
             Write-Host "Building $Build => tag=$buildTag"
-            $cmd = "docker build --build-arg WINDOWS_DOCKER_TAG=$WindowsTag --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$b]['Folder']
+            $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$Build]['Folder']
             Invoke-Expression $cmd
+        }
+    }
+} else {
+    foreach($b in $builds.Keys) {
+        foreach($tag in $builds[$b]['Tags']) {
+            Write-Host "Building $b => tag=$tag"
+            $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$b]['Folder']
+            Invoke-Expression $cmd
+
+            if($PushVersions) {
+                $buildTag = "$RemotingVersion-$BuildNumber-$tag"
+                if($tag -eq 'latest') {
+                    $buildTag = "$RemotingVersion-$BuildNumber"
+                }
+                Write-Host "Building $Build => tag=$buildTag"
+                $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$b]['Folder']
+                Invoke-Expression $cmd
+            }
         }
     }
 }
@@ -76,25 +80,29 @@ if($lastExitCode -ne 0) {
 }
 
 if($target -eq "test") {
-    $mod = Get-InstalledModule -Name Pester -RequiredVersion 4.9.0 -ErrorAction SilentlyContinue
+    $mod = Get-InstalledModule -Name Pester -MinimumVersion 4.9.0 -ErrorAction SilentlyContinue
     if($null -eq $mod) {
         $module = "c:\Program Files\WindowsPowerShell\Modules\Pester"
         takeown /F $module /A /R
         icacls $module /reset
         icacls $module /grant Administrators:'F' /inheritance:d /T
         Remove-Item -Path $module -Recurse -Force -Confirm:$false
-        Install-Module -Force -Name Pester -RequiredVersion 4.9.0
+        Install-Module -Force -Name Pester -MinimumVersion 4.9.0
     }
 
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-        $env:FLAVOR = $Build
+        $env:FOLDER = $builds[$Build]['Folder']
+        $env:VERSION = "$RemotingVersion-$BuildNumber"
         Invoke-Pester -Path tests -EnableExit
-        Remove-Item env:\FLAVOR
+        Remove-Item env:\FOLDER
+        Remove-Item env:\VERSION
     } else {
         foreach($b in $builds.Keys) {
-            $env:FLAVOR = $b
+            $env:FOLDER = $builds[$b]['Folder']
+            $env:VERSION = "$RemotingVersion-$BuildNumber"
             Invoke-Pester -Path tests -EnableExit
-            Remove-Item env:\FLAVOR
+            Remove-Item env:\FOLDER
+            Remove-Item env:\VERSION
         }
     }
 }
@@ -106,13 +114,15 @@ if($target -eq "publish") {
             $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $tag
             Invoke-Expression $cmd
 
-            $buildTag = "$RemotingVersion-$BuildNumber-$tag"
-            if($tag -eq 'latest') {
-                $buildTag = "$RemotingVersion-$BuildNumber"
+            if($PushVersions) {
+                $buildTag = "$RemotingVersion-$BuildNumber-$tag"
+                if($tag -eq 'latest') {
+                    $buildTag = "$RemotingVersion-$BuildNumber"
+                }
+                Write-Host "Publishing $Build => tag=$buildTag"
+                $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $buildTag
+                Invoke-Expression $cmd
             }
-            Write-Host "Publishing $Build => tag=$buildTag"
-            $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $buildTag
-            Invoke-Expression $cmd
         }
     } else {
         foreach($b in $builds.Keys) {
@@ -121,13 +131,15 @@ if($target -eq "publish") {
                 $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $tag
                 Invoke-Expression $cmd
 
-                $buildTag = "$RemotingVersion-$BuildNumber-$tag"
-                if($tag -eq 'latest') {
-                    $buildTag = "$RemotingVersion-$BuildNumber"
+                if($PushVersions) {
+                    $buildTag = "$RemotingVersion-$BuildNumber-$tag"
+                    if($tag -eq 'latest') {
+                        $buildTag = "$RemotingVersion-$BuildNumber"
+                    }
+                    Write-Host "Publishing $Build => tag=$buildTag"
+                    $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $buildTag
+                    Invoke-Expression $cmd
                 }
-                Write-Host "Publishing $Build => tag=$buildTag"
-                $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $buildTag
-                Invoke-Expression $cmd
             }
         }
     }
