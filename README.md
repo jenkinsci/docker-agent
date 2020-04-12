@@ -11,6 +11,9 @@ This is a base image for Docker, which includes JDK and the Jenkins agent execut
 This executable is an instance of the [Jenkins Remoting library](https://github.com/jenkinsci/remoting).
 JDK version depends on the image and the platform, see the _Configurations_ section below.
 
+:exclamation: **Warning!** This image used to be published as [jenkinsci/slave](https://hub.docker.com/r/jenkinsci/slave/) and [jenkins/slave](https://hub.docker.com/r/jenkins/slave/). 
+These images are now deprecated, use [jenkins/agent](https://hub.docker.com/r/jenkins/agent/).
+
 ## Changelog
 
 See [GitHub releases](https://github.com/jenkinsci/docker-agent/releases) for versions `3.35-1` and above.
