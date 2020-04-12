@@ -64,10 +64,10 @@ The image has several supported configurations, which can be accessed via the fo
 * `latest`: Latest version with the newest remoting (based on `openjdk:8-jdk-buster`)
 * `latest-jdk11`: Latest version with the newest remoting and Java 11 (based on `openjdk:11-jdk-buster`)
 * `alpine`: Small image based on Alpine Linux (based on `openjdk:8-jdk-alpine`)
-* `jenkins4eval/agent:windowsservercore-1809`: Latest version with the newest remoting (based on `adoptopenjdk:8-jdk-hotspot-windowsservercore-1809`)
-* `jenkins4eval/agent:windowsservercore-1809-jdk11`: Latest version with the newest remoting and Java 11 (based on `adoptopenjdk:11-jdk-hotspot-windowsservercore-1809`)
-* `jenkins4eval/agent:nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server
-* `jenkins4eval/agent:nanoserver-1809-jdk11`: Latest version with the newest remoting with Windows Nano Server and Java 11
+* `jdk8-windowsservercore-1809`: Latest version with the newest remoting (based on `adoptopenjdk:8-jdk-hotspot-windowsservercore-1809`)
+* `jdk11-windowsservercore-1809`: Latest version with the newest remoting and Java 11 (based on `adoptopenjdk:11-jdk-hotspot-windowsservercore-1809`)
+* `jdk8-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server
+* `jdk11-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 11
 
 ## Java 11 Support
 
