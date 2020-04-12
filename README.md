@@ -2,9 +2,7 @@ Jenkins Agent Docker image
 ===
 
 [![Join the chat at https://gitter.im/jenkinsci/docker](https://badges.gitter.im/jenkinsci/docker.svg)](https://gitter.im/jenkinsci/docker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Docker Stars](https://img.shields.io/docker/stars/jenkins/agent.svg)](https://hub.docker.com/r/jenkins/agent/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/jenkins/agent.svg)](https://hub.docker.com/r/jenkins/agent/)
-[![Docker Automated build](https://img.shields.io/docker/automated/jenkins/agent.svg)](https://hub.docker.com/r/jenkins/agent/)
 [![GitHub release](https://img.shields.io/github/release/jenkinsci/docker-agent.svg?label=changelog)](https://github.com/jenkinsci/docker-agent/releases/latest)
 
 This is a base image for Docker, which includes JDK and the Jenkins agent executable (agent.jar).
@@ -23,7 +21,7 @@ Jenkins remoting changelogs are available [here](https://github.com/jenkinsci/re
 
 ## Usage
 
-This image is used as the basis for the [Docker JNLP Agent](https://github.com/jenkinsci/docker-jnlp-agent/) image.
+This image is used as the basis for the [Docker Inbound Agent](https://github.com/jenkinsci/docker-inbound-agent/) image.
 In that image, the container is launched externally and attaches to Jenkins.
 
 This image may instead be used to launch an agent using the **Launch method** of **Launch agent via execution of command on the master**. For example on Linux you can try
