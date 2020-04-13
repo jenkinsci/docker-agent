@@ -25,8 +25,6 @@ pipeline {
                     }
                     steps {
                         script {
-                            powershell '& ./make.ps1 build'
-
                             powershell '& ./make.ps1 test'
 
                             def branchName = "${env.BRANCH_NAME}"
@@ -35,6 +33,18 @@ pipeline {
                                 // so we publish here
                                 infra.withDockerCredentials {
                                     powershell '& ./make.ps1 publish'
+                                }
+                            }
+
+                            if(env.TAG_NAME != null) {
+                                def tagItems = env.TAG_NAME.split('-')
+                                if(tagItems.length == 2) {
+                                    def remotingVersion = tagItems[0]
+                                    def buildNumber = tagItems[1]
+                                    // we need to build and publish the tag version
+                                    infra.withDockerCredentials {
+                                        powershell "& ./make.ps1 -PushVersions -RemotingVersion $remotingVersion -BuildNumber $buildNumber publish"
+                                    }
                                 }
                             }
 
