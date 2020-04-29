@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM openjdk:8-jdk-alpine3.9
+FROM adoptopenjdk/openjdk8:alpine
 
 ARG VERSION=4.3
 ARG user=jenkins

@@ -19,25 +19,25 @@ build-debian:
 	docker build -t ${IMAGE_NAME}:latest \
                  -t ${IMAGE_NAME}:stretch \
                  -t ${IMAGE_NAME}:jdk8-stretch \
-                 8/stretch/
+                 8/debian/stretch/
 
 build-debian-buster:
 	docker build -t ${IMAGE_NAME}:latest \
                  -t ${IMAGE_NAME}:jdk8 \
                  -t ${IMAGE_NAME}:jdk8-buster \
                  -t ${IMAGE_NAME_AGENT}:latest \
-                 8/buster/
+                 8/debian/buster/
 
 build-jdk11:
 	docker build -t ${IMAGE_NAME}:jdk11 \
                  -t ${IMAGE_NAME}:jdk11-stretch \
-                 11/stretch/
+                 11/debian/stretch/
 
 build-jdk11-buster:
 	docker build -t ${IMAGE_NAME}:jdk11-buster \
                 -t ${IMAGE_NAME_AGENT}:jdk11-buster \
                 -t ${IMAGE_NAME_AGENT}:jdk11 \
-                11/buster/
+                11/debian/buster/
 
 bats:
 # The lastest version is v1.1.0
@@ -50,13 +50,13 @@ test-alpine: bats
 	@FOLDER="8/alpine" bats-core/bin/bats tests/tests.bats
 
 test-debian: bats
-	@FOLDER="8/stretch"   bats-core/bin/bats tests/tests.bats
+	@FOLDER="8/debian/stretch"   bats-core/bin/bats tests/tests.bats
 
 test-debian-buster: bats
-	@FOLDER="8/buster"   bats-core/bin/bats tests/tests.bats
+	@FOLDER="8/debian/buster"   bats-core/bin/bats tests/tests.bats
 
 test-jdk11: bats
-	@FOLDER="11/stretch"  bats-core/bin/bats tests/tests.bats
+	@FOLDER="11/debian/stretch"  bats-core/bin/bats tests/tests.bats
 
 test-jdk11-buster: bats
-	@FOLDER="11/buster"   bats-core/bin/bats tests/tests.bats
+	@FOLDER="11/debian/buster"   bats-core/bin/bats tests/tests.bats
