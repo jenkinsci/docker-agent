@@ -73,7 +73,7 @@ The image has several supported configurations, which can be accessed via the fo
 * `jdk11-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 11
 
 There are also versioned tags in DockerHub, and they are recommended for production use.
-See the full list [here](https://hub.docker.com/repository/docker/jenkins/agent/tags)
+See the full list [here](https://hub.docker.com/r/jenkins/agent/tags)
 
 ## Java 11 Support
 
