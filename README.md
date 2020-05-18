@@ -64,12 +64,16 @@ docker run -i --rm --name agent1 --init -v agent1-workdir:C:/Users/jenkins/Work 
 The image has several supported configurations, which can be accessed via the following tags:
 
 * `latest`: Latest version with the newest remoting (based on `openjdk:8-jdk-buster`)
+* `latest-stretch`: Latest version with the newest remoting (based on `openjdk:8-jdk-stretch`)
 * `latest-jdk11`: Latest version with the newest remoting and Java 11 (based on `openjdk:11-jdk-buster`)
 * `alpine`: Small image based on Alpine Linux (based on `openjdk:8-jdk-alpine`)
 * `jdk8-windowsservercore-1809`: Latest version with the newest remoting (based on `adoptopenjdk:8-jdk-hotspot-windowsservercore-1809`)
 * `jdk11-windowsservercore-1809`: Latest version with the newest remoting and Java 11 (based on `adoptopenjdk:11-jdk-hotspot-windowsservercore-1809`)
 * `jdk8-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server
 * `jdk11-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 11
+
+There are also versioned tags in DockerHub, and they are recommended for production use.
+See the full list [here](https://hub.docker.com/r/jenkins/agent/tags)
 
 ## Java 11 Support
 
