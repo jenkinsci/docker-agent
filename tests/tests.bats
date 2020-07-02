@@ -157,4 +157,6 @@ function teardown () {
 
   run docker exec "${AGENT_CONTAINER}" touch /home/test-user/something/a
   [ "${status}" -eq 0 ]
+
+  assert "${TEST_VERSION}" docker inspect --format '{{ index .Config.Labels "org.label-schema.version"}}' $AGENT_IMAGE
 }

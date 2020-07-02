@@ -27,7 +27,21 @@ FROM adoptopenjdk:11-jdk-hotspot-windowsservercore-1809
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 ARG VERSION=4.3
-LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
+
+# Build-time metadata as defined at http://label-schema.org
+ARG BUILD_DATE
+
+# metadata labels
+LABEL `
+    org.label-schema.build-date=$BUILD_DATE `
+    org.label-schema.schema-version="1.0" `
+    org.label-schema.vendor="Jenkins project" `
+    org.label-schema.name="Official Jenkins Docker image" `
+    org.label-schema.description="This is a base image, which provides the Jenkins agent executable (slave.jar)" `
+    org.label-schema.version="${VERSION}" `
+    org.label-schema.url="https://jenkins.io/" `
+    org.label-schema.vcs-url="https://github.com/jenkinsci/jenkins" `
+    org.label-schema.license="MIT"
 
 ARG GIT_VERSION=2.26.0
 ARG GIT_PATCH_VERSION=1
