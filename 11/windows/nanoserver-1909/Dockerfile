@@ -25,18 +25,18 @@
 # If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
 # use the 'latest'
 ARG POWERSHELL_VERSION=
-FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
+FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1909
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ENV JAVA_VERSION jdk8u252-b09
+ENV JAVA_VERSION jdk-11.0.7+10
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u252-b09.1/OpenJDK8U-jdk_x64_windows_hotspot_8u252b09.zip ...'); `
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.7%2B10.2/OpenJDK11U-jdk_x64_windows_hotspot_11.0.7_10.zip ...'); `
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; `
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u252-b09.1/OpenJDK8U-jdk_x64_windows_hotspot_8u252b09.zip -O 'openjdk.zip'; `
-    Write-Host ('Verifying sha256 (4e2c92ba17481321eaeb1769e85eec99a774102eb80b700a201b54b130ab2768) ...'); `
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '4e2c92ba17481321eaeb1769e85eec99a774102eb80b700a201b54b130ab2768') { `
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.7%2B10.2/OpenJDK11U-jdk_x64_windows_hotspot_11.0.7_10.zip -O 'openjdk.zip'; `
+    Write-Host ('Verifying sha256 (61e99ff902e02c83b6c48172968593ee05ae183a39e5ef13a44bd4bf7eb2ce8b) ...'); `
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '61e99ff902e02c83b6c48172968593ee05ae183a39e5ef13a44bd4bf7eb2ce8b') { `
             Write-Host 'FAILED!'; `
             exit 1; `
     }; `
@@ -44,7 +44,7 @@ RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/r
     Write-Host 'Expanding Zip ...'; `
     Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; `
     $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); `
-    Move-Item -Path $jdkDirectory C:\openjdk-8; `
+    Move-Item -Path $jdkDirectory C:\openjdk-11; `
     Write-Host 'Removing openjdk.zip ...'; `
     Remove-Item openjdk.zip -Force
 
@@ -71,7 +71,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
 
 ENV ProgramFiles="C:\Program Files" `
     WindowsPATH="C:\Windows\system32;C:\Windows" `
-    JAVA_HOME="C:\openjdk-8"
+    JAVA_HOME="C:\openjdk-11"
 ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
 ARG user=jenkins
@@ -79,7 +79,8 @@ ARG user=jenkins
 ARG AGENT_FILENAME=agent.jar
 ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 
-RUN net user "$env:user" /add /expire:never /passwordreq:no ; `
+RUN net accounts /maxpwage:unlimited ; `
+    net user "$env:user" /add /expire:never /passwordreq:no ; `
     net localgroup Administrators /add $env:user ; `
     New-Item -ItemType Directory -Path C:/ProgramData/Jenkins | Out-Null
 
