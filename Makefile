@@ -3,6 +3,8 @@ ROOT:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 IMAGE_NAME:=jenkins4eval/agent
 IMAGE_NAME_AGENT:=jenkins4eval/slave
 
+REMOTING_VERSION?=4.3
+
 .PHONY: build
 .PHONY: test test-alpine test-debian test-debian-buster test-jdk11 test-jdk11-alpine test-jdk11-buster
 
@@ -13,12 +15,14 @@ build-alpine:
                  -t ${IMAGE_NAME}:jdk8-alpine \
                  -t ${IMAGE_NAME}:jdk8-alpine3.9 \
                  -t ${IMAGE_NAME_AGENT}:alpine \
+                 --build-arg VERSION=${REMOTING_VERSION} \
                  8/alpine/
 
 build-debian:
 	docker build -t ${IMAGE_NAME}:latest \
                  -t ${IMAGE_NAME}:stretch \
                  -t ${IMAGE_NAME}:jdk8-stretch \
+                 --build-arg VERSION=${REMOTING_VERSION} \
                  8/stretch/
 
 build-debian-buster:
@@ -26,11 +30,13 @@ build-debian-buster:
                  -t ${IMAGE_NAME}:jdk8 \
                  -t ${IMAGE_NAME}:jdk8-buster \
                  -t ${IMAGE_NAME_AGENT}:latest \
+                 --build-arg VERSION=${REMOTING_VERSION} \
                  8/buster/
 
 build-jdk11:
 	docker build -t ${IMAGE_NAME}:jdk11 \
                  -t ${IMAGE_NAME}:jdk11-stretch \
+                 --build-arg VERSION=${REMOTING_VERSION} \
                  11/stretch/
 
 build-jdk11-alpine:
@@ -38,12 +44,14 @@ build-jdk11-alpine:
                  -t ${IMAGE_NAME}:jdk11-alpine \
                  -t ${IMAGE_NAME}:jdk11-alpine3.9 \
                  -t ${IMAGE_NAME_AGENT}:alpine \
+                 --build-arg VERSION=${REMOTING_VERSION} \
                  11/alpine/
 
 build-jdk11-buster:
 	docker build -t ${IMAGE_NAME}:jdk11-buster \
                  -t ${IMAGE_NAME_AGENT}:jdk11-buster \
                  -t ${IMAGE_NAME_AGENT}:jdk11 \
+                 --build-arg VERSION=${REMOTING_VERSION} \
                  11/buster/
 
 bats:
