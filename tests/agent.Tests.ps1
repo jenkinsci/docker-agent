@@ -91,6 +91,27 @@ Describe "[$JDK $FLAVOR] image has correct applications in the PATH" {
     }
 }
 
+Describe "[$JDK $FLAVOR] check user account" {
+    BeforeAll {
+        docker run -d -it --name "$AGENT_CONTAINER" -P "$AGENT_IMAGE" "$SHELL"
+        Is-AgentContainerRunning $AGENT_CONTAINER
+    }
+
+    It 'Password never expires' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "exec $AGENT_CONTAINER $SHELL -C `"if((net user jenkins | Select-String -Pattern 'Password expires') -match 'Never') { exit 0 } else { exit -1 }`""
+        $exitCode | Should -Be 0
+    }
+
+    It 'Password not required' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "exec $AGENT_CONTAINER $SHELL -C `"if((net user jenkins | Select-String -Pattern 'Password required') -match 'No') { exit 0 } else { exit -1 }`""
+        $exitCode | Should -Be 0
+    }
+
+    AfterAll {
+        Cleanup($AGENT_CONTAINER)
+    }
+}
+
 Describe "[$JDK $FLAVOR] check user access to directories" {
     BeforeAll {
         docker run -d -it --name "$AGENT_CONTAINER" -P "$AGENT_IMAGE" "$SHELL"

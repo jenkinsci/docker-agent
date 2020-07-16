@@ -48,7 +48,6 @@ RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/r
     Write-Host 'Removing openjdk.zip ...'; `
     Remove-Item openjdk.zip -Force
 
-
 ARG VERSION=4.3
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
@@ -69,7 +68,6 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ; `
     Remove-Item GitLfs.zip -Force ; `
     & C:\mingit\cmd\git.exe lfs install
-
 
 ENV ProgramFiles="C:\Program Files" `
     WindowsPATH="C:\Windows\system32;C:\Windows" `

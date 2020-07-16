@@ -79,7 +79,8 @@ ARG user=jenkins
 ARG AGENT_FILENAME=agent.jar
 ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 
-RUN net user "$env:user" /add /expire:never /passwordreq:no ; `
+RUN net accounts /maxpwage:unlimited ; `
+    net user "$env:user" /add /expire:never /passwordreq:no ; `
     net localgroup Administrators /add $env:user ; `
     New-Item -ItemType Directory -Path C:/ProgramData/Jenkins | Out-Null
 
