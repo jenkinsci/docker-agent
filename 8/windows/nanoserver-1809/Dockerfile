@@ -27,22 +27,26 @@
 ARG POWERSHELL_VERSION=
 FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
 
-ARG JAVA_VERSION=8u242-b08
-ARG JAVA_SHA256=8288e4d0983019706db89c153d18bfce28d033f646be65c8ae1c33c6c65b943e
-ARG JAVA_HOME=C:\jdk${JAVA_VERSION}
-
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-USER ContainerAdministrator
+ENV JAVA_VERSION jdk8u252-b09
 
-RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
-    $javaRoot = 'OpenJDK8U-jdk_x64_windows_hotspot_{0}' -f $env:JAVA_VERSION.Replace('-', '') ; `
-    $url = $('https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk{0}/{1}.zip' -f $env:JAVA_VERSION, $javaRoot) ; `
-    Write-Host "Retrieving $url..." ; `
-    Invoke-WebRequest $url -OutFile 'openjdk.zip' -UseBasicParsing ; `
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne $env:JAVA_SHA256) { Write-Error 'Java SHA256 mismatch' ; exit 1} ; `
-    Expand-Archive openjdk.zip -DestinationPath C:/ ; `
-    Remove-Item -Path openjdk.zip
+USER ContainerAdministrator
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u252-b09.1/OpenJDK8U-jdk_x64_windows_hotspot_8u252b09.zip ...'); `
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; `
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u252-b09.1/OpenJDK8U-jdk_x64_windows_hotspot_8u252b09.zip -O 'openjdk.zip'; `
+    Write-Host ('Verifying sha256 (4e2c92ba17481321eaeb1769e85eec99a774102eb80b700a201b54b130ab2768) ...'); `
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '4e2c92ba17481321eaeb1769e85eec99a774102eb80b700a201b54b130ab2768') { `
+            Write-Host 'FAILED!'; `
+            exit 1; `
+    }; `
+    `
+    Write-Host 'Expanding Zip ...'; `
+    Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; `
+    $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); `
+    Move-Item -Path $jdkDirectory C:\openjdk-8; `
+    Write-Host 'Removing openjdk.zip ...'; `
+    Remove-Item openjdk.zip -Force
 
 ARG VERSION=4.3
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
@@ -65,9 +69,9 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Remove-Item GitLfs.zip -Force ; `
     & C:\mingit\cmd\git.exe lfs install
 
-
-ENV ProgramFiles="C:\Program Files"
-ENV WindowsPATH="C:\Windows\system32;C:\Windows"
+ENV ProgramFiles="C:\Program Files" `
+    WindowsPATH="C:\Windows\system32;C:\Windows" `
+    JAVA_HOME="C:\openjdk-8"
 ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
 ARG user=jenkins

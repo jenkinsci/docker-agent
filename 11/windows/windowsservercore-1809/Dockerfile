@@ -55,7 +55,7 @@ ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 
 RUN net user "$env:user" /add /expire:never /passwordreq:no ; `
     net localgroup Administrators /add $env:user ; `
-    wmic useraccount WHERE Name=$env:user set PasswordExpires=false; `
+    Set-LocalUser -Name $env:user -PasswordNeverExpires 1; `
     New-Item -ItemType Directory -Path C:/ProgramData/Jenkins | Out-Null
 
 ARG AGENT_ROOT=C:/Users/$user
