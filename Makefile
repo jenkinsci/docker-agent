@@ -4,9 +4,9 @@ IMAGE_NAME:=jenkins4eval/agent
 IMAGE_NAME_AGENT:=jenkins4eval/slave
 
 .PHONY: build
-.PHONY: test test-alpine test-debian test-debian-buster test-jdk11 test-jdk11-alpine test-jdk11-buster
+.PHONY: test test-alpine test-arch test-debian test-debian-buster test-jdk11 test-jdk11-alpine test-jdk11-buster
 
-build: build-alpine build-debian build-debian-buster build-jdk11 build-jdk11-alpine build-jdk11-buster
+build: build-alpine build-arch build-debian build-debian-buster build-jdk11 build-jdk11-alpine build-jdk11-buster
 
 build-alpine:
 	docker build -t ${IMAGE_NAME}:alpine \
@@ -14,6 +14,12 @@ build-alpine:
                  -t ${IMAGE_NAME}:jdk8-alpine3.9 \
                  -t ${IMAGE_NAME_AGENT}:alpine \
                  8/alpine/
+
+build-arch:
+	docker build -t ${IMAGE_NAME}:latest \
+                 -t ${IMAGE_NAME}:arch \
+                 -t ${IMAGE_NAME}:jdk11-arch \
+                 11/arch/
 
 build-debian:
 	docker build -t ${IMAGE_NAME}:latest \
@@ -51,10 +57,13 @@ bats:
 	@if [ ! -d bats-core ]; then git clone https://github.com/bats-core/bats-core.git; fi
 	@git -C bats-core reset --hard c706d1470dd1376687776bbe985ac22d09780327
 
-test: test-alpine test-debian test-debian-buster test-jdk11 test-jdk11-buster
+test: test-alpine test-arch test-debian test-debian-buster test-jdk11 test-jdk11-buster
 
 test-alpine: bats
 	@FOLDER="8/alpine" bats-core/bin/bats tests/tests.bats
+
+test-arch: bats
+	@FOLDER="11/arch" bats-core/bin/bats tests/tests.bats
 
 test-debian: bats
 	@FOLDER="8/stretch"   bats-core/bin/bats tests/tests.bats
