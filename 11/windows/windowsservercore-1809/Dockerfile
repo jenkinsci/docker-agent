@@ -37,10 +37,12 @@ LABEL `
     org.label-schema.schema-version="1.0" `
     org.label-schema.vendor="Jenkins project" `
     org.label-schema.name="Official Jenkins Docker image" `
-    org.label-schema.description="This is a base image, which provides the Jenkins agent executable (slave.jar)" `
+    org.label-schema.description="This is a base image, which provides the Jenkins agent executable (agent.jar)" `
+
     org.label-schema.version="${VERSION}" `
     org.label-schema.url="https://jenkins.io/" `
-    org.label-schema.vcs-url="https://github.com/jenkinsci/jenkins" `
+    org.label-schema.vcs-url="https://github.com/jenkinsci/docker-agent" `
+
     org.label-schema.license="MIT"
 
 ARG GIT_VERSION=2.26.0
