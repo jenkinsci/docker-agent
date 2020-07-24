@@ -17,9 +17,9 @@ if(($FOLDER -match '^(?<jdk>[0-9]+)[\\/](?<flavor>.+)$') -and (Test-Path $REAL_F
     exit 1
 }
 
-if($FLAVOR -match "nanoserver") {
+if($FLAVOR -match "nanoserver-(\d*)") {
     $AGENT_IMAGE += "-nanoserver"
-    $AGENT_CONTAINER += "-nanoserver-1809"
+    $AGENT_CONTAINER += "-nanoserver-$($Matches[1])"
     $SHELL = "pwsh.exe"
 }
 

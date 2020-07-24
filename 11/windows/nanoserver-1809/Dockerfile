@@ -27,10 +27,6 @@
 ARG POWERSHELL_VERSION=
 FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
 
-ARG JAVA_VERSION=11.0.6+10
-ARG JAVA_SHA256=6fb8b6c254ec0e1091acd421ac79c1bb07b295de0b679c0595fd284caf7734e5
-ARG JAVA_HOME=C:\jdk-${JAVA_VERSION}
-
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 ENV JAVA_VERSION jdk-11.0.7+10
@@ -58,7 +54,7 @@ LABEL Description="This is a base image, which provides the Jenkins agent execut
 ARG GIT_VERSION=2.26.0
 ARG GIT_PATCH_VERSION=1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
-    $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}-busybox-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
+    $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest $url -OutFile 'mingit.zip' -UseBasicParsing ; `
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
@@ -86,7 +82,6 @@ ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 RUN net accounts /maxpwage:unlimited ; `
     net user "$env:user" /add /expire:never /passwordreq:no ; `
     net localgroup Administrators /add $env:user ; `
-    setx /M PATH '%PATH%;%JAVA_HOME%\bin' ; `
     New-Item -ItemType Directory -Path C:/ProgramData/Jenkins | Out-Null
 
 ARG AGENT_ROOT=C:/Users/$user
