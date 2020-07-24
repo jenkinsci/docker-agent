@@ -5,7 +5,7 @@ Param(
     [String] $AdditionalArgs = '',
     [String] $Build = '',
     [String] $RemotingVersion = '4.3',
-    [String] $BuildNumber = "1",
+    [String] $BuildNumber = "6",
     [switch] $PushVersions = $false
 )
 
@@ -30,7 +30,7 @@ Get-ChildItem -Recurse -Include windows -Directory | ForEach-Object {
         $items = $dir.Split("\")
         $jdkVersion = $items[0]
         $baseImage = $items[2]
-        $basicTag = "jdk${jdkVersion}-${baseImage}" 
+        $basicTag = "jdk${jdkVersion}-${baseImage}"
         $tags = @( $basicTag )
         if($jdkVersion -eq $defaultBuild) {
             $tags += $baseImage
@@ -39,7 +39,7 @@ Get-ChildItem -Recurse -Include windows -Directory | ForEach-Object {
         $builds[$basicTag] = @{
             'Folder' = $dir;
             'Tags' = $tags;
-        }        
+        }
     }
 }
 
