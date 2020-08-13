@@ -16,8 +16,7 @@ build-alpine:
                  8/alpine/
 
 build-debian:
-	docker build -t ${IMAGE_NAME}:latest \
-                 -t ${IMAGE_NAME}:stretch \
+	docker build -t ${IMAGE_NAME}:stretch \
                  -t ${IMAGE_NAME}:jdk8-stretch \
                  8/stretch/
 
@@ -53,20 +52,20 @@ bats:
 
 test: test-alpine test-debian test-debian-buster test-jdk11 test-jdk11-buster
 
-test-alpine: bats
+test-alpine: build bats
 	@FOLDER="8/alpine" bats-core/bin/bats tests/tests.bats
 
-test-debian: bats
+test-debian: build bats
 	@FOLDER="8/stretch"   bats-core/bin/bats tests/tests.bats
 
-test-debian-buster: bats
+test-debian-buster: build bats
 	@FOLDER="8/buster"   bats-core/bin/bats tests/tests.bats
 
-test-jdk11: bats
+test-jdk11: build bats
 	@FOLDER="11/stretch"  bats-core/bin/bats tests/tests.bats
 
-test-jdk11-alpine: bats
+test-jdk11-alpine: build bats
 	@FOLDER="11/alpine" bats-core/bin/bats tests/tests.bats
 
-test-jdk11-buster: bats
+test-jdk11-buster: build bats
 	@FOLDER="11/buster"   bats-core/bin/bats tests/tests.bats
