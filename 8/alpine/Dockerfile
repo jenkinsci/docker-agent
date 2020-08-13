@@ -20,7 +20,10 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM openjdk:8-jdk-alpine3.9
+# FIXME(oleg_nenashev): This is not an official AdoptOpenJDK Docker Image.
+# There is no official Alpine images at the moment.
+# Needs upgrade when/if there is an official alpine image.
+FROM adoptopenjdk/openjdk8:jdk8u262-b10-alpine
 
 ARG VERSION=4.3
 ARG user=jenkins
