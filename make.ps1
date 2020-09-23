@@ -5,7 +5,7 @@ Param(
     [String] $AdditionalArgs = '',
     [String] $Build = '',
     [String] $RemotingVersion = '4.3',
-    [String] $BuildNumber = "1",
+    [String] $BuildNumber = "6",
     [switch] $PushVersions = $false
 )
 
@@ -50,6 +50,28 @@ $builds = @{
         'Folder' = '11\windows\nanoserver-1809';
         'Tags' = @( "jdk11-nanoserver-1809" )
     };
+
+# this is the jdk version that will be used for the 'bare tag' images, e.g., jdk8-windowsservercore-1809 -> windowsserver-1809
+$defaultBuild = '8'
+$builds = @{}
+
+Get-ChildItem -Recurse -Include windows -Directory | ForEach-Object {
+    Get-ChildItem -Directory -Path $_ | Where-Object { Test-Path (Join-Path $_.FullName "Dockerfile") } | ForEach-Object {
+        $dir = $_.FullName.Replace((Get-Location), "").TrimStart("\")
+        $items = $dir.Split("\")
+        $jdkVersion = $items[0]
+        $baseImage = $items[2]
+        $basicTag = "jdk${jdkVersion}-${baseImage}"
+        $tags = @( $basicTag )
+        if($jdkVersion -eq $defaultBuild) {
+            $tags += $baseImage
+        }
+
+        $builds[$basicTag] = @{
+            'Folder' = $dir;
+            'Tags' = $tags;
+        }
+    }
 }
 
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
