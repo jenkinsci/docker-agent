@@ -31,12 +31,8 @@ ARG gid=1000
 RUN groupadd -g ${gid} ${group}
 RUN useradd -c "Jenkins user" -d /home/${user} -u ${uid} -g ${gid} -m ${user}
 
-# Build-time metadata as defined at http://label-schema.org
-ARG BUILD_DATE
-
 # metadata labels
 LABEL \
-    org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.schema-version="1.0" \
     org.label-schema.vendor="Jenkins project" \
     org.label-schema.name="Official Jenkins Docker image" \

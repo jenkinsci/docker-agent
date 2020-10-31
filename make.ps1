@@ -39,12 +39,10 @@ $builds = @{
     };
 }
 
-$date = Get-Date -UFormat "%Y-%m-%dT%R:%S%Z"
-
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
     foreach($tag in $builds[$Build]['Tags']) {
         Write-Host "Building $Build => tag=$tag"
-        $cmd = "docker build --build-arg VERSION='$RemotingVersion' --build-arg BUILD_DATE='$date' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$Build]['Folder']
+        $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$Build]['Folder']
         Invoke-Expression $cmd
 
         if($PushVersions) {
@@ -53,7 +51,7 @@ if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)
                 $buildTag = "$RemotingVersion-$BuildNumber"
             }
             Write-Host "Building $Build => tag=$buildTag"
-            $cmd = "docker build --build-arg VERSION='$RemotingVersion' --build-arg BUILD_DATE='$date' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$Build]['Folder']
+            $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$Build]['Folder']
             Invoke-Expression $cmd
         }
     }
@@ -61,7 +59,7 @@ if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)
     foreach($b in $builds.Keys) {
         foreach($tag in $builds[$b]['Tags']) {
             Write-Host "Building $b => tag=$tag"
-            $cmd = "docker build --build-arg VERSION='$RemotingVersion' --build-arg BUILD_DATE='$date' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$b]['Folder']
+            $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$b]['Folder']
             Invoke-Expression $cmd
 
             if($PushVersions) {
@@ -70,7 +68,7 @@ if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)
                     $buildTag = "$RemotingVersion-$BuildNumber"
                 }
                 Write-Host "Building $Build => tag=$buildTag"
-                $cmd = "docker build --build-arg VERSION='$RemotingVersion' --build-arg BUILD_DATE='$date' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$b]['Folder']
+                $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$b]['Folder']
                 Invoke-Expression $cmd
             }
         }

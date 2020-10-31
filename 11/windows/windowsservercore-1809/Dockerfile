@@ -28,12 +28,8 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ARG VERSION=4.3
 
-# Build-time metadata as defined at http://label-schema.org
-ARG BUILD_DATE
-
 # metadata labels
 LABEL `
-    org.label-schema.build-date=$BUILD_DATE `
     org.label-schema.schema-version="1.0" `
     org.label-schema.vendor="Jenkins project" `
     org.label-schema.name="Official Jenkins Docker image" `
