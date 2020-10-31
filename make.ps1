@@ -163,12 +163,12 @@ if($target -eq "publish") {
             }
         }
     }
-}
 
-# Fail if any issues when publising the docker images
-if($publishFailed -ne 0) {
-    Write-Error "Publish failed!"
-    exit 1
+    # Fail if any issues when publising the docker images
+    if($publishFailed -ne 0) {
+        Write-Error "Publish failed!"
+        exit 1
+    }
 }
 
 if($lastExitCode -ne 0) {
