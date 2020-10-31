@@ -84,6 +84,8 @@ if($lastExitCode -ne 0) {
 }
 
 if($target -eq "test") {
+    # Only fail the run afterwards in case of any test failures
+    $testFailed = 0
     $mod = Get-InstalledModule -Name Pester -MinimumVersion 4.9.0 -MaximumVersion 4.99.99 -ErrorAction SilentlyContinue
     if($null -eq $mod) {
         $module = "c:\Program Files\WindowsPowerShell\Modules\Pester"
@@ -100,6 +102,9 @@ if($target -eq "test") {
         $env:FOLDER = $builds[$Build]['Folder']
         $env:VERSION = "$RemotingVersion-$BuildNumber"
         Invoke-Pester -Path tests -EnableExit
+        if($lastExitCode -ne 0) {
+            testFailed = 1
+        }
         Remove-Item env:\FOLDER
         Remove-Item env:\VERSION
     } else {
@@ -107,9 +112,17 @@ if($target -eq "test") {
             $env:FOLDER = $builds[$b]['Folder']
             $env:VERSION = "$RemotingVersion-$BuildNumber"
             Invoke-Pester -Path tests -EnableExit
+            if($lastExitCode -ne 0) {
+                testFailed = 1
+            }
             Remove-Item env:\FOLDER
             Remove-Item env:\VERSION
         }
+    }
+
+    # Fail if any test failures
+    if($testFailed -ne 0) {
+        exit 1
     }
 }
 
