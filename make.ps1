@@ -103,7 +103,7 @@ if($target -eq "test") {
         $env:VERSION = "$RemotingVersion-$BuildNumber"
         Invoke-Pester -Path tests -EnableExit
         if($lastExitCode -ne 0) {
-            testFailed = 1
+            $testFailed = 1
         }
         Remove-Item env:\FOLDER
         Remove-Item env:\VERSION
@@ -113,7 +113,7 @@ if($target -eq "test") {
             $env:VERSION = "$RemotingVersion-$BuildNumber"
             Invoke-Pester -Path tests -EnableExit
             if($lastExitCode -ne 0) {
-                testFailed = 1
+                $testFailed = 1
             }
             Remove-Item env:\FOLDER
             Remove-Item env:\VERSION
@@ -122,6 +122,7 @@ if($target -eq "test") {
 
     # Fail if any test failures
     if($testFailed -ne 0) {
+        Write-Error "Test failed!"
         exit 1
     }
 }
