@@ -51,22 +51,31 @@ bats:
 	@if [ ! -d bats-core ]; then git clone https://github.com/bats-core/bats-core.git; fi
 	@git -C bats-core reset --hard c706d1470dd1376687776bbe985ac22d09780327
 
+prepare-test: bats
+	mkdir -p target
+
+test-run-%: prepare-test
+	FOLDER="${FOLDER}" bats-core/bin/bats tests/tests.bats | tee target/results-$*.tap
+	docker run --rm -v "${PWD}":/usr/src/app \
+					-w /usr/src/app node:12-alpine \
+					sh -c "npm install tap-xunit -g && cat target/results-$*.tap | tap-xunit --package='jenkinsci.docker-agent.$*' > target/junit-results-$*.xml"
+
 test: test-alpine test-debian test-debian-buster test-jdk11 test-jdk11-buster
 
-test-alpine: bats
-	@FOLDER="8/alpine" bats-core/bin/bats tests/tests.bats
+test-alpine: FOLDER=8/alpine
+test-alpine: test-run-alpine
 
-test-debian: bats
-	@FOLDER="8/stretch"   bats-core/bin/bats tests/tests.bats
+test-debian: FOLDER=8/stretch
+test-debian: test-run-debian
 
-test-debian-buster: bats
-	@FOLDER="8/buster"   bats-core/bin/bats tests/tests.bats
+test-debian-buster: FOLDER=8/buster
+test-debian-buster: test-run-debian-buster
 
-test-jdk11: bats
-	@FOLDER="11/stretch"  bats-core/bin/bats tests/tests.bats
+test-jdk11: FOLDER=11/stretch
+test-jdk11: test-run-debian-jdk11
 
-test-jdk11-alpine: bats
-	@FOLDER="11/alpine" bats-core/bin/bats tests/tests.bats
+test-jdk11-alpine: FOLDER=11/alpine
+test-jdk11-alpine: test-run-debian-jdk11-alpine
 
-test-jdk11-buster: bats
-	@FOLDER="11/buster"   bats-core/bin/bats tests/tests.bats
+test-jdk11-buster: FOLDER=11/buster
+test-jdk11-buster: test-run-debian-jdk11-buster
