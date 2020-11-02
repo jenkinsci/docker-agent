@@ -85,7 +85,7 @@ if($lastExitCode -ne 0) {
 
 if($target -eq "test") {
     # Only fail the run afterwards in case of any test failures
-    $testFailed = 0
+    $testFailed = $false
     $mod = Get-InstalledModule -Name Pester -MinimumVersion 4.9.0 -MaximumVersion 4.99.99 -ErrorAction SilentlyContinue
     if($null -eq $mod) {
         $module = "c:\Program Files\WindowsPowerShell\Modules\Pester"
@@ -101,9 +101,12 @@ if($target -eq "test") {
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
         $env:FOLDER = $builds[$Build]['Folder']
         $env:VERSION = "$RemotingVersion-$BuildNumber"
-        Invoke-Pester -Path tests -EnableExit
-        if($lastExitCode -ne 0) {
-            $testFailed = 1
+        $TestResults = Invoke-Pester -Path tests -PassThru
+        if ($TestResults.FailedCount -gt 0) {
+            Write-Host "There were $($TestResults.FailedCount) failed tests in $Build"
+            $testFailed = $true
+        } else {
+            Write-Host "There were $($TestResults.PassedCount) passed tests out of $($TestResults.TotalCount) in $Build"
         }
         Remove-Item env:\FOLDER
         Remove-Item env:\VERSION
@@ -111,9 +114,12 @@ if($target -eq "test") {
         foreach($b in $builds.Keys) {
             $env:FOLDER = $builds[$b]['Folder']
             $env:VERSION = "$RemotingVersion-$BuildNumber"
-            Invoke-Pester -Path tests -EnableExit
-            if($lastExitCode -ne 0) {
-                $testFailed = 1
+            $TestResults = Invoke-Pester -Path tests -PassThru
+            if ($TestResults.FailedCount -gt 0) {
+                Write-Host "There were $($TestResults.FailedCount) failed tests in $b"
+                $testFailed = $true
+            } else {
+                Write-Host "There were $($TestResults.PassedCount) passed tests out of $($TestResults.TotalCount) in $b"
             }
             Remove-Item env:\FOLDER
             Remove-Item env:\VERSION
@@ -121,9 +127,11 @@ if($target -eq "test") {
     }
 
     # Fail if any test failures
-    if($testFailed -ne 0) {
-        Write-Error "Test failed!"
+    if($testFailed -ne $false) {
+        Write-Error "Test stage failed!"
         exit 1
+    } else {
+        Write-Host "Test stage passed!"
     }
 }
 
