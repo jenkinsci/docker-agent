@@ -99,9 +99,11 @@ if($target -eq "test") {
     }
 
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-        $env:FOLDER = $builds[$Build]['Folder']
+        $folder = $builds[$Build]['Folder']
+        $env:FOLDER = $folder
         $env:VERSION = "$RemotingVersion-$BuildNumber"
-        $TestResults = Invoke-Pester -Path tests -PassThru
+        New-Item -Path ".\target\$folder" -Type Directory
+        $TestResults = Invoke-Pester -Path tests -PassThru -OutputFile ".\target\$folder\junit-results.xml" -OutputFormat JUnitXml
         if ($TestResults.FailedCount -gt 0) {
             Write-Host "There were $($TestResults.FailedCount) failed tests in $Build"
             $testFailed = $true
@@ -112,9 +114,11 @@ if($target -eq "test") {
         Remove-Item env:\VERSION
     } else {
         foreach($b in $builds.Keys) {
-            $env:FOLDER = $builds[$b]['Folder']
+            $folder = $builds[$b]['Folder']
+            $env:FOLDER = $folder
             $env:VERSION = "$RemotingVersion-$BuildNumber"
-            $TestResults = Invoke-Pester -Path tests -PassThru
+            New-Item -Path ".\target\$folder" -Type Directory
+            $TestResults = Invoke-Pester -Path tests -PassThru -OutputFile ".\target\$folder\junit-results.xml" -OutputFormat JUnitXml
             if ($TestResults.FailedCount -gt 0) {
                 Write-Host "There were $($TestResults.FailedCount) failed tests in $b"
                 $testFailed = $true
