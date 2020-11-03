@@ -97,16 +97,20 @@ if($target -eq "test") {
     }
 
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-        $env:FOLDER = $builds[$Build]['Folder']
+        $folder = $builds[$Build]['Folder']
+        $env:FOLDER = $folder
         $env:VERSION = "$RemotingVersion-$BuildNumber"
-        Invoke-Pester -Path tests -EnableExit
+        New-Item -Path ".\target\$folder" -Type Directory
+        Invoke-Pester -Path tests -EnableExit -OutputFile ".\target\$folder\junit-results.xml" -OutputFormat JUnitXml
         Remove-Item env:\FOLDER
         Remove-Item env:\VERSION
     } else {
         foreach($b in $builds.Keys) {
-            $env:FOLDER = $builds[$b]['Folder']
+            $folder = $builds[$b]['Folder']
+            $env:FOLDER = $folder
             $env:VERSION = "$RemotingVersion-$BuildNumber"
-            Invoke-Pester -Path tests -EnableExit
+            New-Item -Path ".\target\$folder" -Type Directory
+            Invoke-Pester -Path tests -EnableExit -OutputFile ".\target\$folder\junit-results.xml" -OutputFormat JUnitXml
             Remove-Item env:\FOLDER
             Remove-Item env:\VERSION
         }
