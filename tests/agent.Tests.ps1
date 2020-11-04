@@ -5,7 +5,7 @@ $AGENT_CONTAINER='pester-jenkins-jnlp-agent'
 $SHELL="powershell.exe"
 
 $FOLDER = Get-EnvOrDefault 'FOLDER' ''
-$VERSION = Get-EnvOrDefault 'VERSION' '4.3-1'
+$VERSION = Get-EnvOrDefault 'VERSION' '4.6-1'
 
 $REAL_FOLDER=Resolve-Path -Path "$PSScriptRoot/../${FOLDER}"
 
