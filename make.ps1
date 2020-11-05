@@ -4,8 +4,8 @@ Param(
     [String] $Target = "build",
     [String] $AdditionalArgs = '',
     [String] $Build = '',
-    [String] $RemotingVersion = '4.3',
-    [String] $BuildNumber = "1",
+    [String] $RemotingVersion = '4.6',
+    [String] $BuildNumber = "6",
     [switch] $PushVersions = $false
 )
 
@@ -20,23 +20,27 @@ if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_ORGANISATION)) {
     $Organization = $env:DOCKERHUB_ORGANISATION
 }
 
-$builds = @{
-    'jdk8' = @{
-        'Folder' = '8\windows\windowsservercore-1809';
-        'Tags' = @( "windowsservercore-1809", "jdk8-windowsservercore-1809" )
-    };
-    'jdk11' = @{
-        'Folder' = '11\windows\windowsservercore-1809';
-        'Tags' = @( "jdk11-windowsservercore-1809" )
-    };
-    'nanoserver' = @{
-        'Folder' = '8\windows\nanoserver-1809';
-        'Tags' = @( "nanoserver-1809", "jdk8-nanoserver-1809" )
-    };
-    'nanoserver-jdk11' = @{
-        'Folder' = '11\windows\nanoserver-1809';
-        'Tags' = @( "jdk11-nanoserver-1809" )
-    };
+# this is the jdk version that will be used for the 'bare tag' images, e.g., jdk8-windowsservercore-1809 -> windowsserver-1809
+$defaultBuild = '8'
+$builds = @{}
+
+Get-ChildItem -Recurse -Include windows -Directory | ForEach-Object {
+    Get-ChildItem -Directory -Path $_ | Where-Object { Test-Path (Join-Path $_.FullName "Dockerfile") } | ForEach-Object {
+        $dir = $_.FullName.Replace((Get-Location), "").TrimStart("\")
+        $items = $dir.Split("\")
+        $jdkVersion = $items[0]
+        $baseImage = $items[2]
+        $basicTag = "jdk${jdkVersion}-${baseImage}"
+        $tags = @( $basicTag )
+        if($jdkVersion -eq $defaultBuild) {
+            $tags += $baseImage
+        }
+
+        $builds[$basicTag] = @{
+            'Folder' = $dir;
+            'Tags' = $tags;
+        }
+    }
 }
 
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
@@ -93,16 +97,20 @@ if($target -eq "test") {
     }
 
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-        $env:FOLDER = $builds[$Build]['Folder']
+        $folder = $builds[$Build]['Folder']
+        $env:FOLDER = $folder
         $env:VERSION = "$RemotingVersion-$BuildNumber"
-        Invoke-Pester -Path tests -EnableExit
+        New-Item -Path ".\target\$folder" -Type Directory
+        Invoke-Pester -Path tests -EnableExit -OutputFile ".\target\$folder\junit-results.xml" -OutputFormat JUnitXml
         Remove-Item env:\FOLDER
         Remove-Item env:\VERSION
     } else {
         foreach($b in $builds.Keys) {
-            $env:FOLDER = $builds[$b]['Folder']
+            $folder = $builds[$b]['Folder']
+            $env:FOLDER = $folder
             $env:VERSION = "$RemotingVersion-$BuildNumber"
-            Invoke-Pester -Path tests -EnableExit
+            New-Item -Path ".\target\$folder" -Type Directory
+            Invoke-Pester -Path tests -EnableExit -OutputFile ".\target\$folder\junit-results.xml" -OutputFormat JUnitXml
             Remove-Item env:\FOLDER
             Remove-Item env:\VERSION
         }
@@ -110,11 +118,16 @@ if($target -eq "test") {
 }
 
 if($target -eq "publish") {
+    # Only fail the run afterwards in case of any issues when publishing the docker images
+    $publishFailed = 0
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
         foreach($tag in $Builds[$Build]['Tags']) {
             Write-Host "Publishing $Build => tag=$tag"
             $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $tag
             Invoke-Expression $cmd
+            if($lastExitCode -ne 0) {
+                $publishFailed = 1
+            }
 
             if($PushVersions) {
                 $buildTag = "$RemotingVersion-$BuildNumber-$tag"
@@ -124,6 +137,9 @@ if($target -eq "publish") {
                 Write-Host "Publishing $Build => tag=$buildTag"
                 $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $buildTag
                 Invoke-Expression $cmd
+                if($lastExitCode -ne 0) {
+                    $publishFailed = 1
+                }
             }
         }
     } else {
@@ -132,6 +148,9 @@ if($target -eq "publish") {
                 Write-Host "Publishing $b => tag=$tag"
                 $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $tag
                 Invoke-Expression $cmd
+                if($lastExitCode -ne 0) {
+                    $publishFailed = 1
+                }
 
                 if($PushVersions) {
                     $buildTag = "$RemotingVersion-$BuildNumber-$tag"
@@ -141,9 +160,18 @@ if($target -eq "publish") {
                     Write-Host "Publishing $Build => tag=$buildTag"
                     $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $buildTag
                     Invoke-Expression $cmd
+                    if($lastExitCode -ne 0) {
+                        $publishFailed = 1
+                    }
                 }
             }
         }
+    }
+
+    # Fail if any issues when publising the docker images
+    if($publishFailed -ne 0) {
+        Write-Error "Publish failed!"
+        exit 1
     }
 }
 

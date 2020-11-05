@@ -26,7 +26,7 @@ FROM adoptopenjdk:11-jdk-hotspot-windowsservercore-1809
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ARG VERSION=4.3
+ARG VERSION=4.6
 
 # metadata labels
 LABEL `
@@ -42,12 +42,11 @@ LABEL `
 ARG GIT_VERSION=2.26.0
 ARG GIT_PATCH_VERSION=1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
-    $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}-busybox-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
+    $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest $url -OutFile 'mingit.zip' -UseBasicParsing ; `
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
-    Remove-Item mingit.zip -Force ; `
-    setx /M PATH $('c:\mingit\cmd;{0}' -f $env:PATH)
+    Remove-Item mingit.zip -Force
 
 ARG GIT_LFS_VERSION=2.10.0
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
@@ -56,7 +55,10 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Invoke-WebRequest $url -OutFile 'GitLfs.zip' -UseBasicParsing ; `
     Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ; `
     Remove-Item GitLfs.zip -Force ; `
-    & C:\mingit\cmd\git.exe lfs install
+    & C:\mingit\cmd\git.exe lfs install ; `
+    $CurrentPath = (Get-Itemproperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path).Path ; `
+    $NewPath = $CurrentPath + ';C:\mingit\cmd' ; `
+    Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath
 
 ARG user=jenkins
 
@@ -65,6 +67,7 @@ ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 
 RUN net user "$env:user" /add /expire:never /passwordreq:no ; `
     net localgroup Administrators /add $env:user ; `
+    Set-LocalUser -Name $env:user -PasswordNeverExpires 1; `
     New-Item -ItemType Directory -Path C:/ProgramData/Jenkins | Out-Null
 
 ARG AGENT_ROOT=C:/Users/$user

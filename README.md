@@ -66,7 +66,7 @@ The image has several supported configurations, which can be accessed via the fo
 * `latest`: Latest version with the newest remoting (based on `openjdk:8-jdk-buster`)
 * `latest-stretch`: Latest version with the newest remoting (based on `openjdk:8-jdk-stretch`)
 * `latest-jdk11`: Latest version with the newest remoting and Java 11 (based on `openjdk:11-jdk-buster`)
-* `alpine`: Small image based on Alpine Linux (based on `openjdk:8-jdk-alpine`)
+* `alpine`: Small image based on Alpine Linux (based on `adoptopenjdk/openjdk8:jdk8u${version}-alpine`)
 * `jdk8-windowsservercore-1809`: Latest version with the newest remoting (based on `adoptopenjdk:8-jdk-hotspot-windowsservercore-1809`)
 * `jdk11-windowsservercore-1809`: Latest version with the newest remoting and Java 11 (based on `adoptopenjdk:11-jdk-hotspot-windowsservercore-1809`)
 * `jdk8-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server

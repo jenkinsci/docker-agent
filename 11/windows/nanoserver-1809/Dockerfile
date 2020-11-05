@@ -22,29 +22,39 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
+FROM mcr.microsoft.com/windows/servercore:1809 AS core
+
 # If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
 # use the 'latest'
 ARG POWERSHELL_VERSION=
 FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
 
-ARG JAVA_VERSION=11.0.6+10
-ARG JAVA_SHA256=6fb8b6c254ec0e1091acd421ac79c1bb07b295de0b679c0595fd284caf7734e5
-ARG JAVA_HOME=C:\jdk-${JAVA_VERSION}
+# The nanoserver image is nice and small, but we need a couple of things to get SSH working
+COPY --from=core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
+COPY --from=core /windows/system32/whoami.exe /windows/system32/whoami.exe
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
+ENV JAVA_VERSION jdk-11.0.7+10
+
 USER ContainerAdministrator
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.7%2B10.2/OpenJDK11U-jdk_x64_windows_hotspot_11.0.7_10.zip ...'); `
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; `
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.7%2B10.2/OpenJDK11U-jdk_x64_windows_hotspot_11.0.7_10.zip -O 'openjdk.zip'; `
+    Write-Host ('Verifying sha256 (61e99ff902e02c83b6c48172968593ee05ae183a39e5ef13a44bd4bf7eb2ce8b) ...'); `
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '61e99ff902e02c83b6c48172968593ee05ae183a39e5ef13a44bd4bf7eb2ce8b') { `
+            Write-Host 'FAILED!'; `
+            exit 1; `
+    }; `
+    `
+    Write-Host 'Expanding Zip ...'; `
+    Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; `
+    $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); `
+    Move-Item -Path $jdkDirectory C:\openjdk-11; `
+    Write-Host 'Removing openjdk.zip ...'; `
+    Remove-Item openjdk.zip -Force
 
-RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
-    $javaRoot = 'OpenJDK11U-jdk_x64_windows_hotspot_{0}' -f $env:JAVA_VERSION.Replace('+', '_') ; `
-    $url = 'https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-{0}/{1}.zip' -f [System.Uri]::EscapeDataString($env:JAVA_VERSION), $javaRoot ; `
-    Write-Host "Retrieving $url..." ; `
-    Invoke-WebRequest $url -OutFile 'openjdk.zip' -UseBasicParsing ; `
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne $env:JAVA_SHA256) { Write-Error 'Java SHA256 mismatch' ; exit 1} ; `
-    Expand-Archive openjdk.zip -DestinationPath C:/ ; `
-    Remove-Item -Path openjdk.zip
-
-ARG VERSION=4.3
+ARG VERSION=4.6
 
 # metadata labels
 LABEL `
@@ -60,7 +70,7 @@ LABEL `
 ARG GIT_VERSION=2.26.0
 ARG GIT_PATCH_VERSION=1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
-    $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}-busybox-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
+    $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest $url -OutFile 'mingit.zip' -UseBasicParsing ; `
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
@@ -72,10 +82,12 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest $url -OutFile 'GitLfs.zip' -UseBasicParsing ; `
     Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ; `
-    Remove-Item GitLfs.zip -Force
+    Remove-Item GitLfs.zip -Force ; `
+    & C:\mingit\cmd\git.exe lfs install
 
-ENV ProgramFiles="C:\Program Files"
-ENV WindowsPATH="C:\Windows\system32;C:\Windows"
+ENV ProgramFiles="C:\Program Files" `
+    WindowsPATH="C:\Windows\system32;C:\Windows" `
+    JAVA_HOME="C:\openjdk-11"
 ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
 ARG user=jenkins
@@ -83,9 +95,9 @@ ARG user=jenkins
 ARG AGENT_FILENAME=agent.jar
 ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 
-RUN net user "$env:user" /add /expire:never /passwordreq:no ; `
+RUN net accounts /maxpwage:unlimited ; `
+    net user "$env:user" /add /expire:never /passwordreq:no ; `
     net localgroup Administrators /add $env:user ; `
-    setx /M PATH '%PATH%;%JAVA_HOME%\bin' ; `
     New-Item -ItemType Directory -Path C:/ProgramData/Jenkins | Out-Null
 
 ARG AGENT_ROOT=C:/Users/$user
