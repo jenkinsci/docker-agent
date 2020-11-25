@@ -50,6 +50,11 @@ pipeline {
                         // cleanup any docker images
                         powershell '& docker system prune --force --all'
                     }
+                    post {
+                        always {
+                            junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results.xml')
+                        }
+                    }
                 }
                 stage('Linux') {
                     agent {

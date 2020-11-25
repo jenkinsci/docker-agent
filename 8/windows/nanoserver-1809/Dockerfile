@@ -22,10 +22,16 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
+FROM mcr.microsoft.com/windows/servercore:1809 AS core
+
 # If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
 # use the 'latest'
 ARG POWERSHELL_VERSION=
 FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
+
+# The nanoserver image is nice and small, but we need a couple of things to get SSH working
+COPY --from=core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
+COPY --from=core /windows/system32/whoami.exe /windows/system32/whoami.exe
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
@@ -48,7 +54,7 @@ RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/r
     Write-Host 'Removing openjdk.zip ...'; `
     Remove-Item openjdk.zip -Force
 
-ARG VERSION=4.3
+ARG VERSION=4.6
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
 ARG GIT_VERSION=2.26.0
