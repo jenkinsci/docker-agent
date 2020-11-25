@@ -28,8 +28,7 @@ pipeline {
                         script {
                             def branchName = "${env.BRANCH_NAME}"
                             if (branchName ==~ 'master') {
-                                // we can't use dockerhub builds for windows
-                                // so we publish here
+                                // publish the images to Dockerhub
                                 infra.withDockerCredentials {
                                     powershell '& ./build.ps1 publish'
                                 }
@@ -71,8 +70,7 @@ pipeline {
                         script {
                             def branchName = "${env.BRANCH_NAME}"
                             if (branchName ==~ 'master') {
-                                // we can't use dockerhub builds for windows
-                                // so we publish here
+                                // publish the images to Dockerhub
                                 infra.withDockerCredentials {
                                     sh './build.sh publish'
                                 }
