@@ -72,6 +72,11 @@ pipeline {
                             }
                         }
                     }
+                    post {
+                        always {
+                            junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/*.xml')
+                        }
+                    }
                 }
             }
         }
