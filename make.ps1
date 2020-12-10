@@ -84,6 +84,8 @@ if($lastExitCode -ne 0) {
 }
 
 if($target -eq "test") {
+    # Only fail the run afterwards in case of any test failures
+    $testFailed = $false
     $mod = Get-InstalledModule -Name Pester -MinimumVersion 4.9.0 -MaximumVersion 4.99.99 -ErrorAction SilentlyContinue
     if($null -eq $mod) {
         $module = "c:\Program Files\WindowsPowerShell\Modules\Pester"
@@ -101,7 +103,13 @@ if($target -eq "test") {
         $env:FOLDER = $folder
         $env:VERSION = "$RemotingVersion-$BuildNumber"
         New-Item -Path ".\target\$folder" -Type Directory
-        Invoke-Pester -Path tests -EnableExit -OutputFile ".\target\$folder\junit-results.xml" -OutputFormat JUnitXml
+        $TestResults = Invoke-Pester -Path tests -PassThru -OutputFile ".\target\$folder\junit-results.xml" -OutputFormat JUnitXml
+        if ($TestResults.FailedCount -gt 0) {
+            Write-Host "There were $($TestResults.FailedCount) failed tests in $Build"
+            $testFailed = $true
+        } else {
+            Write-Host "There were $($TestResults.PassedCount) passed tests out of $($TestResults.TotalCount) in $Build"
+        }
         Remove-Item env:\FOLDER
         Remove-Item env:\VERSION
     } else {
@@ -110,10 +118,24 @@ if($target -eq "test") {
             $env:FOLDER = $folder
             $env:VERSION = "$RemotingVersion-$BuildNumber"
             New-Item -Path ".\target\$folder" -Type Directory
-            Invoke-Pester -Path tests -EnableExit -OutputFile ".\target\$folder\junit-results.xml" -OutputFormat JUnitXml
+            $TestResults = Invoke-Pester -Path tests -PassThru -OutputFile ".\target\$folder\junit-results.xml" -OutputFormat JUnitXml
+            if ($TestResults.FailedCount -gt 0) {
+                Write-Host "There were $($TestResults.FailedCount) failed tests in $b"
+                $testFailed = $true
+            } else {
+                Write-Host "There were $($TestResults.PassedCount) passed tests out of $($TestResults.TotalCount) in $b"
+            }
             Remove-Item env:\FOLDER
             Remove-Item env:\VERSION
         }
+    }
+
+    # Fail if any test failures
+    if($testFailed -ne $false) {
+        Write-Error "Test stage failed!"
+        exit 1
+    } else {
+        Write-Host "Test stage passed!"
     }
 }
 
