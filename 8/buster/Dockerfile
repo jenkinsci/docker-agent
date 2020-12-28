@@ -34,7 +34,7 @@ LABEL Description="This is a base image, which provides the Jenkins agent execut
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
-RUN apt-get update && apt-get install git-lfs && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install git-lfs && apt install --only-upgrade libsqlite3-0 && rm -rf /var/lib/apt/lists/*
 RUN curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/agent.jar \
