@@ -86,7 +86,7 @@ if($lastExitCode -ne 0) {
 if($target -eq "test") {
     # Only fail the run afterwards in case of any test failures
     $testFailed = $false
-    $mod = Get-InstalledModule -Name Pester -MinimumVersion 4.9.0 -MaximumVersion 4.99.99 -ErrorAction SilentlyContinue
+    $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.0.0 -MaximumVersion 5.0.2 -ErrorAction SilentlyContinue
     if($null -eq $mod) {
         $module = "c:\Program Files\WindowsPowerShell\Modules\Pester"
         if(Test-Path $module) {
@@ -95,15 +95,29 @@ if($target -eq "test") {
             icacls $module /grant Administrators:'F' /inheritance:d /T
             Remove-Item -Path $module -Recurse -Force -Confirm:$false
         }
-        Install-Module -Force -Name Pester -MaximumVersion 4.99.99
+        Install-Module -Force -Name Pester -MaximumVersion 5.0.2
     }
+
+    Import-Module Pester
+    $configuration = [PesterConfiguration]@{}
+    $configuration.Run.PassThru = $true
+    $configuration.Run.Path = '.\tests'
+    $configuration.Run.Exit = $true
+    $configuration.TestResult.Enabled = $true
+    $configuration.TestResult.OutputFormat = 'JUnitXml'
+    $configuration.Output.Verbosity = 'Diagnostic'
+    $configuration.CodeCoverage.Enabled = $false
 
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
         $folder = $builds[$Build]['Folder']
         $env:FOLDER = $folder
         $env:VERSION = "$RemotingVersion-$BuildNumber"
-        New-Item -Path ".\target\$folder" -Type Directory
-        $TestResults = Invoke-Pester -Path tests -PassThru -OutputFile ".\target\$folder\junit-results.xml" -OutputFormat JUnitXml
+        if(Test-Path ".\target\$folder") {
+            Remove-Item -Recurse -Force ".\target\$folder"
+        }
+        New-Item -Path ".\target\$folder" -Type Directory | Out-Null
+        $configuration.TestResult.OutputPath = ".\target\$folder\junit-results.xml"
+        $TestResults = Invoke-Pester -Configuration $configuration
         if ($TestResults.FailedCount -gt 0) {
             Write-Host "There were $($TestResults.FailedCount) failed tests in $Build"
             $testFailed = $true
@@ -117,8 +131,12 @@ if($target -eq "test") {
             $folder = $builds[$b]['Folder']
             $env:FOLDER = $folder
             $env:VERSION = "$RemotingVersion-$BuildNumber"
-            New-Item -Path ".\target\$folder" -Type Directory
-            $TestResults = Invoke-Pester -Path tests -PassThru -OutputFile ".\target\$folder\junit-results.xml" -OutputFormat JUnitXml
+            if(Test-Path ".\target\$folder") {
+                Remove-Item -Recurse -Force ".\target\$folder"
+            }
+            New-Item -Path ".\target\$folder" -Type Directory | Out-Null
+            $configuration.TestResult.OutputPath = ".\target\$folder\junit-results.xml"
+            $TestResults = Invoke-Pester -Configuration $configuration
             if ($TestResults.FailedCount -gt 0) {
                 Write-Host "There were $($TestResults.FailedCount) failed tests in $b"
                 $testFailed = $true
