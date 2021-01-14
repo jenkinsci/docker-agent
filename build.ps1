@@ -6,11 +6,23 @@ Param(
     [String] $Build = '',
     [String] $RemotingVersion = '4.6',
     [String] $BuildNumber = "6",
-    [switch] $PushVersions = $false
+    [switch] $PushVersions = $false,
+    [switch] $DisableEnvProps = $false
 )
 
 $Repository = 'agent'
 $Organization = 'jenkins'
+
+if(!$DisableEnvProps) {
+    Get-Content env.props | ForEach-Object {
+        $items = $_.Split("=")
+        if($items.Length -eq 2) {
+            $name = $items[0].Trim()
+            $value = $items[1].Trim()
+            Set-Item -Path "env:$($name)" -Value $value
+        }
+    }
+}
 
 if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_REPO)) {
     $Repository = $env:DOCKERHUB_REPO
@@ -18,6 +30,10 @@ if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_REPO)) {
 
 if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_ORGANISATION)) {
     $Organization = $env:DOCKERHUB_ORGANISATION
+}
+
+if(![String]::IsNullOrWhiteSpace($env:REMOTING_VERSION)) {
+    $RemotingVersion = $env:REMOTING_VERSION
 }
 
 # this is the jdk version that will be used for the 'bare tag' images, e.g., jdk8-windowsservercore-1809 -> windowsserver-1809
