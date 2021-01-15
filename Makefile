@@ -16,8 +16,7 @@ build-alpine:
                  8/alpine/
 
 build-debian:
-	docker build -t ${IMAGE_NAME}:latest \
-                 -t ${IMAGE_NAME}:stretch \
+	docker build -t ${IMAGE_NAME}:stretch \
                  -t ${IMAGE_NAME}:jdk8-stretch \
                  8/stretch/
 
@@ -54,7 +53,7 @@ bats:
 prepare-test: bats
 	mkdir -p target
 
-test-run-%: prepare-test
+test-run-%: build prepare-test
 	FOLDER="${FOLDER}" bats-core/bin/bats tests/tests.bats | tee target/results-$*.tap
 	docker run --rm -v "${PWD}":/usr/src/app \
 					-w /usr/src/app node:12-alpine \
