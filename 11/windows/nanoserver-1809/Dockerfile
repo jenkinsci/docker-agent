@@ -57,7 +57,7 @@ RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/
 ARG VERSION=4.6
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
-ARG GIT_VERSION=2.26.0
+ARG GIT_VERSION=2.31.0
 ARG GIT_PATCH_VERSION=1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
@@ -66,7 +66,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
     Remove-Item mingit.zip -Force
 
-ARG GIT_LFS_VERSION=2.10.0
+ARG GIT_LFS_VERSION=2.13.2
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     $url = $('https://github.com/git-lfs/git-lfs/releases/download/v{0}/git-lfs-windows-amd64-v{0}.zip' -f $env:GIT_LFS_VERSION) ; `
     Write-Host "Retrieving $url..." ; `
