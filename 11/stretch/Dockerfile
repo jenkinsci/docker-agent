@@ -22,7 +22,7 @@
 
 FROM openjdk:11-jdk-stretch
 
-ARG VERSION=4.6
+ARG VERSION=4.7
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
