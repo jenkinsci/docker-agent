@@ -28,6 +28,7 @@ ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
+ARG JENKINS_REMOTING_BASE_URL=https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting
 
 LABEL description="This is a base image, which provides the Jenkins agent executable (slave.jar)"
 LABEL vendor="Jenkins project"
@@ -47,7 +48,8 @@ RUN addgroup -g ${gid} ${group} && \
       openssh-client \
       openssl \
       procps && \
-    curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar && \
+    curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar \
+      ${JENKINS_REMOTING_BASE_URL}/${VERSION}/remoting-${VERSION}.jar && \
     chmod 755 /usr/share/jenkins && \
     chmod 644 /usr/share/jenkins/agent.jar && \
     ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar && \
