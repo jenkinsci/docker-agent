@@ -63,9 +63,16 @@ docker run -i --rm --name agent1 --init -v agent1-workdir:C:/Users/jenkins/Work 
 
 The image has several supported configurations, which can be accessed via the following tags:
 
-* `latest`: Latest version with the newest remoting (based on `openjdk:8-jdk-buster`)
-* `latest-jdk11`: Latest version with the newest remoting and Java 11 (based on `openjdk:11-jdk-buster`)
-* `alpine`: Small image based on Alpine Linux (based on `adoptopenjdk/openjdk8:jdk8u${version}-alpine`)
+./11/alpine/Dockerfile:FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
+./11/buster/Dockerfile:FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-debianslim-slim
+./8/alpine/Dockerfile:FROM adoptopenjdk/openjdk8:jdk8u292-b10-alpine-slim
+./8/buster/Dockerfile:FROM adoptopenjdk/openjdk8:jdk8u292-b10-debianslim-slim
+
+
+* `latest`: Latest version with the newest remoting (based on `adoptopenjdk/openjdk8:jdk8u292-b10-debianslim-slim`)
+* `latest-jdk11`: Latest version with the newest remoting and Java 11 (based on `adoptopenjdk/openjdk11:jdk-11.0.11_9-debianslim-slim`)
+* `alpine`: Small image based on Alpine Linux (based on `adoptopenjdk/openjdk8:jdk8u292-b10-alpine-slim`)
+* `alpine-jdk11`: Small image based on Alpine Linux (based on `adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim`)
 * `jdk8-windowsservercore-1809`: Latest version with the newest remoting (based on `adoptopenjdk:8-jdk-hotspot-windowsservercore-1809`)
 * `jdk11-windowsservercore-1809`: Latest version with the newest remoting and Java 11 (based on `adoptopenjdk:11-jdk-hotspot-windowsservercore-1809`)
 * `jdk8-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server
