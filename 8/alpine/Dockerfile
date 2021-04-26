@@ -36,7 +36,9 @@ ARG AGENT_WORKDIR=/home/${user}/agent
 
 RUN addgroup -g ${gid} ${group} && \
     adduser -h /home/${user} -u ${uid} -G ${group} -D ${user} && \
-    apk add --update --no-cache && \
+    apk add --no-cache --virtual @curl \
+      curl && \
+    apk add --no-cache && \
       bash \
       curl \
       git \
@@ -48,7 +50,7 @@ RUN addgroup -g ${gid} ${group} && \
     chmod 755 /usr/share/jenkins && \
     chmod 644 /usr/share/jenkins/agent.jar && \
     ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar && \
-    apk del curl
+    apk del @curl
 
 USER ${user}
 
