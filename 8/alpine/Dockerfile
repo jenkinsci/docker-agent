@@ -20,9 +20,6 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-# FIXME(oleg_nenashev): This is not an official AdoptOpenJDK Docker Image.
-# There is no official Alpine images at the moment.
-# Needs upgrade when/if there is an official alpine image.
 FROM adoptopenjdk/openjdk8:jdk8u292-b10-alpine-slim
 
 ARG VERSION=4.7
@@ -31,16 +28,15 @@ ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
 
-RUN addgroup -g ${gid} ${group}
-RUN adduser -h /home/${user} -u ${uid} -G ${group} -D ${user}
-
 LABEL description="This is a base image, which provides the Jenkins agent executable (slave.jar)"
 LABEL vendor="Jenkins project"
 LABEL version="${VERSION}"
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
-RUN apk add --update --no-cache && \
+RUN addgroup -g ${gid} ${group} && \
+    adduser -h /home/${user} -u ${uid} -G ${group} -D ${user} && \
+    apk add --update --no-cache && \
       bash \
       curl \
       git \
