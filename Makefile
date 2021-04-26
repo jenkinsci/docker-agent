@@ -16,21 +16,11 @@ build-alpine:
                  8/alpine/
 
 build-debian:
-	docker build -t ${IMAGE_NAME}:stretch \
-                 -t ${IMAGE_NAME}:jdk8-stretch \
-                 8/stretch/
-
-build-debian-buster:
 	docker build -t ${IMAGE_NAME}:latest \
                  -t ${IMAGE_NAME}:jdk8 \
                  -t ${IMAGE_NAME}:jdk8-buster \
                  -t ${IMAGE_NAME_AGENT}:latest \
                  8/buster/
-
-build-jdk11:
-	docker build -t ${IMAGE_NAME}:jdk11 \
-                 -t ${IMAGE_NAME}:jdk11-stretch \
-                 11/stretch/
 
 build-jdk11-alpine:
 	docker build -t ${IMAGE_NAME}:alpine \
@@ -39,7 +29,7 @@ build-jdk11-alpine:
                  -t ${IMAGE_NAME_AGENT}:alpine \
                  11/alpine/
 
-build-jdk11-buster:
+build-jdk11:
 	docker build -t ${IMAGE_NAME}:jdk11-buster \
                  -t ${IMAGE_NAME_AGENT}:jdk11-buster \
                  -t ${IMAGE_NAME_AGENT}:jdk11 \
@@ -64,17 +54,11 @@ test: test-alpine test-debian test-debian-buster test-jdk11 test-jdk11-buster
 test-alpine: FOLDER=8/alpine
 test-alpine: test-run-alpine
 
-test-debian: FOLDER=8/stretch
-test-debian: test-run-debian
-
-test-debian-buster: FOLDER=8/buster
-test-debian-buster: test-run-debian-buster
-
-test-jdk11: FOLDER=11/stretch
-test-jdk11: test-run-debian-jdk11
+test-debian: FOLDER=8/buster
+test-debian: test-run-debian-buster
 
 test-jdk11-alpine: FOLDER=11/alpine
 test-jdk11-alpine: test-run-debian-jdk11-alpine
 
-test-jdk11-buster: FOLDER=11/buster
-test-jdk11-buster: test-run-debian-jdk11-buster
+test-jdk11: FOLDER=11/buster
+test-jdk11: test-run-debian-jdk11-buster
