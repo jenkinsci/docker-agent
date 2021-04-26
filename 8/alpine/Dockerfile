@@ -41,8 +41,8 @@ LABEL version="${VERSION}"
 ARG AGENT_WORKDIR=/home/${user}/agent
 
 RUN apk add --update --no-cache && \
-      curl \
       bash \
+      curl \
       git \
       git-lfs \
       openssh-client \
