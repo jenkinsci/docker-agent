@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM openjdk:11-jdk-buster
+FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-debianslim-slim
 
 ARG VERSION=4.7
 ARG user=jenkins
