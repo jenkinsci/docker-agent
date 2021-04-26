@@ -29,7 +29,6 @@ ARG uid=1000
 ARG gid=1000
 ARG GIT_LFS_VER=2.7.*
 
-
 LABEL description="This is a base image, which provides the Jenkins agent executable (agent.jar)"
 LABEL vendor="Jenkins project"
 LABEL version="${VERSION}"
