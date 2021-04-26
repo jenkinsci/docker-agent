@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -euo pipefail
 # reset in case getops has been used previously in the shell
 OPTIND=1
 
