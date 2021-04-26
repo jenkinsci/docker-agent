@@ -11,7 +11,7 @@ build: build-alpine build-debian build-debian-buster build-jdk11 build-jdk11-alp
 build-alpine:
 	docker build -t ${IMAGE_NAME}:alpine \
                  -t ${IMAGE_NAME}:jdk8-alpine \
-                 -t ${IMAGE_NAME}:jdk8-alpine3.9 \
+                 -t ${IMAGE_NAME}:jdk8-alpine3.12 \
                  -t ${IMAGE_NAME_AGENT}:alpine \
                  8/alpine/
 
@@ -25,7 +25,7 @@ build-debian:
 build-jdk11-alpine:
 	docker build -t ${IMAGE_NAME}:alpine \
                  -t ${IMAGE_NAME}:jdk11-alpine \
-                 -t ${IMAGE_NAME}:jdk11-alpine3.9 \
+                 -t ${IMAGE_NAME}:jdk11-alpine3.12 \
                  -t ${IMAGE_NAME_AGENT}:alpine \
                  11/alpine/
 
