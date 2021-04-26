@@ -27,6 +27,7 @@ ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
+ARG GIT_LFS_VER=2.7.*
 
 RUN groupadd -g ${gid} ${group} && \
     useradd -l -c "Jenkins user" -d /home/${user} -u ${uid} -g ${gid} -m ${user}
@@ -39,7 +40,7 @@ ARG AGENT_WORKDIR=/home/${user}/agent
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      git-lfs && \
+      git-lfs=${GIT_LFS_VER} && \
     rm -rf /var/lib/apt/lists/*
 
 RUN curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
