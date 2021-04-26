@@ -29,8 +29,6 @@ ARG uid=1000
 ARG gid=1000
 ARG GIT_LFS_VER=2.7.*
 
-RUN groupadd -g ${gid} ${group} && \
-    useradd -l -c "Jenkins user" -d /home/${user} -u ${uid} -g ${gid} -m ${user}
 
 LABEL description="This is a base image, which provides the Jenkins agent executable (agent.jar)"
 LABEL vendor="Jenkins project"
@@ -38,7 +36,9 @@ LABEL version="${VERSION}"
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
-RUN apt-get update && \
+RUN groupadd -g ${gid} ${group} && \
+    useradd -l -c "Jenkins user" -d /home/${user} -u ${uid} -g ${gid} -m ${user} && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
       git-lfs=${GIT_LFS_VER} && \
     rm -rf /var/lib/apt/lists/* && \
