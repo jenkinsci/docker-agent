@@ -20,6 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
+# This is based on Alpine Linux 3.12
 FROM adoptopenjdk/openjdk8:jdk8u292-b10-alpine-slim
 
 ARG VERSION=4.7
