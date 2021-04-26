@@ -28,13 +28,18 @@ ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
 
-RUN groupadd -g ${gid} ${group}
-RUN useradd -l -c "Jenkins user" -d /home/${user} -u ${uid} -g ${gid} -m ${user}
+RUN groupadd -g ${gid} ${group} && \
+    useradd -l -c "Jenkins user" -d /home/${user} -u ${uid} -g ${gid} -m ${user}
+
 LABEL description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
-RUN apt-get update && apt-get install -y --no-install-recommends git-lfs && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      git-lfs && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/agent.jar \
