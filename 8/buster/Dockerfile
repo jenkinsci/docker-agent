@@ -41,6 +41,7 @@ RUN groupadd -g ${gid} ${group} && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
       git-lfs=${GIT_LFS_VER} && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar && \
     chmod 755 /usr/share/jenkins && \
