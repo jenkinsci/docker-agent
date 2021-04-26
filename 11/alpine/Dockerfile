@@ -27,23 +27,49 @@ ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
+ARG JENKINS_REMOTING_BASE_URL="https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting"
 
-RUN addgroup -g ${gid} ${group}
-RUN adduser -h /home/${user} -u ${uid} -G ${group} -D ${user}
-LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="${VERSION}"
+# Hadolint #DL3018 
+ARG CURL_VER=7.76.1-r0	
+ARG BASH_VER=5.0.17-r0
+ARG GIT_VER=2.26.3-r0
+ARG GIT_LFS_VER=2.11.0-r0
+ARG OPENSSH_CLIENT_VER=8.3_p1-r2
+ARG OPENSSL_VER=1.1.1k-r0
+ARG PROCPS_VER=3.3.16-r0
+
+LABEL description="This is a base image, which provides the Jenkins agent executable (slave.jar)"
+LABEL vendor="Jenkins project"
+LABEL version="${VERSION}"
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
-RUN apk add --update --no-cache curl bash git git-lfs openssh-client openssl procps \
-  && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
-  && chmod 755 /usr/share/jenkins \
-  && chmod 644 /usr/share/jenkins/agent.jar \
-  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar \
-  && apk del curl
+RUN addgroup -g ${gid} ${group} && \
+    adduser -h /home/${user} -u ${uid} -G ${group} -D ${user} && \
+    apk add --no-cache --virtual curl-temporary \
+      curl=${CURL_VER} && \
+    apk add --no-cache \
+      bash=${BASH_VER} \
+      git=${GIT_VER} \
+      git-lfs=${GIT_LFS_VER} \
+      openssh-client=${OPENSSH_CLIENT_VER} \
+      openssl=${OPENSSL_VER} \
+      procps=${PROCPS_VER} && \
+    curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar \
+      ${JENKINS_REMOTING_BASE_URL}/${VERSION}/remoting-${VERSION}.jar && \
+    chmod 755 /usr/share/jenkins && \
+    chmod 644 /usr/share/jenkins/agent.jar && \
+    ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar && \
+    apk del curl-temporary
+
 USER ${user}
+
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
-RUN mkdir /home/${user}/.jenkins && mkdir -p ${AGENT_WORKDIR}
+
+RUN mkdir /home/${user}/.jenkins && \
+    mkdir -p ${AGENT_WORKDIR}
 
 VOLUME /home/${user}/.jenkins
 VOLUME ${AGENT_WORKDIR}
+
 WORKDIR /home/${user}
