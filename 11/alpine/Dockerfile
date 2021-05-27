@@ -38,7 +38,7 @@ ARG OPENSSH_CLIENT_VER=8.3_p1-r2
 ARG OPENSSL_VER=1.1.1k-r0
 ARG PROCPS_VER=3.3.16-r0
 
-LABEL description="This is a base image, which provides the Jenkins agent executable (slave.jar)"
+LABEL description="This is a base image, which provides the Jenkins agent executable (agent.jar)"
 LABEL vendor="Jenkins project"
 LABEL version="${VERSION}"
 
