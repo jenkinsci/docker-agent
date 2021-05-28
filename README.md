@@ -63,11 +63,6 @@ docker run -i --rm --name agent1 --init -v agent1-workdir:C:/Users/jenkins/Work 
 
 The image has several supported configurations, which can be accessed via the following tags:
 
-./11/alpine/Dockerfile:FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
-./11/buster/Dockerfile:FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-debianslim-slim
-./8/alpine/Dockerfile:FROM adoptopenjdk/openjdk8:jdk8u292-b10-alpine-slim
-./8/buster/Dockerfile:FROM adoptopenjdk/openjdk8:jdk8u292-b10-debianslim-slim
-
 
 * `latest`: Latest version with the newest remoting (based on `adoptopenjdk/openjdk8:jdk8u292-b10-debianslim-slim`)
 * `latest-jdk11`: Latest version with the newest remoting and Java 11 (based on `adoptopenjdk/openjdk11:jdk-11.0.11_9-debianslim-slim`)
