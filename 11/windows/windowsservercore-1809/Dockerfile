@@ -22,7 +22,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM adoptopenjdk:11-jdk-hotspot-windowsservercore-1809
+FROM adoptopenjdk:11.0.11_9-jdk-hotspot-windowsservercore-1809
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
