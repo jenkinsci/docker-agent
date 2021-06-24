@@ -25,7 +25,7 @@
 # Needs upgrade when/if there is an official alpine image.
 FROM adoptopenjdk/openjdk8:jdk8u292-b10-alpine
 
-ARG VERSION=4.7
+ARG VERSION=4.9
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
