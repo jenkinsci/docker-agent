@@ -20,9 +20,9 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM openjdk:11-jdk-buster
+FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-debian
 
-ARG VERSION=4.6
+ARG VERSION=4.9
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
@@ -34,7 +34,7 @@ LABEL Description="This is a base image, which provides the Jenkins agent execut
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
-RUN apt-get update && apt-get install git-lfs && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get -y install git-lfs && rm -rf /var/lib/apt/lists/*
 RUN curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/agent.jar \

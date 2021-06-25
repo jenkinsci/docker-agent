@@ -24,15 +24,13 @@ pipeline {
                         DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
                     }
                     steps {
+                        powershell '& ./build.ps1 test'
                         script {
-                            powershell '& ./make.ps1 test'
-
                             def branchName = "${env.BRANCH_NAME}"
                             if (branchName ==~ 'master') {
-                                // we can't use dockerhub builds for windows
-                                // so we publish here
+                                // publish the images to Dockerhub
                                 infra.withDockerCredentials {
-                                    powershell '& ./make.ps1 publish'
+                                    powershell '& ./build.ps1 publish'
                                 }
                             }
 
@@ -43,14 +41,13 @@ pipeline {
                                     def buildNumber = tagItems[1]
                                     // we need to build and publish the tag version
                                     infra.withDockerCredentials {
-                                        powershell "& ./make.ps1 -PushVersions -RemotingVersion $remotingVersion -BuildNumber $buildNumber publish"
+                                        powershell "& ./build.ps1 -PushVersions -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
                                     }
                                 }
                             }
-
-                            // cleanup any docker images
-                            powershell '& docker system prune --force --all'
                         }
+                        // cleanup any docker images
+                        powershell '& docker system prune --force --all'
                     }
                     post {
                         always {
@@ -65,12 +62,34 @@ pipeline {
                     options {
                         timeout(time: 30, unit: 'MINUTES')
                     }
+                    environment {
+                        DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
+                    }
                     steps {
+                        sh './build.sh'
                         script {
-                            if(!infra.isTrusted()) {
-                                sh './build.sh ; docker system prune --force --all'
+                            def branchName = "${env.BRANCH_NAME}"
+                            if (branchName ==~ 'master') {
+                                // publish the images to Dockerhub
+                                infra.withDockerCredentials {
+                                    sh './build.sh publish'
+                                }
+                            }
+
+                            if(env.TAG_NAME != null) {
+                                def tagItems = env.TAG_NAME.split('-')
+                                if(tagItems.length == 2) {
+                                    def remotingVersion = tagItems[0]
+                                    def buildNumber = tagItems[1]
+                                    // we need to build and publish the tag version
+                                    infra.withDockerCredentials {
+                                        sh "./build.sh -p -r $remotingVersion -b $buildNumber -d publish"
+                                    }
+                                }
                             }
                         }
+                        // cleanup any docker images
+                        sh 'docker system prune --force --all'
                     }
                     post {
                         always {
