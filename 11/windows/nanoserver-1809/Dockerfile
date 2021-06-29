@@ -35,14 +35,14 @@ COPY --from=core /windows/system32/whoami.exe /windows/system32/whoami.exe
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ENV JAVA_VERSION jdk-11.0.7+10
+ENV JAVA_VERSION jdk-11.0.11+9
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.7%2B10.2/OpenJDK11U-jdk_x64_windows_hotspot_11.0.7_10.zip ...'); `
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.11%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.11_9.zip ...'); `
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; `
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.7%2B10.2/OpenJDK11U-jdk_x64_windows_hotspot_11.0.7_10.zip -O 'openjdk.zip'; `
-    Write-Host ('Verifying sha256 (61e99ff902e02c83b6c48172968593ee05ae183a39e5ef13a44bd4bf7eb2ce8b) ...'); `
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '61e99ff902e02c83b6c48172968593ee05ae183a39e5ef13a44bd4bf7eb2ce8b') { `
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.11%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.11_9.zip -O 'openjdk.zip'; `
+    Write-Host ('Verifying sha256 (36c08b0f41465b43c91abf9d4e13d063e01d670cbf448106a1c700786d89cfa8) ...'); `
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '36c08b0f41465b43c91abf9d4e13d063e01d670cbf448106a1c700786d89cfa8') { `
             Write-Host 'FAILED!'; `
             exit 1; `
     }; `
@@ -54,7 +54,7 @@ RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/
     Write-Host 'Removing openjdk.zip ...'; `
     Remove-Item openjdk.zip -Force
 
-ARG VERSION=4.7
+ARG VERSION=4.9
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
 ARG GIT_VERSION=2.31.0

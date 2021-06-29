@@ -35,14 +35,14 @@ COPY --from=core /windows/system32/whoami.exe /windows/system32/whoami.exe
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ENV JAVA_VERSION jdk8u252-b09
+ENV JAVA_VERSION jdk8u292-b10
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u252-b09.1/OpenJDK8U-jdk_x64_windows_hotspot_8u252b09.zip ...'); `
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u292-b10/OpenJDK8U-jdk_x64_windows_hotspot_8u292b10.zip ...'); `
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; `
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u252-b09.1/OpenJDK8U-jdk_x64_windows_hotspot_8u252b09.zip -O 'openjdk.zip'; `
-    Write-Host ('Verifying sha256 (4e2c92ba17481321eaeb1769e85eec99a774102eb80b700a201b54b130ab2768) ...'); `
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '4e2c92ba17481321eaeb1769e85eec99a774102eb80b700a201b54b130ab2768') { `
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u292-b10/OpenJDK8U-jdk_x64_windows_hotspot_8u292b10.zip -O 'openjdk.zip'; `
+    Write-Host ('Verifying sha256 (2405e11f9f3603e506cf7ab01fcb67a3e3a1cf3e7858e14d629a72c9a24c6c42) ...'); `
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '2405e11f9f3603e506cf7ab01fcb67a3e3a1cf3e7858e14d629a72c9a24c6c42') { `
             Write-Host 'FAILED!'; `
             exit 1; `
     }; `
@@ -54,7 +54,7 @@ RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/r
     Write-Host 'Removing openjdk.zip ...'; `
     Remove-Item openjdk.zip -Force
 
-ARG VERSION=4.7
+ARG VERSION=4.9
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
 ARG GIT_VERSION=2.31.0
