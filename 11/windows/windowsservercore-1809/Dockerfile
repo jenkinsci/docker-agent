@@ -26,7 +26,7 @@ FROM adoptopenjdk:11.0.11_9-jdk-hotspot-windowsservercore-1809
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ARG VERSION=4.9
+ARG VERSION=4.10
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
 ARG GIT_VERSION=2.31.0

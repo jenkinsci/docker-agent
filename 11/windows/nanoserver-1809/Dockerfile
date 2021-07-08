@@ -54,7 +54,7 @@ RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/
     Write-Host 'Removing openjdk.zip ...'; `
     Remove-Item openjdk.zip -Force
 
-ARG VERSION=4.9
+ARG VERSION=4.10
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
 ARG GIT_VERSION=2.31.0

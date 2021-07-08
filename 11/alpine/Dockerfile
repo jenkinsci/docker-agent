@@ -22,7 +22,7 @@
 
 FROM adoptopenjdk/openjdk11:alpine
 
-ARG VERSION=4.9
+ARG VERSION=4.10
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
