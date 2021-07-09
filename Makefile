@@ -4,9 +4,9 @@ IMAGE_NAME:=jenkins4eval/agent
 IMAGE_NAME_AGENT:=jenkins4eval/slave
 
 .PHONY: build
-.PHONY: test test-alpine test-debian test-jdk11 test-jdk11-alpine
+.PHONY: test test-alpine test-archlinux test-debian test-jdk11 test-jdk11-alpine
 
-build: build-alpine build-debian build-jdk11 build-jdk11-alpine
+build: build-alpine build-archlinux build-debian build-jdk11 build-jdk11-alpine
 
 build-alpine:
 	docker build -t ${IMAGE_NAME}:alpine \
@@ -14,6 +14,12 @@ build-alpine:
                  -t ${IMAGE_NAME}:jdk8-alpine3.12 \
                  -t ${IMAGE_NAME_AGENT}:alpine \
                  8/alpine/
+
+build-archlinux:
+	docker build -t ${IMAGE_NAME}:latest \
+                 -t ${IMAGE_NAME}:arch \
+                 -t ${IMAGE_NAME}:jdk11-archlinux \
+                 11/archlinux/
 
 build-debian:
 	docker build -t ${IMAGE_NAME}:latest \
@@ -49,10 +55,13 @@ test-run-%: build prepare-test
 					-w /usr/src/app node:12-alpine \
 					sh -c "npm install tap-xunit -g && cat target/results-$*.tap | tap-xunit --package='jenkinsci.docker-agent.$*' > target/junit-results-$*.xml"
 
-test: test-alpine test-debian test-jdk11
+test: test-alpine test-archlinux test-debian test-jdk11
 
 test-alpine: FOLDER=8/alpine
 test-alpine: test-run-alpine
+
+test-archlinux: FOLDER=11/archlinux
+test-archlinux: test-run-archlinux
 
 test-debian: FOLDER=8/buster
 test-debian: test-run-debian
