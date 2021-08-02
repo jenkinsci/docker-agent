@@ -1,40 +1,13 @@
 #!/usr/bin/env bats
 
-AGENT_IMAGE=jenkins-agent
+load test_helpers
+
+SUT_IMAGE=jenkins-agent
 AGENT_CONTAINER=bats-jenkins-agent
 
 REGEX='^([0-9]+)/(.+)$'
 
-if [[ ${FOLDER} =~ ${REGEX} ]] && [[ -d "${FOLDER}" ]]
-then
-  JDK="${BASH_REMATCH[1]}"
-  FLAVOR="${BASH_REMATCH[2]}"
-else
-  echo "Wrong folder format or folder does not exist: ${FOLDER}"
-  exit 1
-fi
-
-if [[ "${JDK}" = "11" ]]
-then
-  AGENT_IMAGE+=":jdk11"
-  AGENT_CONTAINER+="-jdk11"
-elif [[ "${FLAVOR}" = "jdk11-buster" ]]
-then
-  DOCKERFILE+="-jdk11-buster"
-  JDK=11
-  AGENT_IMAGE+=":jdk11-buster"
-  AGENT_CONTAINER+="-jdk11-buster"
-else
-  if [[ "${FLAVOR}" = "alpine*" ]]
-  then
-    AGENT_IMAGE+=":alpine"
-    AGENT_CONTAINER+="-alpine"
-  else
-    AGENT_IMAGE+=":latest"
-  fi
-fi
-
-load test_helpers
+SUT_IMAGE=$(get_sut_image)
 
 clean_test_container
 
@@ -42,21 +15,16 @@ function teardown () {
   clean_test_container
 }
 
-@test "[${JDK} ${FLAVOR}] build image" {
-  cd "${BATS_TEST_DIRNAME}"/.. || false
-  docker build -t "${AGENT_IMAGE}" "${FOLDER}"
-}
-
-@test "[${JDK} ${FLAVOR}] checking image metadata" {
+@test "[${SUT_IMAGE}] checking image metadata" {
   local VOLUMES_MAP
-  VOLUMES_MAP="$(docker inspect -f '{{.Config.Volumes}}' ${AGENT_IMAGE})"
+  VOLUMES_MAP="$(docker inspect -f '{{.Config.Volumes}}' ${SUT_IMAGE})"
 
   echo "${VOLUMES_MAP}" | grep '/home/jenkins/.jenkins'
   echo "${VOLUMES_MAP}" | grep '/home/jenkins/agent'
 }
 
-@test "[${JDK} ${FLAVOR}] image has bash and java installed and in the PATH" {
-  docker run -d -it --name "${AGENT_CONTAINER}" -P "${AGENT_IMAGE}" /bin/sh
+@test "[${SUT_IMAGE}] image has bash and java installed and in the PATH" {
+  docker run -d -it --name "${AGENT_CONTAINER}" -P "${SUT_IMAGE}" /bin/sh
 
   is_agent_container_running
 
@@ -67,30 +35,15 @@ function teardown () {
   run docker exec "${AGENT_CONTAINER}" which java
   [ "${status}" -eq 0 ]
 
-  if [[ "${JDK}" -eq 8 ]]
-  then
-    run docker exec "${AGENT_CONTAINER}" sh -c "
-    java -version 2>&1 \
-      | grep -o -E '^openjdk version \"[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+.*\"' \
-      | grep -o -E '\.[[:digit:]]+\.' \
-      | grep -o -E '[[:digit:]]+'
-    "
-  else
-    run docker exec "${AGENT_CONTAINER}" sh -c "
-    java -version 2>&1 \
-      | grep -o -E '^openjdk version \"[[:digit:]]+\.' \
-      | grep -o -E '\"[[:digit:]]+\.' \
-      | grep -o -E '[[:digit:]]+'
-    "
-  fi
-  [ "${JDK}" = "${lines[0]}" ]
+  run docker exec "${AGENT_CONTAINER}" sh -c "java -version"
+  [ "${status}" -eq 0 ]
 
   run docker exec "${AGENT_CONTAINER}" sh -c "printenv | grep AGENT_WORKDIR"
   [ "AGENT_WORKDIR=/home/jenkins/agent" = "${output}" ]
 }
 
-@test "[${JDK} ${FLAVOR}] check user access to folders" {
-  docker run -d -it --name "${AGENT_CONTAINER}" -P "${AGENT_IMAGE}" /bin/sh
+@test "[${SUT_IMAGE}] check user access to folders" {
+  docker run -d -it --name "${AGENT_CONTAINER}" -P "${SUT_IMAGE}" /bin/sh
 
   is_agent_container_running
 
@@ -104,7 +57,7 @@ function teardown () {
   [ "${status}" -eq 0 ]
 }
 
-@test "[${JDK} ${FLAVOR}] use build args correctly" {
+@test "[${SUT_IMAGE}] use build args correctly" {
   cd "${BATS_TEST_DIRNAME}"/.. || false
 
   local TEST_VERSION="3.36"
@@ -114,6 +67,7 @@ function teardown () {
 	local TEST_GID=3000
 	local TEST_AGENT_WORKDIR="/home/test-user/something"
 
+  docker buildx bake ${IMAGE}
   docker build \
     --build-arg "VERSION=${TEST_VERSION}" \
     --build-arg "user=${TEST_USER}" \
@@ -121,10 +75,10 @@ function teardown () {
     --build-arg "uid=${TEST_UID}" \
     --build-arg "gid=${TEST_GID}" \
     --build-arg "AGENT_WORKDIR=${TEST_AGENT_WORKDIR}" \
-    -t "${AGENT_IMAGE}" \
-    "${FOLDER}"
+    -t "${SUT_IMAGE}" \
+    "$(get_dockerfile_directory)"
 
-  docker run -d -it --name "${AGENT_CONTAINER}" -P "${AGENT_IMAGE}" /bin/sh
+  docker run -d -it --name "${AGENT_CONTAINER}" -P "${SUT_IMAGE}" /bin/sh
 
   is_agent_container_running
 
