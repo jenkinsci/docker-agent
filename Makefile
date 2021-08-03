@@ -54,7 +54,7 @@ list: check-reqs
 bats:
 	git clone https://github.com/bats-core/bats-core bats ;\
 	cd bats ;\
-	git checkout eac1e9d047b2b8137d85307fc94439c90bdc25ae
+	git checkout v1.4.1
 
 prepare-test: bats check-reqs
 	git submodule update --init --recursive
@@ -87,4 +87,3 @@ test-%: prepare-test
 
 test: prepare-test
 	@make --silent list | while read image; do make --silent "test-$${image}"; done
-
