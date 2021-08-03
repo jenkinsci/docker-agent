@@ -2,18 +2,9 @@
 
 load test_helpers
 
-SUT_IMAGE=jenkins-agent
-AGENT_CONTAINER=bats-jenkins-agent
-
 REGEX='^([0-9]+)/(.+)$'
 
 SUT_IMAGE=$(get_sut_image)
-
-clean_test_container
-
-function teardown () {
-  clean_test_container
-}
 
 @test "[${SUT_IMAGE}] checking image metadata" {
   local VOLUMES_MAP
@@ -24,36 +15,38 @@ function teardown () {
 }
 
 @test "[${SUT_IMAGE}] image has bash and java installed and in the PATH" {
-  docker run -d -it --name "${AGENT_CONTAINER}" -P "${SUT_IMAGE}" /bin/sh
+  local cid
+  cid="$(docker run -d -it -P "${SUT_IMAGE}" /bin/sh)"
 
-  is_agent_container_running
+  is_agent_container_running "${cid}"
 
-  run docker exec "${AGENT_CONTAINER}" which bash
+  run docker exec "${cid}" which bash
   [ "${status}" -eq 0 ]
-  run docker exec "${AGENT_CONTAINER}" bash --version
+  run docker exec "${cid}" bash --version
   [ "${status}" -eq 0 ]
-  run docker exec "${AGENT_CONTAINER}" which java
-  [ "${status}" -eq 0 ]
-
-  run docker exec "${AGENT_CONTAINER}" sh -c "java -version"
+  run docker exec "${cid}" which java
   [ "${status}" -eq 0 ]
 
-  run docker exec "${AGENT_CONTAINER}" sh -c "printenv | grep AGENT_WORKDIR"
+  run docker exec "${cid}" sh -c "java -version"
+  [ "${status}" -eq 0 ]
+
+  run docker exec "${cid}" sh -c "printenv | grep AGENT_WORKDIR"
   [ "AGENT_WORKDIR=/home/jenkins/agent" = "${output}" ]
 }
 
 @test "[${SUT_IMAGE}] check user access to folders" {
-  docker run -d -it --name "${AGENT_CONTAINER}" -P "${SUT_IMAGE}" /bin/sh
+  local cid
+  cid="$(docker run -d -it -P "${SUT_IMAGE}" /bin/sh)"
 
-  is_agent_container_running
+  is_agent_container_running "${cid}"
 
-  run docker exec "${AGENT_CONTAINER}" touch /home/jenkins/a
+  run docker exec "${cid}" touch /home/jenkins/a
   [ "${status}" -eq 0 ]
 
-  run docker exec "${AGENT_CONTAINER}" touch /home/jenkins/.jenkins/a
+  run docker exec "${cid}" touch /home/jenkins/.jenkins/a
   [ "${status}" -eq 0 ]
 
-  run docker exec "${AGENT_CONTAINER}" touch /home/jenkins/agent/a
+  run docker exec "${cid}" touch /home/jenkins/agent/a
   [ "${status}" -eq 0 ]
 }
 
@@ -66,6 +59,7 @@ function teardown () {
 	local TEST_UID=2000
 	local TEST_GID=3000
 	local TEST_AGENT_WORKDIR="/home/test-user/something"
+  local sut_image="${SUT_IMAGE}-tests-${BATS_TEST_NUMBER}"
 
   docker buildx bake ${IMAGE}
   docker build \
@@ -75,40 +69,41 @@ function teardown () {
     --build-arg "uid=${TEST_UID}" \
     --build-arg "gid=${TEST_GID}" \
     --build-arg "AGENT_WORKDIR=${TEST_AGENT_WORKDIR}" \
-    -t "${SUT_IMAGE}" \
+    -t "${sut_image}" \
     "$(get_dockerfile_directory)"
 
-  docker run -d -it --name "${AGENT_CONTAINER}" -P "${SUT_IMAGE}" /bin/sh
+  local cid
+  cid="$(docker run -d -it -P "${sut_image}" /bin/sh)"
 
-  is_agent_container_running
+  is_agent_container_running "${cid}"
 
-  run docker exec "${AGENT_CONTAINER}" sh -c "java -cp /usr/share/jenkins/agent.jar hudson.remoting.jnlp.Main -version"
+  run docker exec "${cid}" sh -c "java -cp /usr/share/jenkins/agent.jar hudson.remoting.jnlp.Main -version"
   [ "${TEST_VERSION}" = "${lines[0]}" ]
 
-  run docker exec "${AGENT_CONTAINER}" sh -c "id -u -n ${TEST_USER}"
+  run docker exec "${cid}" sh -c "id -u -n ${TEST_USER}"
   [ "${TEST_USER}" = "${lines[0]}" ]
 
-  run docker exec "${AGENT_CONTAINER}" sh -c "id -g -n ${TEST_USER}"
+  run docker exec "${cid}" sh -c "id -g -n ${TEST_USER}"
   [ "${TEST_GROUP}" = "${lines[0]}" ]
 
-  run docker exec "${AGENT_CONTAINER}" sh -c "id -u ${TEST_USER}"
+  run docker exec "${cid}" sh -c "id -u ${TEST_USER}"
   [ "${TEST_UID}" = "${lines[0]}" ]
 
-  run docker exec "${AGENT_CONTAINER}" sh -c "id -g ${TEST_USER}"
+  run docker exec "${cid}" sh -c "id -g ${TEST_USER}"
   [ "${TEST_GID}" = "${lines[0]}" ]
 
-  run docker exec "${AGENT_CONTAINER}" sh -c "printenv | grep AGENT_WORKDIR"
+  run docker exec "${cid}" sh -c "printenv | grep AGENT_WORKDIR"
   [ "AGENT_WORKDIR=/home/${TEST_USER}/something" = "${lines[0]}" ]
 
-  run docker exec "${AGENT_CONTAINER}" sh -c 'stat -c "%U:%G" "${AGENT_WORKDIR}"'
+  run docker exec "${cid}" sh -c 'stat -c "%U:%G" "${AGENT_WORKDIR}"'
   [ "${TEST_USER}:${TEST_GROUP}" = "${lines[0]}" ]
 
-  run docker exec "${AGENT_CONTAINER}" touch /home/test-user/a
+  run docker exec "${cid}" touch /home/test-user/a
   [ "${status}" -eq 0 ]
 
-  run docker exec "${AGENT_CONTAINER}" touch /home/test-user/.jenkins/a
+  run docker exec "${cid}" touch /home/test-user/.jenkins/a
   [ "${status}" -eq 0 ]
 
-  run docker exec "${AGENT_CONTAINER}" touch /home/test-user/something/a
+  run docker exec "${cid}" touch /home/test-user/something/a
   [ "${status}" -eq 0 ]
 }

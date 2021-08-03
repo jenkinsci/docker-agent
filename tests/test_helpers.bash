@@ -8,7 +8,7 @@ set -eu
 )>&2
 
 function printMessage {
-  echo "# ${*}" >&3
+    echo "# ${*}" >&3
 }
 
 # Assert that $1 is the output of a command $2
@@ -34,10 +34,10 @@ function get_sut_image {
 }
 
 function get_dockerfile_directory() {
-  test -n "${IMAGE:?"[sut_image] Please set the variable 'IMAGE' to the name of the image to test in 'docker-bake.hcl'."}"
+    test -n "${IMAGE:?"[sut_image] Please set the variable 'IMAGE' to the name of the image to test in 'docker-bake.hcl'."}"
 
-  DOCKERFILE=$(make --silent show | jq -r ".target.${IMAGE}.dockerfile")
-  echo "${DOCKERFILE%"/Dockerfile"}"
+    DOCKERFILE=$(make --silent show | jq -r ".target.${IMAGE}.dockerfile")
+    echo "${DOCKERFILE%"/Dockerfile"}"
 }
 
 # Retry a command $1 times until it succeeds. Wait $2 seconds between retries.
@@ -63,12 +63,8 @@ function retry {
     false
 }
 
-function clean_test_container {
-	docker kill "${AGENT_CONTAINER}" &>/dev/null || :
-	docker rm -fv "${AGENT_CONTAINER}" &>/dev/null || :
-}
-
 function is_agent_container_running {
+    test -n "${1}"
 	sleep 1
-	retry 3 1 assert "true" docker inspect -f '{{.State.Running}}' "${AGENT_CONTAINER}"
+	retry 3 1 assert "true" docker inspect -f '{{.State.Running}}' "${1}"
 }
