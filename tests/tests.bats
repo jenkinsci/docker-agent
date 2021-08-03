@@ -16,15 +16,15 @@ SUT_IMAGE=$(get_sut_image)
 
 @test "[${SUT_IMAGE}] image has bash and java installed and in the PATH" {
   local cid
-  cid="$(docker run -d -it -P "${SUT_IMAGE}" /bin/sh)"
+  cid="$(docker run -d -it -P "${SUT_IMAGE}" /bin/bash)"
 
   is_agent_container_running "${cid}"
 
-  run docker exec "${cid}" which bash
+  run docker exec "${cid}" sh -c "command -v bash"
   [ "${status}" -eq 0 ]
   run docker exec "${cid}" bash --version
   [ "${status}" -eq 0 ]
-  run docker exec "${cid}" which java
+  run docker exec "${cid}" sh -c "command -v java"
   [ "${status}" -eq 0 ]
 
   run docker exec "${cid}" sh -c "java -version"
