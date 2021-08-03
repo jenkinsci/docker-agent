@@ -67,6 +67,7 @@ pipeline {
                     }
                     steps {
                         sh './build.sh'
+                        sh './build.sh test'
                         script {
                             def branchName = "${env.BRANCH_NAME}"
                             if (branchName ==~ 'master') {
