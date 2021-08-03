@@ -6,6 +6,8 @@ REGEX='^([0-9]+)/(.+)$'
 
 SUT_IMAGE=$(get_sut_image)
 
+ARCH=${ARCH:-x86_64}
+
 @test "[${SUT_IMAGE}] checking image metadata" {
   local VOLUMES_MAP
   VOLUMES_MAP="$(docker inspect -f '{{.Config.Volumes}}' ${SUT_IMAGE})"
@@ -61,16 +63,17 @@ SUT_IMAGE=$(get_sut_image)
 	local TEST_AGENT_WORKDIR="/home/test-user/something"
   local sut_image="${SUT_IMAGE}-tests-${BATS_TEST_NUMBER}"
 
-  docker buildx bake ${IMAGE}
-  docker build \
-    --build-arg "VERSION=${TEST_VERSION}" \
-    --build-arg "user=${TEST_USER}" \
-    --build-arg "group=${TEST_GROUP}" \
-    --build-arg "uid=${TEST_UID}" \
-    --build-arg "gid=${TEST_GID}" \
-    --build-arg "AGENT_WORKDIR=${TEST_AGENT_WORKDIR}" \
-    -t "${sut_image}" \
-    "$(get_dockerfile_directory)"
+docker buildx bake \
+  --set "${IMAGE}".args.VERSION="${TEST_VERSION}" \
+  --set "${IMAGE}".args.user="${TEST_USER}" \
+  --set "${IMAGE}".args.group="${TEST_GROUP}" \
+  --set "${IMAGE}".args.uid="${TEST_UID}" \
+  --set "${IMAGE}".args.gid="${TEST_GID}" \
+  --set "${IMAGE}".args.AGENT_WORKDIR="${TEST_AGENT_WORKDIR}" \
+  --set "${IMAGE}".platform="linux/${ARCH}" \
+  --set "${IMAGE}".tags="${sut_image}" \
+    --load `# Image should be loaded on the Docker engine`\
+    "${IMAGE}"
 
   local cid
   cid="$(docker run -d -it -P "${sut_image}" /bin/sh)"
