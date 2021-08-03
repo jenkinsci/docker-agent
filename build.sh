@@ -1,21 +1,28 @@
 #!/bin/bash
 
+set -u -o pipefail
+
 # reset in case getops has been used previously in the shell
 OPTIND=1
 
 target="build"
-additional_args=""
 build_number=""
 remoting_version="4.3"
 disable_env_props=0
+exit_result=0
 
-while getopts "t:a:pn:r:b:d" opt; do
+function exit_if_error() {
+  if $exit_result
+  then
+    echo "Build Failed!"
+    exit $exit_result
+  fi
+}
+
+while getopts "t:r:b:d" opt; do
   case "$opt" in
     t)
       target=$OPTARG
-      ;;
-    a)
-      additional_args=$OPTARG
       ;;
     r)
       remoting_version=$OPTARG
@@ -26,11 +33,14 @@ while getopts "t:a:pn:r:b:d" opt; do
     d)
       disable_env_props=1
       ;;
+    *)
+      echo "Invalid flag passed: '${opt}'."
+      ;;
   esac
 done
 
 # get us to the remaining arguments
-shift $(expr $OPTIND - 1 )
+shift "$((OPTIND - 1 ))"
 if [[ $# -gt 0 ]] ; then
   target=$1
   shift
@@ -38,7 +48,7 @@ fi
 
 if [[ "${disable_env_props}" = "0" ]] ; then
   source env.props
-  export `cut -d= -f1 env.props`
+  export "$(cut -d= -f1 env.props)"
 fi
 
 REPOSITORY=${DOCKERHUB_REPO:-agent}
@@ -47,14 +57,16 @@ remoting_version=${REMOTING_VERSION:-${remoting_version}}
 
 if [[ "${target}" = "build" ]] ; then
   make build
+  exit_result=$?
+  exit_if_error
 fi
 
-if [[ $? -ne 0 ]] ; then
-  exit $?
-fi
+test $exit_result -eq 0 || exit
 
 if [[ "${target}" = "test" ]] ; then
-    make test
+  make test
+  exit_result=$?
+  exit_if_error
 fi
 
 if [[ "${target}" = "publish" ]] ; then
@@ -65,15 +77,11 @@ if [[ "${target}" = "publish" ]] ; then
     export ON_TAG=true
     export BUILD_NUMBER=$build_number
   fi
-    docker buildx bake --push --file docker-bake.hcl \
-      --set '*.platform=linux/amd64' \
-      linux
+  docker buildx bake --push --file docker-bake.hcl \
+    --set '*.platform=linux/amd64' \
+    linux
 fi
+exit_if_error
 
-if [[ $? -ne 0 ]] ; then
-  echo "Build Failed!"
-else
-  echo "Build finished successfully"
-fi
-
-exit $?
+echo "Build finished successfully"
+exit 0
