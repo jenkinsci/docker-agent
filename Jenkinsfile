@@ -67,6 +67,7 @@ pipeline {
                     }
                     steps {
                         sh './build.sh'
+                        sh './build.sh test'
                         script {
                             def branchName = "${env.BRANCH_NAME}"
                             if (branchName ==~ 'master') {
@@ -83,7 +84,7 @@ pipeline {
                                     def buildNumber = tagItems[1]
                                     // we need to build and publish the tag version
                                     infra.withDockerCredentials {
-                                        sh "./build.sh -p -r $remotingVersion -b $buildNumber -d publish"
+                                        sh "./build.sh -r $remotingVersion -b $buildNumber -d publish"
                                     }
                                 }
                             }
