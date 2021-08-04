@@ -73,7 +73,11 @@ pipeline {
                             if (branchName ==~ 'master') {
                                 // publish the images to Dockerhub
                                 infra.withDockerCredentials {
-                                    sh './build.sh publish'
+                                    sh '''
+                                      docker buildx create --use
+                                      docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+                                      ./build.sh publish
+                                    '''
                                 }
                             }
 

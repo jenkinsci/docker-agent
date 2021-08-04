@@ -78,7 +78,6 @@ if [[ "${target}" = "publish" ]] ; then
     export BUILD_NUMBER=$build_number
   fi
   docker buildx bake --push --file docker-bake.hcl \
-    --set '*.platform=linux/amd64' \
     linux
 fi
 exit_if_error
