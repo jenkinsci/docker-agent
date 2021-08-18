@@ -77,8 +77,8 @@ if [[ "${target}" = "publish" ]] ; then
     export ON_TAG=true
     export BUILD_NUMBER=$build_number
   fi
-  docker buildx bake --push --file docker-bake.hcl \
-    linux
+  docker buildx bake --push --file docker-bake.hcl linux
+  exit_result=$?
 fi
 exit_if_error
 
