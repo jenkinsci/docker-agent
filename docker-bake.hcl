@@ -101,23 +101,23 @@ target "alpine_jdk11" {
 }
 
 target "debian_jdk8" {
-  dockerfile = "8/buster/Dockerfile"
+  dockerfile = "8/bullseye/Dockerfile"
   context = "."
   args = {
     REMOTING_VERSION = REMOTING_VERSION
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk8": "",
-    "${REGISTRY}/${JENKINS_REPO}:buster-jdk8",
+    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk8",
     "${REGISTRY}/${JENKINS_REPO}:jdk8",
-    "${REGISTRY}/${JENKINS_REPO}:latest-buster-jdk8",
+    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk8",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk8",
   ]
   platforms = ["linux/amd64"]
 }
 
 target "debian_jdk11" {
-  dockerfile = "11/buster/Dockerfile"
+  dockerfile = "11/bullseye/Dockerfile"
   context = "."
   args = {
     REMOTING_VERSION = REMOTING_VERSION
@@ -125,10 +125,10 @@ target "debian_jdk11" {
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}": "",
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk11": "",
-    "${REGISTRY}/${JENKINS_REPO}:buster-jdk11",
+    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk11",
     "${REGISTRY}/${JENKINS_REPO}:jdk11",
     "${REGISTRY}/${JENKINS_REPO}:latest",
-    "${REGISTRY}/${JENKINS_REPO}:latest-buster-jdk11",
+    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk11",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk11",
   ]
   platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
