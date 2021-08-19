@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-debian
+FROM adoptopenjdk/openjdk11:jdk-11.0.12_7-debian
 
 ARG VERSION=4.10
 ARG user=jenkins

@@ -12,7 +12,7 @@ disable_env_props=0
 exit_result=0
 
 function exit_if_error() {
-  if $exit_result
+  if [[ "$exit_result" != "0" ]]
   then
     echo "Build Failed!"
     exit $exit_result
@@ -77,8 +77,8 @@ if [[ "${target}" = "publish" ]] ; then
     export ON_TAG=true
     export BUILD_NUMBER=$build_number
   fi
-  docker buildx bake --push --file docker-bake.hcl \
-    linux
+  docker buildx bake --push --file docker-bake.hcl linux
+  exit_result=$?
 fi
 exit_if_error
 

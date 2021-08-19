@@ -76,11 +76,8 @@ target "alpine_jdk8" {
     REMOTING_VERSION = REMOTING_VERSION
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine": "",
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk8": "",
-    "${REGISTRY}/${JENKINS_REPO}:alpine",
     "${REGISTRY}/${JENKINS_REPO}:alpine-jdk8",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine",
     "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk8",
   ]
   platforms = ["linux/amd64"]
@@ -93,8 +90,11 @@ target "alpine_jdk11" {
     REMOTING_VERSION = REMOTING_VERSION
   }
   tags = [
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine": "",
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk11": "",
+    "${REGISTRY}/${JENKINS_REPO}:alpine",
     "${REGISTRY}/${JENKINS_REPO}:alpine-jdk11",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine",
     "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk11",
   ]
   platforms = ["linux/amd64"]
@@ -107,13 +107,11 @@ target "debian_jdk8" {
     REMOTING_VERSION = REMOTING_VERSION
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}": "",
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk8": "",
-    "${REGISTRY}/${JENKINS_REPO}:jdk8",
     "${REGISTRY}/${JENKINS_REPO}:buster-jdk8",
-    "${REGISTRY}/${JENKINS_REPO}:latest",
-    "${REGISTRY}/${JENKINS_REPO}:latest-jdk8",
+    "${REGISTRY}/${JENKINS_REPO}:jdk8",
     "${REGISTRY}/${JENKINS_REPO}:latest-buster-jdk8",
+    "${REGISTRY}/${JENKINS_REPO}:latest-jdk8",
   ]
   platforms = ["linux/amd64"]
 }
@@ -125,11 +123,13 @@ target "debian_jdk11" {
     REMOTING_VERSION = REMOTING_VERSION
   }
   tags = [
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}": "",
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk11": "",
-    "${REGISTRY}/${JENKINS_REPO}:jdk11",
     "${REGISTRY}/${JENKINS_REPO}:buster-jdk11",
-    "${REGISTRY}/${JENKINS_REPO}:latest-jdk11",
+    "${REGISTRY}/${JENKINS_REPO}:jdk11",
+    "${REGISTRY}/${JENKINS_REPO}:latest",
     "${REGISTRY}/${JENKINS_REPO}:latest-buster-jdk11",
+    "${REGISTRY}/${JENKINS_REPO}:latest-jdk11",
   ]
   platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
 }
