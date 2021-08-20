@@ -20,7 +20,9 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM adoptopenjdk/openjdk8:jdk8u302-b08-debian
+FROM eclipse-temurin:8u302-b08-jdk-focal AS jre-build
+
+FROM debian:bullseye-20210816
 
 ARG VERSION=4.10
 ARG user=jenkins
@@ -34,11 +36,17 @@ LABEL Description="This is a base image, which provides the Jenkins agent execut
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
-RUN apt-get update && apt-get -y install git-lfs && rm -rf /var/lib/apt/lists/*
-RUN curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
+RUN apt-get update && apt-get -y install git-lfs curl \
+  && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/agent.jar \
-  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
+  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar \
+  && apt-get remove -y curl \
+  && rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH "${JAVA_HOME}/bin:${PATH}"
+COPY --from=jre-build /opt/java/openjdk $JAVA_HOME
 
 USER ${user}
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
