@@ -15,15 +15,11 @@ group "linux-arm64" {
 }
 
 group "linux-s390x" {
-  targets = [
-    "debian_jdk11",
-  ]
+  targets = []
 }
 
 group "linux-ppc64le" {
-  targets = [
-    "debian_jdk11",
-  ]
+  targets = []
 }
 
 group "windows" {
@@ -131,5 +127,5 @@ target "debian_jdk11" {
     "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk11",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk11",
   ]
-  platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
+  platforms = ["linux/amd64", "linux/arm64"]
 }
