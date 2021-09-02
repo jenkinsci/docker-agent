@@ -74,9 +74,17 @@ pipeline {
                                 // publish the images to Dockerhub
                                 infra.withDockerCredentials {
                                     sh '''
-                                      docker buildx create --use
-                                      docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-                                      ./build.sh publish
+                                    docker buildx create --use
+                                    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+                                    ./build.sh publish
+                                    '''
+                                }
+                            } else {
+                                infra.withDockerCredentials {
+                                    sh '''
+                                        docker buildx create --use
+                                        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+                                        docker buildx bake --file docker-bake.hcl linux
                                     '''
                                 }
                             }
@@ -92,7 +100,6 @@ pipeline {
                                         docker buildx create --use
                                         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
                                         ./build.sh -r $remotingVersion -b $buildNumber -d publish
-                                        
                                         """
                                     }
                                 }
