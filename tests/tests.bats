@@ -16,6 +16,15 @@ ARCH=${ARCH:-x86_64}
   echo "${VOLUMES_MAP}" | grep '/home/jenkins/agent'
 }
 
+@test "[${SUT_IMAGE}] has utf-8 locale" {
+  if [[ "${SUT_IMAGE}" == *"alpine"*  ]]; then
+    run docker run --rm "${SUT_IMAGE}" /usr/glibc-compat/bin/locale charmap
+  else
+    run docker run --rm "${SUT_IMAGE}" locale charmap
+  fi
+  [ "${output}" = "UTF-8" ]
+}
+
 @test "[${SUT_IMAGE}] image has bash and java installed and in the PATH" {
   local cid
   cid="$(docker run -d -it -P "${SUT_IMAGE}" /bin/bash)"
@@ -34,6 +43,8 @@ ARCH=${ARCH:-x86_64}
 
   run docker exec "${cid}" sh -c "printenv | grep AGENT_WORKDIR"
   [ "AGENT_WORKDIR=/home/jenkins/agent" = "${output}" ]
+
+  cleanup $cid
 }
 
 @test "[${SUT_IMAGE}] check user access to folders" {
@@ -50,6 +61,8 @@ ARCH=${ARCH:-x86_64}
 
   run docker exec "${cid}" touch /home/jenkins/agent/a
   [ "${status}" -eq 0 ]
+
+  cleanup $cid
 }
 
 @test "[${SUT_IMAGE}] use build args correctly" {
@@ -109,4 +122,6 @@ docker buildx bake \
 
   run docker exec "${cid}" touch /home/test-user/something/a
   [ "${status}" -eq 0 ]
+
+  cleanup $cid
 }

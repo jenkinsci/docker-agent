@@ -33,6 +33,11 @@ function get_sut_image {
     make --silent show | jq -r ".target.${IMAGE}.tags[0]"
 }
 
+function cleanup {
+    docker kill "$1" &>/dev/null ||:
+    docker rm -fv "$1" &>/dev/null ||:
+}
+
 function get_dockerfile_directory() {
     test -n "${IMAGE:?"[sut_image] Please set the variable 'IMAGE' to the name of the image to test in 'docker-bake.hcl'."}"
 
