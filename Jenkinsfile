@@ -70,18 +70,22 @@ pipeline {
                         sh './build.sh test'
                         script {
                             def branchName = "${env.BRANCH_NAME}"
-                            sh '''
-                                docker buildx create --use
-                                docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-                            '''
                             if (branchName ==~ 'master') {
                                 // publish the images to Dockerhub
                                 infra.withDockerCredentials {
-                                    sh './build.sh publish'
+                                    sh '''
+                                    docker buildx create --use
+                                    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+                                    ./build.sh publish
+                                    '''
                                 }
                             } else {
                                 infra.withDockerCredentials {
-                                    sh 'docker buildx bake --file docker-bake.hcl linux'
+                                    sh '''
+                                        docker buildx create --use
+                                        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+                                        docker buildx bake --file docker-bake.hcl linux
+                                    '''
                                 }
                             }
 
@@ -92,7 +96,11 @@ pipeline {
                                     def buildNumber = tagItems[1]
                                     // we need to build and publish the tag version
                                     infra.withDockerCredentials {
-                                        sh "./build.sh -r $remotingVersion -b $buildNumber -d publish"
+                                        sh """
+                                        docker buildx create --use
+                                        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+                                        ./build.sh -r $remotingVersion -b $buildNumber -d publish
+                                        """
                                     }
                                 }
                             }
