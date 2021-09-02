@@ -47,6 +47,8 @@ LABEL Description="This is a base image, which provides the Jenkins agent execut
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 # add glic required for java currently
 # copied from https://github.com/AdoptOpenJDK/openjdk-docker/blob/436253bad9e494ea0043da22fca197e6055a538a/11/jdk/alpine/Dockerfile.hotspot.releases.slim#L24-L46
 # inspired by https://blog.gilliard.lol/2018/11/05/alpine-jdk11-images.html
