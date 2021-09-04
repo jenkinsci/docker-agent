@@ -69,7 +69,7 @@ function retry {
 }
 
 function is_agent_container_running {
-    test -n "${1}"
-	sleep 1
-	retry 3 1 assert "true" docker inspect -f '{{.State.Running}}' "${1}"
+  test -n "${1}"
+  sleep 1
+  retry 3 1 assert "true" docker inspect -f '{{.State.Running}}' "${1}"
 }
