@@ -17,11 +17,7 @@ ARCH=${ARCH:-x86_64}
 }
 
 @test "[${SUT_IMAGE}] has utf-8 locale" {
-  if [[ "${SUT_IMAGE}" == *"alpine"*  ]]; then
-    run docker run --rm "${SUT_IMAGE}" /usr/glibc-compat/bin/locale charmap
-  else
-    run docker run --rm "${SUT_IMAGE}" locale charmap
-  fi
+  run docker run --rm "${SUT_IMAGE}" locale charmap
   [ "${output}" = "UTF-8" ]
 }
 
