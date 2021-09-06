@@ -1,16 +1,17 @@
 #!/usr/bin/env bats
 
 load test_helpers
+load 'test_helper/bats-support/load' # this is required by bats-assert!
+load 'test_helper/bats-assert/load'
 
-REGEX='^([0-9]+)/(.+)$'
-
+IMAGE=${IMAGE:-debian_jdk11}
 SUT_IMAGE=$(get_sut_image)
 
 ARCH=${ARCH:-x86_64}
 
 @test "[${SUT_IMAGE}] checking image metadata" {
   local VOLUMES_MAP
-  VOLUMES_MAP="$(docker inspect -f '{{.Config.Volumes}}' ${SUT_IMAGE})"
+  VOLUMES_MAP="$(docker inspect -f '{{.Config.Volumes}}' "${SUT_IMAGE}")"
 
   echo "${VOLUMES_MAP}" | grep '/home/jenkins/.jenkins'
   echo "${VOLUMES_MAP}" | grep '/home/jenkins/agent'
@@ -18,7 +19,7 @@ ARCH=${ARCH:-x86_64}
 
 @test "[${SUT_IMAGE}] has utf-8 locale" {
   run docker run --rm "${SUT_IMAGE}" locale charmap
-  [ "${output}" = "UTF-8" ]
+  assert_equal "${output}" "UTF-8"
 }
 
 @test "[${SUT_IMAGE}] image has bash and java installed and in the PATH" {
@@ -28,19 +29,19 @@ ARCH=${ARCH:-x86_64}
   is_agent_container_running "${cid}"
 
   run docker exec "${cid}" sh -c "command -v bash"
-  [ "${status}" -eq 0 ]
+  assert_success
   run docker exec "${cid}" bash --version
-  [ "${status}" -eq 0 ]
+  assert_success
   run docker exec "${cid}" sh -c "command -v java"
-  [ "${status}" -eq 0 ]
+  assert_success
 
   run docker exec "${cid}" sh -c "java -version"
-  [ "${status}" -eq 0 ]
+  assert_success
 
   run docker exec "${cid}" sh -c "printenv | grep AGENT_WORKDIR"
-  [ "AGENT_WORKDIR=/home/jenkins/agent" = "${output}" ]
+  assert_equal "${output}" "AGENT_WORKDIR=/home/jenkins/agent"
 
-  cleanup $cid
+  cleanup "$cid"
 }
 
 @test "[${SUT_IMAGE}] check user access to folders" {
@@ -50,15 +51,15 @@ ARCH=${ARCH:-x86_64}
   is_agent_container_running "${cid}"
 
   run docker exec "${cid}" touch /home/jenkins/a
-  [ "${status}" -eq 0 ]
+  assert_success
 
   run docker exec "${cid}" touch /home/jenkins/.jenkins/a
-  [ "${status}" -eq 0 ]
+  assert_success
 
   run docker exec "${cid}" touch /home/jenkins/agent/a
-  [ "${status}" -eq 0 ]
+  assert_success
 
-  cleanup $cid
+  cleanup "$cid"
 }
 
 @test "[${SUT_IMAGE}] use build args correctly" {
@@ -72,6 +73,8 @@ ARCH=${ARCH:-x86_64}
 	local TEST_AGENT_WORKDIR="/home/test-user/something"
   local sut_image="${SUT_IMAGE}-tests-${BATS_TEST_NUMBER}"
 
+# false positive detecting platform
+# shellcheck disable=SC2140
 docker buildx bake \
   --set "${IMAGE}".args.VERSION="${TEST_VERSION}" \
   --set "${IMAGE}".args.user="${TEST_USER}" \
@@ -90,34 +93,34 @@ docker buildx bake \
   is_agent_container_running "${cid}"
 
   run docker exec "${cid}" sh -c "java -cp /usr/share/jenkins/agent.jar hudson.remoting.jnlp.Main -version"
-  [ "${TEST_VERSION}" = "${lines[0]}" ]
+  assert_line --index 0 "${TEST_VERSION}"
 
   run docker exec "${cid}" sh -c "id -u -n ${TEST_USER}"
-  [ "${TEST_USER}" = "${lines[0]}" ]
+  assert_line --index 0 "${TEST_USER}"
 
   run docker exec "${cid}" sh -c "id -g -n ${TEST_USER}"
-  [ "${TEST_GROUP}" = "${lines[0]}" ]
+  assert_line --index 0 "${TEST_GROUP}"
 
   run docker exec "${cid}" sh -c "id -u ${TEST_USER}"
-  [ "${TEST_UID}" = "${lines[0]}" ]
+  assert_line --index 0 "${TEST_UID}"
 
   run docker exec "${cid}" sh -c "id -g ${TEST_USER}"
-  [ "${TEST_GID}" = "${lines[0]}" ]
+  assert_line --index 0 "${TEST_GID}"
 
   run docker exec "${cid}" sh -c "printenv | grep AGENT_WORKDIR"
-  [ "AGENT_WORKDIR=/home/${TEST_USER}/something" = "${lines[0]}" ]
+  assert_line --index 0 "AGENT_WORKDIR=/home/${TEST_USER}/something"
 
   run docker exec "${cid}" sh -c 'stat -c "%U:%G" "${AGENT_WORKDIR}"'
-  [ "${TEST_USER}:${TEST_GROUP}" = "${lines[0]}" ]
+  assert_line --index 0 "${TEST_USER}:${TEST_GROUP}"
 
   run docker exec "${cid}" touch /home/test-user/a
-  [ "${status}" -eq 0 ]
+  assert_success
 
   run docker exec "${cid}" touch /home/test-user/.jenkins/a
-  [ "${status}" -eq 0 ]
+  assert_success
 
   run docker exec "${cid}" touch /home/test-user/something/a
-  [ "${status}" -eq 0 ]
+  assert_success
 
-  cleanup $cid
+  cleanup "$cid"
 }
