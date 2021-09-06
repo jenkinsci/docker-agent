@@ -60,7 +60,7 @@ LABEL Description="This is a base image, which provides the Jenkins agent execut
 ARG GIT_VERSION=2.33.0
 ARG GIT_PATCH_VERSION=2
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
-    $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
+    $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}.{1}-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest $url -OutFile 'mingit.zip' -UseBasicParsing ; `
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
