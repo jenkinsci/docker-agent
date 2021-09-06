@@ -46,8 +46,6 @@ pipeline {
                                 }
                             }
                         }
-                        // cleanup any docker images
-                        powershell '& docker system prune --force --all'
                     }
                     post {
                         always {
@@ -105,8 +103,6 @@ pipeline {
                                 }
                             }
                         }
-                        // cleanup any docker images
-                        sh 'docker system prune --force --all'
                     }
                     post {
                         always {
