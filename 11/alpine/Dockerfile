@@ -28,7 +28,7 @@ RUN apk add --update --no-cache openjdk11-jdk openjdk11-jmods
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
 RUN jlink \
-             --module-path /usr/lib/jvm/default-jvm/jmods \
+         --module-path /usr/lib/jvm/default-jvm/jmods \
          --add-modules ALL-MODULE-PATH \
          --strip-debug \
          --no-man-pages \
