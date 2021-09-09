@@ -20,6 +20,22 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
+FROM alpine:3.14.1 as jre-build
+
+RUN apk add --update --no-cache openjdk11-jdk openjdk11-jmods
+
+# Generate smaller java runtime without unneeded files
+# for now we include the full module path to maintain compatibility
+# while still saving space (approx 200mb from the full distribution)                                 
+RUN jlink \
+	 --module-path /usr/lib/jvm/default-jvm/jmods \
+         --add-modules ALL-MODULE-PATH \
+         --strip-debug \
+         --no-man-pages \
+         --no-header-files \
+         --compress=2 \
+         --output /javaruntime
+
 FROM alpine:3.14.1
 
 ARG VERSION=4.10
@@ -36,13 +52,17 @@ ARG AGENT_WORKDIR=/home/${user}/agent
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-RUN apk add --update --no-cache curl bash git git-lfs musl-locales openjdk11-jre-headless openssh-client openssl procps \
+RUN apk add --update --no-cache curl bash git git-lfs musl-locales openssh-client openssl procps \
   && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar \
   && apk del --purge curl \
   && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
+
+ENV JAVA_HOME=/opt/java/openjdk        
+ENV PATH "${JAVA_HOME}/bin:${PATH}"
+COPY --from=jre-build /javaruntime $JAVA_HOME
 
 USER ${user}
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
