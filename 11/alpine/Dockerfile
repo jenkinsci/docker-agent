@@ -20,15 +20,15 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM alpine:3.14.1 as jre-build
+FROM alpine:3.14.2 as jre-build
 
 RUN apk add --update --no-cache openjdk11-jdk openjdk11-jmods
 
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
-# while still saving space (approx 200mb from the full distribution)                                 
+# while still saving space (approx 200mb from the full distribution)
 RUN jlink \
-	 --module-path /usr/lib/jvm/default-jvm/jmods \
+             --module-path /usr/lib/jvm/default-jvm/jmods \
          --add-modules ALL-MODULE-PATH \
          --strip-debug \
          --no-man-pages \
@@ -60,7 +60,7 @@ RUN apk add --update --no-cache curl bash git git-lfs musl-locales openssh-clien
   && apk del --purge curl \
   && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_HOME=/opt/java/openjdk        
+ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
 COPY --from=jre-build /javaruntime $JAVA_HOME
 
