@@ -64,8 +64,8 @@ The image has several supported configurations, which can be accessed via the fo
 * Linux Images:
   * `latest` (`jdk11`, `bullseye-jdk11`, `latest-bullseye-jdk11`, `latest-jdk11`): Latest version with the newest remoting and Java 11 (based on `debian:bullseye-${builddate}`)
   * `latest-jdk8` (`jdk8`, `bullseye-jdk8`, `latest-bullseye-jdk8`): Latest version with the newest remoting (based on `debian:bullseye-${builddate}`)
-  * `alpine` (`alpine-jdk11`, `latest-alpine`, `latest-alpine-jdk11`): Small image based on Alpine Linux (based on `adoptopenjdk/openjdk11:alpine`)
-  * `alpine-jdk8` (`latest-alpine-jdk8`): Small image based on Alpine Linux (based on `adoptopenjdk/openjdk8:jdk8u${version}-alpine`)
+  * `alpine` (`alpine-jdk11`, `latest-alpine`, `latest-alpine-jdk11`): Small image based on Alpine Linux (based on `alpine:${version}`)
+  * `alpine-jdk8` (`latest-alpine-jdk8`): Small image based on Alpine Linux (based on `alpine:${version}`)
   * `archlinux` (`latest-archlinux`, `archlinux-jdk11`, `latest-archlinux-jdk11`): Image based on Arch Linux with JDK11 (based on `archlinux:latest`)
 
 * Windows Images:
