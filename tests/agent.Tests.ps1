@@ -186,6 +186,12 @@ Describe "[$global:JDK $global:FLAVOR] use build args correctly" {
         $exitCode | Should -Be 0
     }
 
+    It 'version in docker metadata' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "inspect -f `"{{index .Config.Labels \`"org.opencontainers.image.version\`"}}`" $global:AGENT_IMAGE"
+        $exitCode | Should -Be 0
+        $stdout.Trim() | Should -Match $TEST_VERSION
+    }
+
     AfterAll {
         Pop-Location -StackName 'agent'
         Cleanup($global:AGENT_CONTAINER)

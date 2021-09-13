@@ -9,6 +9,16 @@ SUT_IMAGE=$(get_sut_image)
 
 ARCH=${ARCH:-x86_64}
 
+@test "[${SUT_IMAGE}] test version in docker metadata" {
+  local expected_version
+  expected_version=$(get_remoting_version)
+
+  local actual_version
+  actual_version=$(docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.version"}}' "${SUT_IMAGE}")
+
+  assert_equal "${expected_version}" "${actual_version}"
+}
+
 @test "[${SUT_IMAGE}] checking image metadata" {
   local VOLUMES_MAP
   VOLUMES_MAP="$(docker inspect -f '{{.Config.Volumes}}' "${SUT_IMAGE}")"
