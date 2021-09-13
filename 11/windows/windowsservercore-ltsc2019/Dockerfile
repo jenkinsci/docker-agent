@@ -80,3 +80,12 @@ RUN New-Item -Type Directory $('{0}/.jenkins' -f $env:AGENT_ROOT) | Out-Null ; `
 VOLUME ${AGENT_ROOT}/.jenkins
 VOLUME ${AGENT_WORKDIR}
 WORKDIR ${AGENT_ROOT}
+
+LABEL `
+    org.opencontainers.image.vendor="Jenkins project" `
+    org.opencontainers.image.title="Official Jenkins Agent Base Docker image" `
+    org.opencontainers.image.description="This is a base image, which provides the Jenkins agent executable (agent.jar)" `
+    org.opencontainers.image.version="${VERSION}" `
+    org.opencontainers.image.url="https://www.jenkins.io/" `
+    org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" `
+    org.opencontainers.image.licenses="MIT"

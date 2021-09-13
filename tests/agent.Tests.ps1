@@ -133,6 +133,12 @@ Describe "[$global:JDK $global:FLAVOR] check user access to directories" {
         $exitCode | Should -Be 0
     }
 
+    It 'version in docker metadata' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "inspect -f `"{{index .Config.Labels \`"org.opencontainers.image.version\`"}}`" $SUT_IMAGE"
+        $exitCode | Should -Be 0
+        $stdout.Trim() | Should -Match $TEST_VERSION
+    }
+
     AfterAll {
         Cleanup($global:AGENT_CONTAINER)
     }

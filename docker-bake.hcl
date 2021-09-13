@@ -54,7 +54,7 @@ target "archlinux_jdk11" {
   dockerfile = "11/archlinux/Dockerfile"
   context = "."
   args = {
-    REMOTING_VERSION = REMOTING_VERSION
+    VERSION = REMOTING_VERSION
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-archlinux": "",
@@ -71,7 +71,7 @@ target "alpine_jdk8" {
   dockerfile = "8/alpine/Dockerfile"
   context = "."
   args = {
-    REMOTING_VERSION = REMOTING_VERSION
+    VERSION = REMOTING_VERSION
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk8": "",
@@ -85,7 +85,7 @@ target "alpine_jdk11" {
   dockerfile = "11/alpine/Dockerfile"
   context = "."
   args = {
-    REMOTING_VERSION = REMOTING_VERSION
+    VERSION = REMOTING_VERSION
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine": "",
@@ -102,7 +102,7 @@ target "debian_jdk8" {
   dockerfile = "8/bullseye/Dockerfile"
   context = "."
   args = {
-    REMOTING_VERSION = REMOTING_VERSION
+    VERSION = REMOTING_VERSION
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk8": "",
@@ -118,7 +118,7 @@ target "debian_jdk11" {
   dockerfile = "11/bullseye/Dockerfile"
   context = "."
   args = {
-    REMOTING_VERSION = REMOTING_VERSION
+    VERSION = REMOTING_VERSION
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}": "",
