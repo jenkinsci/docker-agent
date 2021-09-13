@@ -133,12 +133,6 @@ Describe "[$global:JDK $global:FLAVOR] check user access to directories" {
         $exitCode | Should -Be 0
     }
 
-    It 'version in docker metadata' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "inspect -f `"{{index .Config.Labels \`"org.opencontainers.image.version\`"}}`" $global:AGENT_IMAGE"
-        $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match $TEST_VERSION
-    }
-
     AfterAll {
         Cleanup($global:AGENT_CONTAINER)
     }
@@ -190,6 +184,12 @@ Describe "[$global:JDK $global:FLAVOR] use build args correctly" {
     It 'can write to HOME/Work' {
         $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "exec $global:AGENT_CONTAINER $global:SHELL -C `"New-Item -ItemType File -Path ${TEST_AGENT_WORKDIR}/a.txt | Out-Null ; if(Test-Path ${TEST_AGENT_WORKDIR}/a.txt) { exit 0 } else { exit -1 }`""
         $exitCode | Should -Be 0
+    }
+
+    It 'version in docker metadata' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "inspect -f `"{{index .Config.Labels \`"org.opencontainers.image.version\`"}}`" $global:AGENT_IMAGE"
+        $exitCode | Should -Be 0
+        $stdout.Trim() | Should -Match $TEST_VERSION
     }
 
     AfterAll {
