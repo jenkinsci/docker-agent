@@ -1,6 +1,6 @@
 # The MIT License
 #
-#  Copyright (c) 2015-2020, CloudBees, Inc. and other Jenkins contributors
+#  Copyright (c) 2015-2021, CloudBees, Inc. and other Jenkins contributors
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -20,14 +20,14 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM eclipse-temurin:11.0.12_7-jdk-focal AS jre-build
+FROM eclipse-temurin:17_35-jdk-focal AS jre-build
 
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
 RUN jlink \
          --add-modules ALL-MODULE-PATH \
-         --strip-debug \
+         --strip-java-debug-attributes \
          --no-man-pages \
          --no-header-files \
          --compress=2 \
