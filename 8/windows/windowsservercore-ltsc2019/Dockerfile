@@ -22,7 +22,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM eclipse-temurin:8u302-b08-jre-windowsservercore-1809
+FROM eclipse-temurin:8u302-b08-jdk-windowsservercore-1809
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
@@ -55,7 +55,8 @@ ARG user=jenkins
 ARG AGENT_FILENAME=agent.jar
 ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 
-RUN net user "$env:user" /add /expire:never /passwordreq:no ; `
+RUN net accounts /maxpwage:unlimited ; `
+    net user "$env:user" /add /expire:never /passwordreq:no ; `
     net localgroup Administrators /add $env:user ; `
     Set-LocalUser -Name $env:user -PasswordNeverExpires 1; `
     New-Item -ItemType Directory -Path C:/ProgramData/Jenkins | Out-Null

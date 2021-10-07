@@ -22,9 +22,15 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM eclipse-temurin:11.0.12_7-jdk-windowsservercore-1809
+FROM mcr.microsoft.com/windows/servercore:1809 AS core
 
-SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+FROM eclipse-temurin:8u302-b08-jdk-nanoserver-1809
+
+# The nanoserver image is nice and small, but we need a couple of things to get SSH working
+COPY --from=core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
+COPY --from=core /windows/system32/whoami.exe /windows/system32/whoami.exe
+
+SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 ARG VERSION=4.10
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
@@ -38,7 +44,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
     Remove-Item mingit.zip -Force
 
-ARG GIT_LFS_VERSION=3.0.1
+ARG GIT_LFS_VERSION=2.13.3
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     $url = $('https://github.com/git-lfs/git-lfs/releases/download/v{0}/git-lfs-windows-amd64-v{0}.zip' -f $env:GIT_LFS_VERSION) ; `
     Write-Host "Retrieving $url..." ; `

@@ -69,17 +69,12 @@ The image has several supported configurations, which can be accessed via the fo
   * `archlinux` (`latest-archlinux`, `archlinux-jdk11`, `latest-archlinux-jdk11`): Image based on Arch Linux with JDK11 (based on `archlinux:latest`)
 
 * Windows Images:
-  * `jdk11-windowsservercore-1809`: Latest version with the newest remoting and Java 11 (based on `adoptopenjdk:11-jdk-hotspot-windowsservercore-1809`)
-  * `jdk11-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 11
+  * `jdk8-windowsservercore-1809`: Latest version with the newest remoting and Java 8 (based on `eclipse-temurin:8.xxx-jdk-windowsservercore-1809`)
+  * `jdk8-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 8 (based on `eclipse-temurin:8.xxx-jdk-nanoserver-1809`)
+  * `jdk11-windowsservercore-1809`: Latest version with the newest remoting and Java 11 (based on `eclipse-temurin:11.xxx-jdk-windowsservercore-1809`)
+  * `jdk11-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 11 (based on `eclipse-temurin:11.xxx-jdk-nanoserver-1809`)
 
 The file `docker-bake.hcl` defines all the configuration for Linux images and their associated tags.
 
 There are also versioned tags in DockerHub, and they are recommended for production use.
 See the full list [here](https://hub.docker.com/r/jenkins/agent/tags)
-
-## Java 8 Support
-
-Please note that the following Java 8 images have been deprecated:
-
-* `jdk8-nanoserver-1809`: Windows nanoserver 18.09 with JDK8
-* `jdk8-windowsservercore-1809`: Windows Server Core 18.09 with JDK8 (based on `adoptopenjdk:8-jdk-hotspot-windowsservercore-1809`)

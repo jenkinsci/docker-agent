@@ -24,35 +24,13 @@
 
 FROM mcr.microsoft.com/windows/servercore:1809 AS core
 
-# If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
-# use the 'latest'
-ARG POWERSHELL_VERSION=
-FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
+FROM eclipse-temurin:11.0.12_7-jdk-nanoserver-1809
 
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
 COPY --from=core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
 COPY --from=core /windows/system32/whoami.exe /windows/system32/whoami.exe
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-
-ENV JAVA_VERSION jdk-11.0.11+9
-
-USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.11%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.11_9.zip ...'); `
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; `
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.11%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.11_9.zip -O 'openjdk.zip'; `
-    Write-Host ('Verifying sha256 (36c08b0f41465b43c91abf9d4e13d063e01d670cbf448106a1c700786d89cfa8) ...'); `
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '36c08b0f41465b43c91abf9d4e13d063e01d670cbf448106a1c700786d89cfa8') { `
-            Write-Host 'FAILED!'; `
-            exit 1; `
-    }; `
-    `
-    Write-Host 'Expanding Zip ...'; `
-    Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; `
-    $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); `
-    Move-Item -Path $jdkDirectory C:\openjdk-11; `
-    Write-Host 'Removing openjdk.zip ...'; `
-    Remove-Item openjdk.zip -Force
 
 ARG VERSION=4.10
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
@@ -73,12 +51,10 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Invoke-WebRequest $url -OutFile 'GitLfs.zip' -UseBasicParsing ; `
     Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ; `
     Remove-Item GitLfs.zip -Force ; `
-    & C:\mingit\cmd\git.exe lfs install
-
-ENV ProgramFiles="C:\Program Files" `
-    WindowsPATH="C:\Windows\system32;C:\Windows" `
-    JAVA_HOME="C:\openjdk-11"
-ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
+    & C:\mingit\cmd\git.exe lfs install ; `
+    $CurrentPath = (Get-Itemproperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path).Path ; `
+    $NewPath = $CurrentPath + ';C:\mingit\cmd' ; `
+    Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath
 
 ARG user=jenkins
 
@@ -88,6 +64,7 @@ ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 RUN net accounts /maxpwage:unlimited ; `
     net user "$env:user" /add /expire:never /passwordreq:no ; `
     net localgroup Administrators /add $env:user ; `
+    Set-LocalUser -Name $env:user -PasswordNeverExpires 1; `
     New-Item -ItemType Directory -Path C:/ProgramData/Jenkins | Out-Null
 
 ARG AGENT_ROOT=C:/Users/$user
