@@ -39,6 +39,16 @@ if(![String]::IsNullOrWhiteSpace($env:REMOTING_VERSION)) {
 # this is the jdk version that will be used for the 'bare tag' images, e.g., jdk8-windowsservercore-1809 -> windowsserver-1809
 $defaultBuild = '8'
 $builds = @{}
+$env:REMOTING_VERSION = "$RemotingVersion"
+$ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
+
+# Ensures that docker-compose is present
+# Docker-compose v2 does not works and prints a "not implemented" message (tested with 2.0.1)
+$dockerComposeBin = "C:\tools\docker-compose.exe"
+if (-not(Test-Path -Path $dockerComposeBin)) {
+    Invoke-WebRequest "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Windows-x86_64.exe" -OutFile "$dockerComposeBin"
+}
+& "$dockerComposeBin" --version
 
 Get-ChildItem -Recurse -Include windows -Directory | ForEach-Object {
     Get-ChildItem -Directory -Path $_ | Where-Object { Test-Path (Join-Path $_.FullName "Dockerfile") } | ForEach-Object {
@@ -59,9 +69,14 @@ Get-ChildItem -Recurse -Include windows -Directory | ForEach-Object {
     }
 }
 
+# Prebuild in parallel all images to populate the cache
+Write-Host "BUILD: Starting Docker Compose General Build"
+& "$dockerComposeBin" --file=build-windows.yaml build --parallel --pull
+Write-Host "BUILD: Finished Docker Compose General Build"
+
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
     foreach($tag in $builds[$Build]['Tags']) {
-        Write-Host "Building $Build => tag=$tag"
+        Write-Host "BUILD: Building $Build => tag=$tag"
         $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$Build]['Folder']
         Invoke-Expression $cmd
 
@@ -70,7 +85,7 @@ if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)
             if($tag -eq 'latest') {
                 $buildTag = "$RemotingVersion-$BuildNumber"
             }
-            Write-Host "Building $Build => tag=$buildTag"
+            Write-Host "BUILD: Building $Build => tag=$buildTag"
             $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$Build]['Folder']
             Invoke-Expression $cmd
         }
@@ -78,7 +93,7 @@ if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)
 } else {
     foreach($b in $builds.Keys) {
         foreach($tag in $builds[$b]['Tags']) {
-            Write-Host "Building $b => tag=$tag"
+            Write-Host "BUILD: Building $b => tag=$tag"
             $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$b]['Folder']
             Invoke-Expression $cmd
 
@@ -87,7 +102,7 @@ if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)
                 if($tag -eq 'latest') {
                     $buildTag = "$RemotingVersion-$BuildNumber"
                 }
-                Write-Host "Building $Build => tag=$buildTag"
+                Write-Host "BUILD: Building $Build => tag=$buildTag"
                 $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$b]['Folder']
                 Invoke-Expression $cmd
             }
@@ -100,6 +115,8 @@ if($lastExitCode -ne 0) {
 }
 
 if($target -eq "test") {
+    Write-Host "BUILD: Starting test harness"
+
     # Only fail the run afterwards in case of any test failures
     $testFailed = $false
     $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.0.0 -MaximumVersion 5.0.2 -ErrorAction SilentlyContinue

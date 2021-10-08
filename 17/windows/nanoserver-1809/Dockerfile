@@ -21,19 +21,24 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
+ARG JAVA_VERSION="17_35"
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-windowsservercore-1809 AS core
 
-FROM mcr.microsoft.com/windows/servercore:1809 AS core
+# If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
+# use the 'latest'
+ARG POWERSHELL_VERSION=
+FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
 
-FROM eclipse-temurin:17_35-jdk-nanoserver-1809
+ARG JAVA_VERSION
+ARG JAVA_HOME="C:\openjdk-17"
 
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
 COPY --from=core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
 COPY --from=core /windows/system32/whoami.exe /windows/system32/whoami.exe
+COPY --from=core $JAVA_HOME $JAVA_HOME
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-
-ARG VERSION=4.10
-LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
+USER ContainerAdministrator
 
 ARG GIT_VERSION=2.33.0
 ARG GIT_PATCH_VERSION=2
@@ -51,10 +56,12 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Invoke-WebRequest $url -OutFile 'GitLfs.zip' -UseBasicParsing ; `
     Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ; `
     Remove-Item GitLfs.zip -Force ; `
-    & C:\mingit\cmd\git.exe lfs install ; `
-    $CurrentPath = (Get-Itemproperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path).Path ; `
-    $NewPath = $CurrentPath + ';C:\mingit\cmd' ; `
-    Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath
+    & C:\mingit\cmd\git.exe lfs install
+
+ENV ProgramFiles="C:\Program Files" `
+    WindowsPATH="C:\Windows\system32;C:\Windows" `
+    JAVA_HOME="${JAVA_HOME}"
+ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
 ARG user=jenkins
 
@@ -64,7 +71,6 @@ ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 RUN net accounts /maxpwage:unlimited ; `
     net user "$env:user" /add /expire:never /passwordreq:no ; `
     net localgroup Administrators /add $env:user ; `
-    Set-LocalUser -Name $env:user -PasswordNeverExpires 1; `
     New-Item -ItemType Directory -Path C:/ProgramData/Jenkins | Out-Null
 
 ARG AGENT_ROOT=C:/Users/$user
@@ -73,6 +79,8 @@ ARG AGENT_WORKDIR=${AGENT_ROOT}/Work
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 
 # Get the Agent from the Jenkins Artifacts Repository
+ARG VERSION=4.10
+LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar' -f $env:VERSION) -OutFile $(Join-Path C:/ProgramData/Jenkins $env:AGENT_FILENAME) -UseBasicParsing ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar.sha1' -f $env:VERSION) -OutFile (Join-Path C:/ProgramData/Jenkins $env:AGENT_HASH_FILENAME) -UseBasicParsing ; `
