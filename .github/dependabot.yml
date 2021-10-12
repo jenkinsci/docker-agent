@@ -1,0 +1,99 @@
+# Per https://docs.github.com/en/github/administering-a-repository/configuration-options-for-dependency-updates
+version: 2
+updates:
+
+# Alpine Linux
+
+- package-ecosystem: docker
+  directory: "11/alpine"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - MarkEWaite
+  labels:
+  - dependencies
+
+- package-ecosystem: docker
+  directory: "8/alpine"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - MarkEWaite
+  labels:
+  - dependencies
+
+# Arch Linux
+
+- package-ecosystem: docker
+  directory: "11/archlinux"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - MarkEWaite
+  labels:
+  - dependencies
+
+# Debian Linux
+
+- package-ecosystem: docker
+  directory: "11/bullseye"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - MarkEWaite
+  labels:
+  - dependencies
+
+- package-ecosystem: docker
+  directory: "8/bullseye"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - MarkEWaite
+  labels:
+  - dependencies
+
+# Windows
+
+- package-ecosystem: docker
+  directory: "11/windows/nanoserver-1809"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - slide
+  labels:
+  - dependencies
+
+- package-ecosystem: docker
+  directory: "11/windows/windowsservercore-ltsc2019"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - slide
+  labels:
+  - dependencies
+
+- package-ecosystem: docker
+  directory: "8/windows/windowsservercore-ltsc2019"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - slide
+  labels:
+  - dependencies
