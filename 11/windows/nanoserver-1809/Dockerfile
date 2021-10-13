@@ -21,41 +21,24 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-
-FROM mcr.microsoft.com/windows/servercore:1809 AS core
+ARG JAVA_VERSION="11.0.12_7"
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-windowsservercore-1809 AS core
 
 # If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
 # use the 'latest'
 ARG POWERSHELL_VERSION=
 FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
 
+ARG JAVA_VERSION
+ARG JAVA_HOME="C:\openjdk-11"
+
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
 COPY --from=core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
 COPY --from=core /windows/system32/whoami.exe /windows/system32/whoami.exe
+COPY --from=core $JAVA_HOME $JAVA_HOME
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-
-ENV JAVA_VERSION jdk-11.0.11+9
-
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.11%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.11_9.zip ...'); `
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; `
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.11%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.11_9.zip -O 'openjdk.zip'; `
-    Write-Host ('Verifying sha256 (36c08b0f41465b43c91abf9d4e13d063e01d670cbf448106a1c700786d89cfa8) ...'); `
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '36c08b0f41465b43c91abf9d4e13d063e01d670cbf448106a1c700786d89cfa8') { `
-            Write-Host 'FAILED!'; `
-            exit 1; `
-    }; `
-    `
-    Write-Host 'Expanding Zip ...'; `
-    Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; `
-    $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); `
-    Move-Item -Path $jdkDirectory C:\openjdk-11; `
-    Write-Host 'Removing openjdk.zip ...'; `
-    Remove-Item openjdk.zip -Force
-
-ARG VERSION=4.10
-LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
 ARG GIT_VERSION=2.33.0
 ARG GIT_PATCH_VERSION=2
@@ -77,7 +60,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
 
 ENV ProgramFiles="C:\Program Files" `
     WindowsPATH="C:\Windows\system32;C:\Windows" `
-    JAVA_HOME="C:\openjdk-11"
+    JAVA_HOME="${JAVA_HOME}"
 ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
 ARG user=jenkins
@@ -96,6 +79,8 @@ ARG AGENT_WORKDIR=${AGENT_ROOT}/Work
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 
 # Get the Agent from the Jenkins Artifacts Repository
+ARG VERSION=4.10
+LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar' -f $env:VERSION) -OutFile $(Join-Path C:/ProgramData/Jenkins $env:AGENT_FILENAME) -UseBasicParsing ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar.sha1' -f $env:VERSION) -OutFile (Join-Path C:/ProgramData/Jenkins $env:AGENT_HASH_FILENAME) -UseBasicParsing ; `

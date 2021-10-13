@@ -21,10 +21,24 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
+ARG JAVA_VERSION="17_35"
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-windowsservercore-1809 AS core
 
-FROM eclipse-temurin:11.0.12_7-jdk-windowsservercore-1809
+# If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
+# use the 'latest'
+ARG POWERSHELL_VERSION=
+FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
 
-SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+ARG JAVA_VERSION
+ARG JAVA_HOME="C:\openjdk-17"
+
+# The nanoserver image is nice and small, but we need a couple of things to get SSH working
+COPY --from=core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
+COPY --from=core /windows/system32/whoami.exe /windows/system32/whoami.exe
+COPY --from=core $JAVA_HOME $JAVA_HOME
+
+SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+USER ContainerAdministrator
 
 ARG GIT_VERSION=2.33.0
 ARG GIT_PATCH_VERSION=2
@@ -35,17 +49,19 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
     Remove-Item mingit.zip -Force
 
-ARG GIT_LFS_VERSION=3.0.1
+ARG GIT_LFS_VERSION=2.13.3
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     $url = $('https://github.com/git-lfs/git-lfs/releases/download/v{0}/git-lfs-windows-amd64-v{0}.zip' -f $env:GIT_LFS_VERSION) ; `
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest $url -OutFile 'GitLfs.zip' -UseBasicParsing ; `
     Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ; `
     Remove-Item GitLfs.zip -Force ; `
-    & C:\mingit\cmd\git.exe lfs install ; `
-    $CurrentPath = (Get-Itemproperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path).Path ; `
-    $NewPath = $CurrentPath + ';C:\mingit\cmd' ; `
-    Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath
+    & C:\mingit\cmd\git.exe lfs install
+
+ENV ProgramFiles="C:\Program Files" `
+    WindowsPATH="C:\Windows\system32;C:\Windows" `
+    JAVA_HOME="${JAVA_HOME}"
+ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
 ARG user=jenkins
 
@@ -55,7 +71,6 @@ ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 RUN net accounts /maxpwage:unlimited ; `
     net user "$env:user" /add /expire:never /passwordreq:no ; `
     net localgroup Administrators /add $env:user ; `
-    Set-LocalUser -Name $env:user -PasswordNeverExpires 1; `
     New-Item -ItemType Directory -Path C:/ProgramData/Jenkins | Out-Null
 
 ARG AGENT_ROOT=C:/Users/$user
