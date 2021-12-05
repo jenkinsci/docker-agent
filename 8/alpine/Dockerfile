@@ -22,7 +22,7 @@
 
 FROM alpine:3.14.3
 
-ARG VERSION=4.10
+ARG VERSION=4.11.2
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
