@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM alpine:3.14.3 as jre-build
+FROM alpine:3.15.0 as jre-build
 
 RUN apk add --update --no-cache openjdk11-jdk openjdk11-jmods
 
@@ -36,7 +36,7 @@ RUN jlink \
          --compress=2 \
          --output /javaruntime
 
-FROM alpine:3.14.3
+FROM alpine:3.15.0
 
 ARG VERSION=4.11.2
 ARG user=jenkins
