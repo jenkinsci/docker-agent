@@ -77,7 +77,7 @@ pipeline {
                                     ./build.sh publish
                                     '''
                                 }
-                            } else {
+                            } else if (env.TAG_NAME == null) {
                                 infra.withDockerCredentials {
                                     sh '''
                                         docker buildx create --use
