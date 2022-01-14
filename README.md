@@ -69,6 +69,8 @@ The image has several supported configurations, which can be accessed via the fo
   * `archlinux` (`latest-archlinux`, `archlinux-jdk11`, `latest-archlinux-jdk11`): Image based on Arch Linux with JDK11 (based on `archlinux:latest`)
   * `bullseye-jdk17-preview` (`jdk17-preview`, `latest-bullseye-jdk17-preview`, `latest-jdk17-preview`): Preview JDK17 version with the newest remoting (based on `debian:bullseye-${builddate}`)
 
+From version 4.11.2, the alpine images are tagged using the alpine OS version as well (i.e. `alpine` ==> `alpine3.15`, `alpine-jdk8` ==> `alpine3.15-jdk8`).
+
 * Windows Images:
   * `jdk8-windowsservercore-1809`: Latest version with the newest remoting and Java 8 (based on `eclipse-temurin:8.xxx-jdk-windowsservercore-1809`)
   * `jdk8-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 8 (based on `eclipse-temurin:8.xxx-jdk-nanoserver-1809`)
