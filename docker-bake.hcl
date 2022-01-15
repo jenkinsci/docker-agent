@@ -53,6 +53,14 @@ variable "ON_TAG" {
   default = "false"
 }
 
+variable "ALPINE_FULL_TAG" {
+  default = "3.15.0"
+}
+
+variable "ALPINE_SHORT_TAG" {
+  default = regex_replace(ALPINE_FULL_TAG, "\\.\\d+$", "")
+}
+
 target "archlinux_jdk11" {
   dockerfile = "11/archlinux/Dockerfile"
   context = "."
@@ -74,12 +82,16 @@ target "alpine_jdk8" {
   dockerfile = "8/alpine/Dockerfile"
   context = "."
   args = {
+    ALPINE_TAG = ALPINE_FULL_TAG
     VERSION = REMOTING_VERSION
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk8": "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk8": "",
     "${REGISTRY}/${JENKINS_REPO}:alpine-jdk8",
+    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk8",
     "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk8",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk8",
   ]
   platforms = ["linux/amd64"]
 }
@@ -88,15 +100,22 @@ target "alpine_jdk11" {
   dockerfile = "11/alpine/Dockerfile"
   context = "."
   args = {
+    ALPINE_TAG = ALPINE_FULL_TAG
     VERSION = REMOTING_VERSION
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine": "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}": "",
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk11": "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk11": "",
     "${REGISTRY}/${JENKINS_REPO}:alpine",
+    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}",
     "${REGISTRY}/${JENKINS_REPO}:alpine-jdk11",
+    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk11",
     "${REGISTRY}/${JENKINS_REPO}:latest-alpine",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}",
     "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk11",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk11",
   ]
   platforms = ["linux/amd64"]
 }
@@ -105,12 +124,16 @@ target "alpine_jdk17" {
   dockerfile = "17/alpine/Dockerfile"
   context = "."
   args = {
+    ALPINE_TAG = ALPINE_FULL_TAG
     VERSION = REMOTING_VERSION
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk17": "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk17": "",
     "${REGISTRY}/${JENKINS_REPO}:alpine-jdk17-preview",
+    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk17-preview",
     "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk17-preview",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk17-preview",
   ]
   platforms = ["linux/amd64"]
 }
