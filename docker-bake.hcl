@@ -82,6 +82,7 @@ target "alpine_jdk8" {
   dockerfile = "8/alpine/Dockerfile"
   context = "."
   args = {
+    ALPINE_TAG = ALPINE_FULL_TAG
     VERSION = REMOTING_VERSION
   }
   tags = [
