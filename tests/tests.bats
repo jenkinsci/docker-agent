@@ -76,11 +76,11 @@ ARCH=${ARCH:-x86_64}
   cd "${BATS_TEST_DIRNAME}"/.. || false
 
   local TEST_VERSION="3.36"
-	local TEST_USER="test-user"
-	local TEST_GROUP="test-group"
-	local TEST_UID=2000
-	local TEST_GID=3000
-	local TEST_AGENT_WORKDIR="/home/test-user/something"
+  local TEST_USER="test-user"
+  local TEST_GROUP="test-group"
+  local TEST_UID=2000
+  local TEST_GID=3000
+  local TEST_AGENT_WORKDIR="/home/test-user/something"
   local sut_image="${SUT_IMAGE}-tests-${BATS_TEST_NUMBER}"
 
 # false positive detecting platform

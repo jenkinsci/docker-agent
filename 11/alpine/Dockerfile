@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-ARG ALPINE_TAG
+ARG ALPINE_TAG=3.15.0
 FROM alpine:$ALPINE_TAG as jre-build
 
 RUN apk add --update --no-cache openjdk11-jdk openjdk11-jmods
@@ -37,7 +37,7 @@ RUN jlink \
          --compress=2 \
          --output /javaruntime
 
-ARG ALPINE_TAG
+ARG ALPINE_TAG=3.15.0
 FROM alpine:$ALPINE_TAG
 
 ARG VERSION=4.11.2
