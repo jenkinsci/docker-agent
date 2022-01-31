@@ -33,7 +33,7 @@ RUN jlink \
          --compress=2 \
          --output /javaruntime
 
-FROM debian:bullseye-20211220
+FROM debian:bullseye-20220125
 
 ARG VERSION=4.11.2
 ARG user=jenkins
