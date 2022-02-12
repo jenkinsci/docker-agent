@@ -23,7 +23,7 @@
 ARG ALPINE_TAG=3.15.0
 FROM alpine:$ALPINE_TAG
 
-ARG VERSION=4.11.2
+ARG VERSION=4.12
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
