@@ -40,7 +40,7 @@ COPY --from=core $JAVA_HOME $JAVA_HOME
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 USER ContainerAdministrator
 
-ARG GIT_VERSION=2.33.1
+ARG GIT_VERSION=2.35.3
 ARG GIT_PATCH_VERSION=1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
@@ -49,7 +49,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
     Remove-Item mingit.zip -Force
 
-ARG GIT_LFS_VERSION=2.13.3
+ARG GIT_LFS_VERSION=3.1.2
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     $url = $('https://github.com/git-lfs/git-lfs/releases/download/v{0}/git-lfs-windows-amd64-v{0}.zip' -f $env:GIT_LFS_VERSION) ; `
     Write-Host "Retrieving $url..." ; `
