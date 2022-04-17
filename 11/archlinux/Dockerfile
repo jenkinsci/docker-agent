@@ -37,7 +37,7 @@ RUN /usr/lib/jvm/default-runtime/bin/jlink \
 
 FROM archlinux:latest
 
-ARG VERSION=4.12
+ARG VERSION=4.13
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
