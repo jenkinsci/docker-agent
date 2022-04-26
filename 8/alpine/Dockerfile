@@ -20,8 +20,8 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-ARG ALPINE_TAG=3.15.0
-FROM alpine:$ALPINE_TAG
+ARG JAVA_VERSION="8u322-b06"
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-alpine
 
 ARG VERSION=4.13
 ARG user=jenkins
@@ -35,7 +35,7 @@ LABEL Description="This is a base image, which provides the Jenkins agent execut
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
-RUN apk add --update --no-cache curl bash git git-lfs musl-locales openjdk8-jre-base openssh-client openssl procps \
+RUN apk add --update --no-cache curl bash git git-lfs musl-locales openssh-client openssl procps \
   && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/agent.jar \
