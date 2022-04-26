@@ -20,25 +20,8 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-ARG ALPINE_TAG=3.15.0
-FROM alpine:$ALPINE_TAG as jre-build
-
-RUN apk add --update --no-cache openjdk11-jdk openjdk11-jmods
-
-# Generate smaller java runtime without unneeded files
-# for now we include the full module path to maintain compatibility
-# while still saving space (approx 200mb from the full distribution)
-RUN jlink \
-         --module-path /usr/lib/jvm/default-jvm/jmods \
-         --add-modules ALL-MODULE-PATH \
-         --strip-debug \
-         --no-man-pages \
-         --no-header-files \
-         --compress=2 \
-         --output /javaruntime
-
-ARG ALPINE_TAG=3.15.0
-FROM alpine:$ALPINE_TAG
+ARG JAVA_VERSION="11.0.14.1_1"
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-alpine
 
 ARG VERSION=4.13
 ARG user=jenkins
@@ -61,10 +44,6 @@ RUN apk add --update --no-cache curl bash git git-lfs musl-locales openssh-clien
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar \
   && apk del --purge curl \
   && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
-
-ENV JAVA_HOME=/opt/java/openjdk
-ENV PATH "${JAVA_HOME}/bin:${PATH}"
-COPY --from=jre-build /javaruntime $JAVA_HOME
 
 USER ${user}
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
