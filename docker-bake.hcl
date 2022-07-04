@@ -17,6 +17,13 @@ group "linux-arm64" {
   ]
 }
 
+group "linux-arm32" {
+  targets = [
+    "debian_jdk11",
+    "debian_jdk17",
+  ]
+}
+
 group "linux-s390x" {
   targets = [
     "debian_jdk11",
