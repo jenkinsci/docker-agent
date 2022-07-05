@@ -17,6 +17,13 @@ group "linux-arm64" {
   ]
 }
 
+group "linux-arm32" {
+  targets = [
+    "debian_jdk11",
+    "debian_jdk17",
+  ]
+}
+
 group "linux-s390x" {
   targets = [
     "debian_jdk11",
@@ -169,7 +176,7 @@ target "debian_jdk11" {
     "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk11",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk11",
   ]
-  platforms = ["linux/amd64", "linux/arm64", "linux/s390x"]
+  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/s390x"]
 }
 
 target "debian_jdk17" {
@@ -185,5 +192,5 @@ target "debian_jdk17" {
     "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk17-preview",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk17-preview",
   ]
-  platforms = ["linux/amd64", "linux/arm64"]
+  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7"]
 }
