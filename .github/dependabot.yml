@@ -5,6 +5,17 @@ updates:
 # Alpine Linux
 
 - package-ecosystem: docker
+  directory: "17/alpine"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - MarkEWaite
+  labels:
+  - dependencies
+
+- package-ecosystem: docker
   directory: "11/alpine"
   schedule:
     interval: weekly
@@ -42,6 +53,17 @@ updates:
 # Debian Linux
 
 - package-ecosystem: docker
+  directory: "17/bullseye"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - MarkEWaite
+  labels:
+  - dependencies
+
+- package-ecosystem: docker
   directory: "11/bullseye"
   schedule:
     interval: weekly
@@ -64,6 +86,28 @@ updates:
   - dependencies
 
 # Windows
+
+- package-ecosystem: docker
+  directory: "17/windows/nanoserver-1809"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - slide
+  labels:
+  - dependencies
+
+- package-ecosystem: docker
+  directory: "17/windows/windowsservercore-ltsc2019"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - slide
+  labels:
+  - dependencies
 
 - package-ecosystem: docker
   directory: "11/windows/nanoserver-1809"
