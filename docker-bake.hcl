@@ -61,7 +61,7 @@ variable "ON_TAG" {
 }
 
 variable "ALPINE_FULL_TAG" {
-  default = "3.16.1"
+  default = "3.16.2"
 }
 
 variable "ALPINE_SHORT_TAG" {
