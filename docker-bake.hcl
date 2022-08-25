@@ -137,10 +137,10 @@ target "alpine_jdk17" {
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk17": "",
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk17": "",
-    "${REGISTRY}/${JENKINS_REPO}:alpine-jdk17-preview",
-    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk17-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk17-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk17-preview",
+    "${REGISTRY}/${JENKINS_REPO}:alpine-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk17",
   ]
   platforms = ["linux/amd64"]
 }
@@ -187,10 +187,10 @@ target "debian_jdk17" {
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk17-preview": "",
-    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk17-preview",
-    "${REGISTRY}/${JENKINS_REPO}:jdk17-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk17-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-jdk17-preview",
+    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:latest-jdk17",
   ]
   platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7"]
 }
