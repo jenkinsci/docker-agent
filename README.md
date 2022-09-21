@@ -63,20 +63,16 @@ The image has several supported configurations, which can be accessed via the fo
 
 * Linux Images:
   * `latest` (`jdk11`, `bullseye-jdk11`, `latest-bullseye-jdk11`, `latest-jdk11`): Latest version with the newest remoting and Java 11 (based on `debian:bullseye-${builddate}`)
-  * `latest-jdk8` (`jdk8`, `bullseye-jdk8`, `latest-bullseye-jdk8`): Latest version with the newest remoting (based on `debian:bullseye-${builddate}`)
   * `alpine` (`alpine-jdk11`, `latest-alpine`, `latest-alpine-jdk11`): Small image based on Alpine Linux (based on `alpine:${version}`)
-  * `alpine-jdk8` (`latest-alpine-jdk8`): Small image based on Alpine Linux (based on `alpine:${version}`)
   * `archlinux` (`latest-archlinux`, `archlinux-jdk11`, `latest-archlinux-jdk11`): Image based on Arch Linux with JDK11 (based on `archlinux:latest`)
   * `bullseye-jdk17` (`jdk17`, `latest-bullseye-jdk17`, `latest-jdk17`): JDK17 version with the newest remoting (based on `debian:bullseye-${builddate}`)
 
-From version 4.11.2, the alpine images are tagged using the alpine OS version as well (i.e. `alpine` ==> `alpine3.16`, `alpine-jdk8` ==> `alpine3.16-jdk8`).
+From version 4.11.2, the alpine images are tagged using the alpine OS version as well (i.e. `alpine` ==> `alpine3.16`, `alpine-jdk11` ==> `alpine3.16-jdk11`).
 
 * Windows Images:
-  * `jdk8-windowsservercore-1809`: Latest version with the newest remoting and Java 8 (based on `eclipse-temurin:8.xxx-jdk-windowsservercore-1809`)
-  * `jdk8-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 8 (based on `eclipse-temurin:8.xxx-jdk-nanoserver-1809`)
-  * `jdk11-windowsservercore-1809`: Latest version with the newest remoting and Java 11 (based on `eclipse-temurin:11.xxx-jdk-windowsservercore-1809`)
+  * `jdk11-windowsservercore-ltsc2019`: Latest version with the newest remoting and Java 11 (based on `eclipse-temurin:11.xxx-jdk-windowsservercore-ltsc2019`)
   * `jdk11-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 11 (based on `eclipse-temurin:11.xxx-jdk-nanoserver-1809`)
-  * `jdk17-windowsservercore-1809`: Latest version with the newest remoting and Java 17 (based on `eclipse-temurin:17.xxx-jdk-windowsservercore-1809`)
+  * `jdk17-windowsservercore-ltsc2019`: Latest version with the newest remoting and Java 17 (based on `eclipse-temurin:17.xxx-jdk-windowsservercore-ltsc2019`)
   * `jdk17-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 17 (based on `eclipse-temurin:17.xxx-jdk-nanoserver-1809`)
 
 The file `docker-bake.hcl` defines all the configuration for Linux images and their associated tags.
