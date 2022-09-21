@@ -1,33 +1,43 @@
 version: '3'
 
 services:
-  jdk8-nanoserver:
-    build:
-      context: ./8/windows/nanoserver-1809/
-      args:
-        - VERSION=$REMOTING_VERSION
-  jdk11-nanoserver:
+  jdk11-nanoserver-1809:
     build:
       context: ./11/windows/nanoserver-1809/
       args:
         - VERSION=$REMOTING_VERSION
-  jdk17-nanoserver:
+  jdk17-nanoserver-1809:
     build:
       context: ./17/windows/nanoserver-1809/
       args:
         - VERSION=$REMOTING_VERSION
-  jdk8-windowsservercore:
+  jdk11-nanoserver-ltsc2022:
     build:
-      context: ./8/windows/windowsservercore-ltsc2019/
+      context: ./11/windows/nanoserver-ltsc2022/
       args:
         - VERSION=$REMOTING_VERSION
-  jdk11-windowsservercore:
+  jdk17-nanoserver-ltsc2022:
+    build:
+      context: ./17/windows/nanoserver-ltsc2022/
+      args:
+        - VERSION=$REMOTING_VERSION
+  jdk11-windowsservercore-ltsc2019:
     build:
       context: ./11/windows/windowsservercore-ltsc2019/
       args:
         - VERSION=$REMOTING_VERSION
-  jdk17-windowsservercore:
+  jdk17-windowsservercore-ltsc2019:
     build:
       context: ./17/windows/windowsservercore-ltsc2019/
+      args:
+        - VERSION=$REMOTING_VERSION
+  jdk11-windowsservercore-ltsc2022:
+    build:
+      context: ./11/windows/windowsservercore-ltsc2022/
+      args:
+        - VERSION=$REMOTING_VERSION
+  jdk17-windowsservercore-ltsc2022:
+    build:
+      context: ./17/windows/windowsservercore-ltsc2022/
       args:
         - VERSION=$REMOTING_VERSION

@@ -21,16 +21,16 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-ARG JAVA_VERSION="8u332-b09"
-FROM eclipse-temurin:${JAVA_VERSION}-jdk-windowsservercore-1809 AS core
+ARG JAVA_VERSION="11.0.16.1_1"
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-windowsservercore-ltsc2022 AS core
 
 # If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
 # use the 'latest'
 ARG POWERSHELL_VERSION=
-FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
+FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-ltsc2022
 
 ARG JAVA_VERSION
-ARG JAVA_HOME="C:\openjdk-8"
+ARG JAVA_HOME="C:\openjdk-11"
 
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
 COPY --from=core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
@@ -81,7 +81,6 @@ ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 # Get the Agent from the Jenkins Artifacts Repository
 ARG VERSION=4.13
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
-RUN echo $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar' -f $env:VERSION)
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar' -f $env:VERSION) -OutFile $(Join-Path C:/ProgramData/Jenkins $env:AGENT_FILENAME) -UseBasicParsing ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar.sha1' -f $env:VERSION) -OutFile (Join-Path C:/ProgramData/Jenkins $env:AGENT_HASH_FILENAME) -UseBasicParsing ; `
