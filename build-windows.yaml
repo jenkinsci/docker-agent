@@ -11,16 +11,6 @@ services:
       context: ./17/windows/nanoserver-1809/
       args:
         - VERSION=$REMOTING_VERSION
-  jdk11-nanoserver-ltsc2022:
-    build:
-      context: ./11/windows/nanoserver-ltsc2022/
-      args:
-        - VERSION=$REMOTING_VERSION
-  jdk17-nanoserver-ltsc2022:
-    build:
-      context: ./17/windows/nanoserver-ltsc2022/
-      args:
-        - VERSION=$REMOTING_VERSION
   jdk11-windowsservercore-ltsc2019:
     build:
       context: ./11/windows/windowsservercore-ltsc2019/
@@ -29,15 +19,5 @@ services:
   jdk17-windowsservercore-ltsc2019:
     build:
       context: ./17/windows/windowsservercore-ltsc2019/
-      args:
-        - VERSION=$REMOTING_VERSION
-  jdk11-windowsservercore-ltsc2022:
-    build:
-      context: ./11/windows/windowsservercore-ltsc2022/
-      args:
-        - VERSION=$REMOTING_VERSION
-  jdk17-windowsservercore-ltsc2022:
-    build:
-      context: ./17/windows/windowsservercore-ltsc2022/
       args:
         - VERSION=$REMOTING_VERSION
