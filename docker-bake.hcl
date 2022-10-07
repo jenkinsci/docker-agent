@@ -28,10 +28,6 @@ group "linux-s390x" {
   ]
 }
 
-group "linux-ppc64le" {
-  targets = []
-}
-
 group "windows" {
   targets = [
     "windows_2019_jdk11",
