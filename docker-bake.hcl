@@ -20,10 +20,6 @@ group "linux-s390x" {
   ]
 }
 
-group "linux-ppc64le" {
-  targets = []
-}
-
 group "windows" {
   targets = [
   ]
