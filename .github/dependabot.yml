@@ -26,17 +26,6 @@ updates:
   labels:
   - dependencies
 
-- package-ecosystem: docker
-  directory: "8/alpine"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
-  target-branch: master
-  reviewers:
-  - MarkEWaite
-  labels:
-  - dependencies
-
 # Arch Linux
 
 - package-ecosystem: docker
@@ -65,17 +54,6 @@ updates:
 
 - package-ecosystem: docker
   directory: "11/bullseye"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
-  target-branch: master
-  reviewers:
-  - MarkEWaite
-  labels:
-  - dependencies
-
-- package-ecosystem: docker
-  directory: "8/bullseye"
   schedule:
     interval: weekly
   open-pull-requests-limit: 2
@@ -122,17 +100,6 @@ updates:
 
 - package-ecosystem: docker
   directory: "11/windows/windowsservercore-ltsc2019"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
-  target-branch: master
-  reviewers:
-  - slide
-  labels:
-  - dependencies
-
-- package-ecosystem: docker
-  directory: "8/windows/windowsservercore-ltsc2019"
   schedule:
     interval: weekly
   open-pull-requests-limit: 2
