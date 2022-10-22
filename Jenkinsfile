@@ -19,35 +19,37 @@ pipeline {
                     environment {
                         DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
                     }
-                    stage('Build and Test') {
-                        // This stage is the "CI" and should be run on all code changes triggered by a code change
-                        when {
-                            not { buildingTag() }
-                        }
-                        steps {
-                            powershell '& ./build.ps1 test'
-                        }
-                        post {
-                            always {
-                                junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results.xml')
+                    stages {
+                        stage('Build and Test') {
+                            // This stage is the "CI" and should be run on all code changes triggered by a code change
+                            when {
+                                not { buildingTag() }
+                            }
+                            steps {
+                                powershell '& ./build.ps1 test'
+                            }
+                            post {
+                                always {
+                                    junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results.xml')
+                                }
                             }
                         }
-                    }
-                    stage('Deploy to DockerHub') {
-                        // This stage is the "CD" and should only be run when a tag triggered the build
-                        when {
-                            buildingTag()
-                        }
-                        steps {
-                            script {
-                                if(env.TAG_NAME != null) {
-                                    def tagItems = env.TAG_NAME.split('-')
-                                    if(tagItems.length == 2) {
-                                        def remotingVersion = tagItems[0]
-                                        def buildNumber = tagItems[1]
-                                        // This function is defined in the jenkins-infra/pipeline-library
-                                        infra.withDockerCredentials {
-                                            powershell "& ./build.ps1 -PushVersions -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
+                        stage('Deploy to DockerHub') {
+                            // This stage is the "CD" and should only be run when a tag triggered the build
+                            when {
+                                buildingTag()
+                            }
+                            steps {
+                                script {
+                                    if(env.TAG_NAME != null) {
+                                        def tagItems = env.TAG_NAME.split('-')
+                                        if(tagItems.length == 2) {
+                                            def remotingVersion = tagItems[0]
+                                            def buildNumber = tagItems[1]
+                                            // This function is defined in the jenkins-infra/pipeline-library
+                                            infra.withDockerCredentials {
+                                                powershell "& ./build.ps1 -PushVersions -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
+                                            }
                                         }
                                     }
                                 }
