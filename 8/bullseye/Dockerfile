@@ -25,7 +25,7 @@ FROM eclipse-temurin:${JAVA_VERSION}-jdk-focal AS jre-build
 
 FROM debian:bullseye-20221004
 
-ARG VERSION=4.13
+ARG VERSION=3028.va_a_436db_35078
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
@@ -42,7 +42,7 @@ RUN apt-get update \
     git-lfs \
     curl \
     fontconfig \
-  && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
+  && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" \
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar \
