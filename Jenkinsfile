@@ -19,7 +19,7 @@ pipeline {
                     environment {
                         DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
                     }
-                    stages('Build and Test') {
+                    stage('Build and Test') {
                         // This stage is the "CI" and should be run on all code changes triggered by a code change
                         when {
                             not { buildingTag() }
