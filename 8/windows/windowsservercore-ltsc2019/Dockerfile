@@ -22,7 +22,8 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM eclipse-temurin:8u332-b09-jdk-windowsservercore-1809
+ARG JAVA_VERSION="8u345-b01"
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-windowsservercore-1809
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 

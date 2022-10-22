@@ -20,7 +20,8 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM eclipse-temurin:8u342-b07-jdk-focal AS jre-build
+ARG JAVA_VERSION="8u345-b01"
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-focal AS jre-build
 
 FROM debian:bullseye-20221004
 
