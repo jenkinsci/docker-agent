@@ -1,13 +1,9 @@
 pipeline {
     agent none
 
-    options {        
+    options {
         buildDiscarder(logRotator(daysToKeepStr: '10'))
         timestamps()
-    }
-
-    triggers {
-        pollSCM('H * * * *')
     }
 
     stages {
@@ -23,39 +19,47 @@ pipeline {
                     environment {
                         DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
                     }
-                    steps {
-                        powershell '& ./build.ps1 test'
-                        script {
-                            def branchName = "${env.BRANCH_NAME}"
-                            if (branchName ==~ 'master') {
-                                // publish the images to Dockerhub
-                                infra.withDockerCredentials {
-                                    powershell '& ./build.ps1 publish'
+                    stages {
+                        stage('Build and Test') {
+                            // This stage is the "CI" and should be run on all code changes triggered by a code change
+                            when {
+                                not { buildingTag() }
+                            }
+                            steps {
+                                powershell '& ./build.ps1 test'
+                            }
+                            post {
+                                always {
+                                    junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results.xml')
                                 }
                             }
-
-                            if(env.TAG_NAME != null) {
-                                def tagItems = env.TAG_NAME.split('-')
-                                if(tagItems.length == 2) {
-                                    def remotingVersion = tagItems[0]
-                                    def buildNumber = tagItems[1]
-                                    // we need to build and publish the tag version
-                                    infra.withDockerCredentials {
-                                        powershell "& ./build.ps1 -PushVersions -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
+                        }
+                        stage('Deploy to DockerHub') {
+                            // This stage is the "CD" and should only be run when a tag triggered the build
+                            when {
+                                tag "*-jdk8"
+                            }
+                            steps {
+                                script {
+                                    if(env.TAG_NAME != null) {
+                                        def tagItems = env.TAG_NAME.split('-')
+                                        if(tagItems.length == 2) {
+                                            def remotingVersion = tagItems[0]
+                                            def buildNumber = tagItems[1]
+                                            // This function is defined in the jenkins-infra/pipeline-library
+                                            infra.withDockerCredentials {
+                                                powershell "& ./build.ps1 -PushVersions -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                    post {
-                        always {
-                            junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results.xml')
-                        }
-                    }
                 }
                 stage('Linux') {
                     agent {
-                        label "docker&&linux"
+                        label "docker && linux"
                     }
                     options {
                         timeout(time: 30, unit: 'MINUTES')
@@ -63,57 +67,60 @@ pipeline {
                     environment {
                         DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
                     }
-                    steps {
-                        sh './build.sh'
-                        sh './build.sh test'
-                        script {
-                            def branchName = "${env.BRANCH_NAME}"
-                            if (branchName ==~ 'master') {
-                                // publish the images to Dockerhub
-                                infra.withDockerCredentials {
-                                    sh '''
-                                    docker buildx create --use
-                                    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-                                    ./build.sh publish
-                                    '''
-                                }
-                            } else if (env.TAG_NAME == null) {
-                                infra.withDockerCredentials {
-                                    sh '''
-                                        docker buildx create --use
-                                        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-                                        docker buildx bake --file docker-bake.hcl linux
-                                    '''
-                                }
+                    stages {
+                        stage('Prepare Docker') {
+                            steps {
+                                sh '''
+                                docker buildx create --use
+                                docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+                                '''
                             }
-
-                            if(env.TAG_NAME != null) {
-                                def tagItems = env.TAG_NAME.split('-')
-                                if(tagItems.length == 2) {
-                                    def remotingVersion = tagItems[0]
-                                    def buildNumber = tagItems[1]
-                                    // we need to build and publish the tag version
-                                    infra.withDockerCredentials {
-                                        sh """
-                                        docker buildx create --use
-                                        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-                                        ./build.sh -r $remotingVersion -b $buildNumber -d publish
-                                        """
-                                    }
+                        }
+                        stage('Build and Test') {
+                            // This stage is the "CI" and should be run on all code changes triggered by a code change
+                            when {
+                                not { buildingTag() }
+                            }
+                            steps {
+                                sh './build.sh'
+                                sh './build.sh test'
+                                // If the tests are passing for Linux AMD64, then we can build all the CPU architectures
+                                sh 'docker buildx bake --file docker-bake.hcl linux'
+                            }
+                            post {
+                                always {
+                                    junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/*.xml')
                                 }
                             }
                         }
-                    }
-                    post {
-                        always {
-                            junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/*.xml')
+                        stage('Deploy to DockerHub') {
+                            // This stage is the "CD" and should only be run when a tag triggered the build
+                            when {
+                                tag "*-jdk8"
+                            }
+                            steps {
+                                script {
+                                    def tagItems = env.TAG_NAME.split('-')
+                                    if(tagItems.length == 2) {
+                                        def remotingVersion = tagItems[0]
+                                        def buildNumber = tagItems[1]
+                                        // This function is defined in the jenkins-infra/pipeline-library
+                                        infra.withDockerCredentials {
+                                            sh """
+                                            docker buildx create --use
+                                            docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+                                            ./build.sh -r ${remotingVersion} -b ${buildNumber} -d publish
+                                            """
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
         }
     }
-
 }
 
 // vim: ft=groovy
