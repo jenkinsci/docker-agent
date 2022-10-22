@@ -23,13 +23,6 @@ if($global:FLAVOR -match "nanoserver-(?<version>\d*)") {
     $global:SHELL = "pwsh.exe"
 }
 
-if($global:JDK -eq "11") {
-    $global:AGENT_IMAGE += ":jdk11"
-    $global:AGENT_CONTAINER += "-jdk11"
-} else {
-    $global:AGENT_IMAGE += ":latest"
-}
-
 Cleanup($global:AGENT_CONTAINER)
 
 Describe "[$global:JDK $global:FLAVOR] build image" {

@@ -4,7 +4,7 @@ load test_helpers
 load 'test_helper/bats-support/load' # this is required by bats-assert!
 load 'test_helper/bats-assert/load'
 
-IMAGE=${IMAGE:-debian_jdk11}
+IMAGE=${IMAGE:-debian_jdk8}
 SUT_IMAGE=$(get_sut_image)
 
 ARCH=${ARCH:-x86_64}
