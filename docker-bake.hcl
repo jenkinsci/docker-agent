@@ -38,7 +38,7 @@ variable "JENKINS_REPO" {
 }
 
 variable "BUILD_NUMBER" {
-  default = "1"
+  default = "3"
 }
 
 variable "ON_TAG" {
