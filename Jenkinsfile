@@ -43,7 +43,8 @@ pipeline {
                                 script {
                                     if(env.TAG_NAME != null) {
                                         def tagItems = env.TAG_NAME.split('-')
-                                        if(tagItems.length == 2) {
+                                        // JDK8 builds only: the 3rd element is the '-jdk8' suffix
+                                        if(tagItems.length == 3) {
                                             def remotingVersion = tagItems[0]
                                             def buildNumber = tagItems[1]
                                             // This function is defined in the jenkins-infra/pipeline-library
