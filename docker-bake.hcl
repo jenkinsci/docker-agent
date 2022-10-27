@@ -35,7 +35,7 @@ group "windows" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "4.3"
+  default = "3071.v7e9b_0dc08466"
 }
 
 variable "REGISTRY" {
@@ -47,7 +47,7 @@ variable "JENKINS_REPO" {
 }
 
 variable "BUILD_NUMBER" {
-  default = "6"
+  default = "1"
 }
 
 variable "ON_TAG" {

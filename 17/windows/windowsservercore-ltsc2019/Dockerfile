@@ -64,7 +64,7 @@ ARG AGENT_WORKDIR=${AGENT_ROOT}/Work
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 
 # Get the Agent from the Jenkins Artifacts Repository
-ARG VERSION=4.13
+ARG VERSION=3071.v7e9b_0dc08466
 LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar' -f $env:VERSION) -OutFile $(Join-Path C:/ProgramData/Jenkins $env:AGENT_FILENAME) -UseBasicParsing ; `

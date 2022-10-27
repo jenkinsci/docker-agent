@@ -4,8 +4,8 @@ Param(
     [String] $Target = "build",
     [String] $AdditionalArgs = '',
     [String] $Build = '',
-    [String] $RemotingVersion = '4.6',
-    [String] $BuildNumber = "6",
+    [String] $RemotingVersion = '3071.v7e9b_0dc08466',
+    [String] $BuildNumber = '1',
     [switch] $PushVersions = $false,
     [switch] $DisableEnvProps = $false
 )

@@ -35,7 +35,7 @@ RUN jlink \
 
 FROM debian:bullseye-20221004
 
-ARG VERSION=4.13
+ARG VERSION=3071.v7e9b_0dc08466
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
