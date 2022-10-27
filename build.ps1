@@ -36,8 +36,8 @@ if(![String]::IsNullOrWhiteSpace($env:REMOTING_VERSION)) {
     $RemotingVersion = $env:REMOTING_VERSION
 }
 
-# this is the jdk version that will be used for the 'bare tag' images, e.g., jdk8-windowsservercore-1809 -> windowsserver-1809
-$defaultBuild = '8'
+# this is the jdk version that will be used for the 'bare tag' images, e.g., windowsservercore-1809
+$defaultBuild = '11'
 $builds = @{}
 $env:REMOTING_VERSION = "$RemotingVersion"
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
