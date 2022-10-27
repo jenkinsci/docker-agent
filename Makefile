@@ -8,7 +8,7 @@ export DOCKER_CLI_EXPERIMENTAL=enabled
 export BUILDKIT_PROGRESS=plain
 
 current_arch := $(shell uname -m)
-export ARCH ?= $(shell case $(current_arch) in (x86_64) echo "amd64" ;; (i386) echo "386";; (aarch64|arm64) echo "arm64" ;; (armv6*) echo "arm/v6";; (armv7*) echo "arm/v7";; (ppc64*|s390*|riscv*) echo $(current_arch);; (*) echo "UNKNOWN-CPU";; esac)
+export ARCH ?= $(shell case $(current_arch) in (x86_64) echo "amd64" ;; (i386) echo "386";; (aarch64|arm64) echo "arm64" ;; (armv6*) echo "arm/v6";; (armv7*) echo "arm/v7";; (s390*|riscv*) echo $(current_arch);; (*) echo "UNKNOWN-CPU";; esac)
 
 IMAGE_NAME:=jenkins4eval/agent
 IMAGE_NAME_AGENT:=jenkins4eval/slave
@@ -26,7 +26,7 @@ check_image = make --silent list | grep -w '$(1)' >/dev/null 2>&1 || { echo "Err
 bake_base_cli := docker buildx bake -f docker-bake.hcl --load
 
 .PHONY: build
-.PHONY: test test-alpine test-archlinux test-debian test-jdk11 test-jdk11-alpine
+.PHONY: test test-alpine test-archlinux test-debian
 
 check-reqs:
 ## Build requirements
@@ -54,7 +54,7 @@ list: check-reqs
 bats:
 	git clone https://github.com/bats-core/bats-core bats ;\
 	cd bats ;\
-	git checkout v1.4.1
+	git checkout v1.8.2
 
 prepare-test: bats check-reqs
 	git submodule update --init --recursive

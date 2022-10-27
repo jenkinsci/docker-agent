@@ -4,7 +4,7 @@ load test_helpers
 load 'test_helper/bats-support/load' # this is required by bats-assert!
 load 'test_helper/bats-assert/load'
 
-IMAGE=${IMAGE:-debian_jdk11}
+IMAGE=${IMAGE:-debian_jdk8}
 SUT_IMAGE=$(get_sut_image)
 
 ARCH=${ARCH:-x86_64}
@@ -101,13 +101,6 @@ docker buildx bake \
   cid="$(docker run -d -it -P "${sut_image}" /bin/sh)"
 
   is_agent_container_running "${cid}"
-
-  # TODO https://github.com/jenkinsci/remoting/pull/481
-  # Current line is: 'A terminally deprecated method in java.lang.System has been called'
-  if [[ $IMAGE != *"17"* ]]; then
-    run docker exec "${cid}" sh -c "java -cp /usr/share/jenkins/agent.jar hudson.remoting.jnlp.Main -version"
-    assert_line --index 0 "${TEST_VERSION}"
-  fi
 
   run docker exec "${cid}" sh -c "id -u -n ${TEST_USER}"
   assert_line --index 0 "${TEST_USER}"
