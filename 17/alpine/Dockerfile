@@ -22,7 +22,7 @@
 ARG JAVA_VERSION="17.0.4.1_1"
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-alpine
 
-ARG VERSION=4.13
+ARG VERSION=3071.v7e9b_0dc08466
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
