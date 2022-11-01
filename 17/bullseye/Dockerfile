@@ -22,11 +22,11 @@
 
 # To avoid "jmods: Value too large for defined data type" error,
 # Check docker bake target debian_jdk17_arm32
-# Cannot get jlink to properly work, in the v7 environment.  The jmods error
-# above gets generated each time.  Better to have a larger image than 
-# incorrect java binaries in 32bit arm.
-FROM  eclipse-temurin:17.0.4.1_1-jdk-focal AS arm32-jre-build
-RUN cp -r /opt/java/openjdk  /javaruntime
+# Cannot get jlink to properly work, in the v7 environment.
+# The jmods error above gets generated each time.
+# Better to have a larger image than incorrect java binaries in 32bit arm.
+FROM eclipse-temurin:17.0.4.1_1-jdk-focal AS arm32-jre-build
+RUN cp -r /opt/java/openjdk /javaruntime
 
 FROM eclipse-temurin:17.0.4.1_1-jdk-focal AS jre-build
 
