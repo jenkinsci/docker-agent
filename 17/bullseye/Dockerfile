@@ -80,13 +80,11 @@ VOLUME /home/${user}/.jenkins
 VOLUME ${AGENT_WORKDIR}
 WORKDIR /home/${user}
 
-
 FROM build as default
 COPY --from=jre-build /javaruntime $JAVA_HOME
 
 FROM build as arm32
 COPY --from=arm32-jre-build /javaruntime $JAVA_HOME
-
 
 LABEL \
     org.opencontainers.image.vendor="Jenkins project" \
