@@ -140,8 +140,6 @@ target "debian_jdk11" {
   platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/s390x"]
 }
 
-
-
 target "debian_jdk17" {
   dockerfile = "17/bullseye/Dockerfile"
   context = "."
