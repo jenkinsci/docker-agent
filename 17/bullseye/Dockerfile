@@ -83,7 +83,7 @@ WORKDIR /home/${user}
 FROM build AS default
 COPY --from=jre-build /javaruntime $JAVA_HOME
 
-FROM build as arm32
+FROM build AS arm32
 COPY --from=arm32-jre-build /javaruntime $JAVA_HOME
 
 LABEL \
