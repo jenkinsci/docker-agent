@@ -34,12 +34,12 @@ FROM eclipse-temurin:17.0.4.1_1-jdk-focal AS jre-build
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
 RUN jlink \
-         --add-modules ALL-MODULE-PATH \
-         --strip-java-debug-attributes \
-         --no-man-pages \
-         --no-header-files \
-         --compress=2 \
-         --output /javaruntime
+  --add-modules ALL-MODULE-PATH \
+  --strip-java-debug-attributes \
+  --no-man-pages \
+  --no-header-files \
+  --compress=2 \
+  --output /javaruntime
 
 FROM debian:bullseye-20221024 AS build
 
@@ -57,9 +57,9 @@ ARG AGENT_WORKDIR=/home/${user}/agent
 
 RUN apt-get update \
   && apt-get -y install \
-    git-lfs \
-    curl \
-    fontconfig \
+  git-lfs \
+  curl \
+  fontconfig \
   && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/agent.jar \
@@ -80,17 +80,17 @@ VOLUME /home/${user}/.jenkins
 VOLUME ${AGENT_WORKDIR}
 WORKDIR /home/${user}
 
+LABEL \
+  org.opencontainers.image.vendor="Jenkins project" \
+  org.opencontainers.image.title="Official Jenkins Agent Base Docker image" \
+  org.opencontainers.image.description="This is a base image, which provides the Jenkins agent executable (agent.jar)" \
+  org.opencontainers.image.version="${VERSION}" \
+  org.opencontainers.image.url="https://www.jenkins.io/" \
+  org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
+  org.opencontainers.image.licenses="MIT"
+
 FROM build AS default
 COPY --from=jre-build /javaruntime $JAVA_HOME
 
 FROM build AS arm32
 COPY --from=arm32-jre-build /javaruntime $JAVA_HOME
-
-LABEL \
-    org.opencontainers.image.vendor="Jenkins project" \
-    org.opencontainers.image.title="Official Jenkins Agent Base Docker image" \
-    org.opencontainers.image.description="This is a base image, which provides the Jenkins agent executable (agent.jar)" \
-    org.opencontainers.image.version="${VERSION}" \
-    org.opencontainers.image.url="https://www.jenkins.io/" \
-    org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
-    org.opencontainers.image.licenses="MIT"

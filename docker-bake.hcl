@@ -145,8 +145,9 @@ target "debian_jdk17" {
   context = "."
   args = {
     VERSION = REMOTING_VERSION,
-    target = "default"
+    
   }
+  target = "default"
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk17": "",
     "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk17",
@@ -162,8 +163,9 @@ target "debian_jdk17_arm32" {
   context = "."
   args = {
     VERSION = REMOTING_VERSION,
-    target = "arm32"
+    
   }
+  target = "arm32"
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk17": "",
     "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk17",
