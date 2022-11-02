@@ -21,7 +21,14 @@
 #  THE SOFTWARE.
 
 # To avoid "jmods: Value too large for defined data type" error,
-FROM --platform=$BUILDPLATFORM eclipse-temurin:17.0.4.1_1-jdk-focal AS jre-build
+# Check docker bake target debian_jdk17_arm32
+# Cannot get jlink to properly work, in the v7 environment.
+# The jmods error above gets generated each time.
+# Better to have a larger image than incorrect java binaries in 32bit arm.
+FROM eclipse-temurin:17.0.4.1_1-jdk-focal AS arm32-jre-build
+RUN cp -r /opt/java/openjdk /javaruntime
+
+FROM eclipse-temurin:17.0.4.1_1-jdk-focal AS jre-build
 
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
@@ -34,7 +41,7 @@ RUN jlink \
          --compress=2 \
          --output /javaruntime
 
-FROM debian:bullseye-20221024
+FROM debian:bullseye-20221024 AS build
 
 ARG VERSION=3071.v7e9b_0dc08466
 ARG user=jenkins
@@ -64,7 +71,6 @@ ENV LANG C.UTF-8
 
 ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
-COPY --from=jre-build /javaruntime $JAVA_HOME
 
 USER ${user}
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
@@ -75,10 +81,16 @@ VOLUME ${AGENT_WORKDIR}
 WORKDIR /home/${user}
 
 LABEL \
-    org.opencontainers.image.vendor="Jenkins project" \
-    org.opencontainers.image.title="Official Jenkins Agent Base Docker image" \
-    org.opencontainers.image.description="This is a base image, which provides the Jenkins agent executable (agent.jar)" \
-    org.opencontainers.image.version="${VERSION}" \
-    org.opencontainers.image.url="https://www.jenkins.io/" \
-    org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
-    org.opencontainers.image.licenses="MIT"
+  org.opencontainers.image.vendor="Jenkins project" \
+  org.opencontainers.image.title="Official Jenkins Agent Base Docker image" \
+  org.opencontainers.image.description="This is a base image, which provides the Jenkins agent executable (agent.jar)" \
+  org.opencontainers.image.version="${VERSION}" \
+  org.opencontainers.image.url="https://www.jenkins.io/" \
+  org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
+  org.opencontainers.image.licenses="MIT"
+
+FROM build AS default
+COPY --from=jre-build /javaruntime $JAVA_HOME
+
+FROM build AS arm32
+COPY --from=arm32-jre-build /javaruntime $JAVA_HOME
