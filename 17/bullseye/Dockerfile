@@ -80,7 +80,7 @@ VOLUME /home/${user}/.jenkins
 VOLUME ${AGENT_WORKDIR}
 WORKDIR /home/${user}
 
-FROM build as default
+FROM build AS default
 COPY --from=jre-build /javaruntime $JAVA_HOME
 
 FROM build as arm32
