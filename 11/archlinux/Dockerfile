@@ -20,14 +20,13 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM archlinux:latest AS jre-build
-
-RUN pacman -Syu jdk11-openjdk --noconfirm
+ARG JAVA_VERSION="11.0.16.1_1"
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-focal AS jre-build
 
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
-RUN /usr/lib/jvm/default-runtime/bin/jlink \
+RUN jlink \
          --add-modules ALL-MODULE-PATH \
          --strip-debug \
          --no-man-pages \

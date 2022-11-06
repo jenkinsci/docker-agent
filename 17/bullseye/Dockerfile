@@ -25,10 +25,12 @@
 # Cannot get jlink to properly work, in the v7 environment.
 # The jmods error above gets generated each time.
 # Better to have a larger image than incorrect java binaries in 32bit arm.
-FROM eclipse-temurin:17.0.4.1_1-jdk-focal AS arm32-jre-build
+ARG JAVA_VERSION="17.0.4.1_1"
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-focal AS arm32-jre-build
 RUN cp -r /opt/java/openjdk /javaruntime
 
-FROM eclipse-temurin:17.0.4.1_1-jdk-focal AS jre-build
+ARG JAVA_VERSION="17.0.4.1_1"
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-focal AS jre-build
 
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
