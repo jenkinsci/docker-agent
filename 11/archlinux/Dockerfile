@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-ARG JAVA_VERSION="11.0.16.1_1"
+ARG JAVA_VERSION=11.0.17_8
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-focal AS jre-build
 
 # Generate smaller java runtime without unneeded files
