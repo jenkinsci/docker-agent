@@ -23,7 +23,7 @@
 #  THE SOFTWARE.
 
 ARG JAVA_VERSION=17.0.5_8
-FROM eclipse-temurin:${JAVA_VERSION}-jdk-windowsservercore-1809
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-1809
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
@@ -79,9 +79,9 @@ RUN New-Item -Type Directory $('{0}/.jenkins' -f $env:AGENT_ROOT) | Out-Null ; `
 
 RUN git config --global core.longpaths true
 
-VOLUME ${AGENT_ROOT}/.jenkins
-VOLUME ${AGENT_WORKDIR}
-WORKDIR ${AGENT_ROOT}
+VOLUME "${AGENT_ROOT}"/.jenkins
+VOLUME "${AGENT_WORKDIR}"
+WORKDIR "${AGENT_ROOT}"
 
 LABEL `
     org.opencontainers.image.vendor="Jenkins project" `

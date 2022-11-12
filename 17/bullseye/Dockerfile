@@ -26,22 +26,22 @@
 # The jmods error above gets generated each time.
 # Better to have a larger image than incorrect java binaries in 32bit arm.
 ARG JAVA_VERSION=17.0.5_8
-FROM eclipse-temurin:${JAVA_VERSION}-jdk-focal AS arm32-jre-build
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-focal AS arm32-jre-build
 RUN cp -r /opt/java/openjdk /javaruntime
 
 ARG JAVA_VERSION=17.0.5_8
-FROM eclipse-temurin:${JAVA_VERSION}-jdk-focal AS jre-build
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-focal AS jre-build
 
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
 RUN jlink \
-         --add-modules ALL-MODULE-PATH \
-         --strip-java-debug-attributes \
-         --no-man-pages \
-         --no-header-files \
-         --compress=2 \
-         --output /javaruntime
+    --add-modules ALL-MODULE-PATH \
+    --strip-java-debug-attributes \
+    --no-man-pages \
+    --no-header-files \
+    --compress=2 \
+    --output /javaruntime
 
 FROM debian:bullseye-20221024 AS build
 
@@ -51,10 +51,10 @@ ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
 
-RUN groupadd -g ${gid} ${group} \
-  && useradd -l -c "Jenkins user" -d /home/${user} -u ${uid} -g ${gid} -m ${user}
+RUN groupadd -g "${gid}" "${group}" \
+  && useradd -l -c "Jenkins user" -d /home/"${user}" -u "${uid}" -g "${gid}" -m "${user}"
 
-ARG AGENT_WORKDIR=/home/${user}/agent
+ARG AGENT_WORKDIR=/home/"${user}"/agent
 
 ## Always use the latest Alpine packages: no need for versions
 # hadolint ignore=DL3008
@@ -76,13 +76,13 @@ ENV LANG C.UTF-8
 ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
 
-USER ${user}
+USER "${user}"
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
-RUN mkdir /home/${user}/.jenkins && mkdir -p ${AGENT_WORKDIR}
+RUN mkdir /home/${user}/.jenkins && mkdir -p "${AGENT_WORKDIR}"
 
-VOLUME /home/${user}/.jenkins
-VOLUME ${AGENT_WORKDIR}
-WORKDIR /home/${user}
+VOLUME /home/"${user}"/.jenkins
+VOLUME "${AGENT_WORKDIR}"
+WORKDIR /home/"${user}"
 
 LABEL \
   org.opencontainers.image.vendor="Jenkins project" \
@@ -94,7 +94,7 @@ LABEL \
   org.opencontainers.image.licenses="MIT"
 
 FROM build AS default
-COPY --from=jre-build /javaruntime $JAVA_HOME
+COPY --from=jre-build /javaruntime "$JAVA_HOME"
 
 FROM build AS arm32
-COPY --from=arm32-jre-build /javaruntime $JAVA_HOME
+COPY --from=arm32-jre-build /javaruntime "$JAVA_HOME"

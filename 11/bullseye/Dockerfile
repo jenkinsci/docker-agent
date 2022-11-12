@@ -21,18 +21,18 @@
 #  THE SOFTWARE.
 
 ARG JAVA_VERSION=11.0.17_8
-FROM eclipse-temurin:${JAVA_VERSION}-jdk-focal AS jre-build
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-focal AS jre-build
 
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
 RUN jlink \
-         --add-modules ALL-MODULE-PATH \
-         --strip-debug \
-         --no-man-pages \
-         --no-header-files \
-         --compress=2 \
-         --output /javaruntime
+  --add-modules ALL-MODULE-PATH \
+  --strip-debug \
+  --no-man-pages \
+  --no-header-files \
+  --compress=2 \
+  --output /javaruntime
 
 FROM debian:bullseye-20221024
 
@@ -42,8 +42,8 @@ ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
 
-RUN groupadd -g ${gid} ${group} \
-  && useradd -l -c "Jenkins user" -d /home/${user} -u ${uid} -g ${gid} -m ${user}
+RUN groupadd -g "${gid}" "${group}" \
+  && useradd -l -c "Jenkins user" -d /home/${user} -u "${uid}" -g "${gid}" -m "${user}"
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
@@ -66,15 +66,15 @@ ENV LANG C.UTF-8
 
 ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
-COPY --from=jre-build /javaruntime $JAVA_HOME
+COPY --from=jre-build /javaruntime "$JAVA_HOME"
 
-USER ${user}
-ENV AGENT_WORKDIR=${AGENT_WORKDIR}
-RUN mkdir /home/${user}/.jenkins && mkdir -p ${AGENT_WORKDIR}
+USER "${user}"
+ENV AGENT_WORKDIR="${AGENT_WORKDIR}"
+RUN mkdir /home/${user}/.jenkins && mkdir -p "${AGENT_WORKDIR}"
 
-VOLUME /home/${user}/.jenkins
-VOLUME ${AGENT_WORKDIR}
-WORKDIR /home/${user}
+VOLUME /home/"${user}"/.jenkins
+VOLUME "${AGENT_WORKDIR}"
+WORKDIR /home/"${user}"
 
 LABEL \
     org.opencontainers.image.vendor="Jenkins project" \
