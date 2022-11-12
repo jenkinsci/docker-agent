@@ -36,7 +36,6 @@ RUN jlink \
 
 FROM debian:bullseye-20221024
 
-ARG VERSION=3071.v7e9b_0dc08466
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
@@ -55,12 +54,11 @@ RUN apt-get update \
     curl \
     ca-certificates \
     fontconfig \
-  && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
-  && chmod 755 /usr/share/jenkins \
-  && chmod 644 /usr/share/jenkins/agent.jar \
-  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar \
-  && apt-get remove -y curl \
   && rm -rf /var/lib/apt/lists/*
+
+ARG VERSION=3071.v7e9b_0dc08466
+ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
+RUN ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
 ENV LANG C.UTF-8
 
