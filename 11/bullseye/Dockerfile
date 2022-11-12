@@ -47,6 +47,8 @@ RUN groupadd -g ${gid} ${group} \
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
+## Always use the latest Alpine packages: no need for versions
+# hadolint ignore=DL3008
 RUN apt-get update \
   && apt-get --yes --no-install-recommends install \
     git-lfs \
