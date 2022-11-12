@@ -32,7 +32,7 @@ ARCH=${ARCH:-x86_64}
   assert_equal "${output}" "UTF-8"
 }
 
-@test "[${SUT_IMAGE}] image has bash and java installed and in the PATH" {
+@test "[${SUT_IMAGE}] image has bash, curl and java installed and in the PATH" {
   local cid
   cid="$(docker run -d -it -P "${SUT_IMAGE}" /bin/bash)"
 
@@ -42,6 +42,12 @@ ARCH=${ARCH:-x86_64}
   assert_success
   run docker exec "${cid}" bash --version
   assert_success
+
+  run docker exec "${cid}" sh -c "command -v curl"
+  assert_success
+  run docker exec "${cid}" sh -c "curl --version"
+  assert_success
+
   run docker exec "${cid}" sh -c "command -v java"
   assert_success
 

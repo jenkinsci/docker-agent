@@ -36,7 +36,6 @@ RUN jlink \
 
 FROM archlinux:base-20221106.0.100148
 
-ARG VERSION=3071.v7e9b_0dc08466
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
@@ -47,12 +46,11 @@ RUN groupadd -g "${gid}" "${group}" \
 
 ARG AGENT_WORKDIR=/home/"${user}"/agent
 
-RUN pacman -Syu git git-lfs --noconfirm
+RUN pacman -Syu curl git git-lfs --noconfirm
 
-RUN curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" \
-  && chmod 755 /usr/share/jenkins \
-  && chmod 644 /usr/share/jenkins/agent.jar \
-  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
+ARG VERSION=3071.v7e9b_0dc08466
+ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
+RUN ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
 ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
