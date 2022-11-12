@@ -34,7 +34,7 @@ RUN jlink \
          --compress=2 \
          --output /javaruntime
 
-FROM archlinux:latest
+FROM archlinux:base-20221106.0.100148
 
 ARG VERSION=3071.v7e9b_0dc08466
 ARG user=jenkins
