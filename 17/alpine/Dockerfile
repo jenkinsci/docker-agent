@@ -30,7 +30,6 @@ ARG gid=1000
 
 RUN addgroup -g ${gid} ${group} \
   && adduser -h /home/${user} -u ${uid} -G ${group} -D ${user}
-LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 
 ARG AGENT_WORKDIR=/home/${user}/agent
 
