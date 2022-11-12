@@ -57,9 +57,10 @@ RUN groupadd -g ${gid} ${group} \
 ARG AGENT_WORKDIR=/home/${user}/agent
 
 RUN apt-get update \
-  && apt-get -y install \
+  && apt-get --yes --no-install-recommends install \
     git-lfs \
     curl \
+    ca-certificates \
     fontconfig \
   && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
   && chmod 755 /usr/share/jenkins \
