@@ -1,0 +1,167 @@
+---
+name: Bump the Jenkins remoting version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  lastVersion:
+    kind: githubrelease
+    name: Get the latest version of the Jenkins remoting
+    spec:
+      owner: jenkinsci
+      repository: remoting
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versionfilter:
+        kind: latest
+
+conditions:
+  checkJarIsAvailable:
+    kind: shell
+    name: Check that the JAR file for remoting is available
+    disablesourceinput: true
+    spec:
+      command: curl --silent --show-error --location --verbose --output /dev/null --fail https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{{ source "lastVersion" }}/remoting-{{ source "lastVersion" }}.jar
+
+targets:
+  setJdk11AlpineDockerImage:
+    name: Bump the Jenkins remoting version on JDK11 Alpine
+    kind: dockerfile
+    spec:
+      file: 11/alpine/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: VERSION
+    scmid: default
+  setJdk11ArchlinuxDockerImage:
+    name: Bump the Jenkins remoting version on JDK11 Archlinux
+    kind: dockerfile
+    spec:
+      file: 11/archlinux/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: VERSION
+    scmid: default
+  setJdk11DebianDockerImage:
+    name: Bump the Jenkins remoting version on JDK11 Debian Bullseye
+    kind: dockerfile
+    spec:
+      file: 11/bullseye/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: VERSION
+    scmid: default
+  setJdk11WindowsNanoserver1809DockerImage:
+    name: Bump the Jenkins remoting version on JDK11 Windows Nanoserver 1809
+    kind: dockerfile
+    spec:
+      file: 11/windows/nanoserver-1809/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: VERSION
+    scmid: default
+  setJdk11WindowsServer2019DockerImage:
+    name: Bump the Jenkins remoting version on JDK11 Windows Server 2019
+    kind: dockerfile
+    spec:
+      file: 11/windows/windowsservercore-ltsc2019/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: VERSION
+    scmid: default
+  setJdk17AlpineDockerImage:
+    name: Bump the Jenkins remoting version on JDK17 Alpine
+    kind: dockerfile
+    spec:
+      file: 17/alpine/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: VERSION
+    scmid: default
+  setJdk17DebianDockerImage:
+    name: Bump the Jenkins remoting version on JDK17 Debian Bullseye
+    kind: dockerfile
+    spec:
+      file: 17/bullseye/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: VERSION
+    scmid: default
+  setJdk17WindowsNanoserver1809DockerImage:
+    name: Bump the Jenkins remoting version on JDK17 Windows Nanoserver 1809
+    kind: dockerfile
+    spec:
+      file: 17/windows/nanoserver-1809/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: VERSION
+    scmid: default
+  setJdk17WindowsServer2019DockerImage:
+    name: Bump the Jenkins remoting version on JDK17 Windows Server 2019
+    kind: dockerfile
+    spec:
+      file: 17/windows/windowsservercore-ltsc2019/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: VERSION
+    scmid: default
+  setDockerBakeDefaultParentImage:
+    name: Bump the Jenkins remoting version on the docker-bake.hcl file
+    kind: file
+    spec:
+      file: docker-bake.hcl
+      matchpattern: >-
+        variable(.*)"REMOTING_VERSION"(.*){(.*)(\r\n|\r|\n)(.*)default(.*)=(.*)
+      replacepattern: >-
+        variable${1}"REMOTING_VERSION"${2}{${3}${4}${5}default${6}= "{{ source "lastVersion" }}"
+    scmid: default
+  setLinuxBuildShRemotingVersion:
+    name: Bump the Jenkins remoting version on the linux build.sh file
+    kind: file
+    spec:
+      file: build.sh
+      matchpattern: >-
+        remoting_version="(.*)"
+      replacepattern: >-
+        remoting_version="{{ source "lastVersion" }}"
+    scmid: default
+  setWindowsBuildPwshRemotingVersion:
+    name: Bump the Jenkins remoting version on the windows build.ps1 file
+    kind: file
+    spec:
+      file: build.ps1
+      matchpattern: >-
+        \$RemotingVersion(.*)=(.*),
+      replacepattern: >-
+        $$RemotingVersion${1}= '{{ source "lastVersion" }}',
+    scmid: default
+  setEnvProps:
+    name: Bump the Jenkins remoting version on the env.props file
+    kind: file
+    spec:
+      file: env.props
+      matchpattern: >-
+        REMOTING_VERSION=(.*)
+      replacepattern: >-
+        REMOTING_VERSION={{ source "lastVersion" }}
+    scmid: default
+
+pullrequests:
+  default:
+    kind: github
+    scmid: default
+    title: Bump the Jenkins remoting version to {{ source "lastVersion" }}
+    spec:
+      labels:
+        - dependencies
+        - remoting
