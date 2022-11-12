@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 ARG JAVA_VERSION=17.0.5_8
-FROM eclipse-temurin:${JAVA_VERSION}-jdk-alpine
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-alpine
 
 ARG VERSION=3071.v7e9b_0dc08466
 ARG user=jenkins
@@ -28,29 +28,30 @@ ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
 
-RUN addgroup -g ${gid} ${group}
-RUN adduser -h /home/${user} -u ${uid} -G ${group} -D ${user}
-LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
+RUN addgroup -g "${gid}" "${group}" \
+  && adduser -h /home/"${user}" -u "${uid}" -G "${group}" -D "${user}"
 
-ARG AGENT_WORKDIR=/home/${user}/agent
+ARG AGENT_WORKDIR=/home/"${user}"/agent
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-RUN apk add --update --no-cache curl bash git git-lfs musl-locales openssh-client openssl procps \
-  && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
+## Always use the latest Alpine packages: no need for versions
+# hadolint ignore=DL3018
+RUN apk add --no-cache curl bash git git-lfs musl-locales openssh-client openssl procps \
+  && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" \
   && chmod 755 /usr/share/jenkins \
   && chmod 644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar \
   && apk del --purge curl \
   && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-USER ${user}
-ENV AGENT_WORKDIR=${AGENT_WORKDIR}
-RUN mkdir /home/${user}/.jenkins && mkdir -p ${AGENT_WORKDIR}
+USER "${user}"
+ENV AGENT_WORKDIR="${AGENT_WORKDIR}"
+RUN mkdir /home/"${user}"/.jenkins && mkdir -p "${AGENT_WORKDIR}"
 
-VOLUME /home/${user}/.jenkins
-VOLUME ${AGENT_WORKDIR}
-WORKDIR /home/${user}
+VOLUME /home/"${user}"/.jenkins
+VOLUME "${AGENT_WORKDIR}"
+WORKDIR /home/"${user}"
 
 LABEL \
     org.opencontainers.image.vendor="Jenkins project" \

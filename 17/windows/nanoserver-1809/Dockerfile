@@ -22,12 +22,12 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 ARG JAVA_VERSION=17.0.5_8
-FROM eclipse-temurin:${JAVA_VERSION}-jdk-windowsservercore-1809 AS core
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-1809 AS core
 
 # If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
 # use the 'latest'
 ARG POWERSHELL_VERSION=
-FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
+FROM mcr.microsoft.com/powershell:"${POWERSHELL_VERSION}nanoserver-1809"
 
 ARG JAVA_VERSION=17.0.5_8
 ARG JAVA_HOME="C:\openjdk-17"
@@ -80,7 +80,6 @@ ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 
 # Get the Agent from the Jenkins Artifacts Repository
 ARG VERSION=3071.v7e9b_0dc08466
-LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar' -f $env:VERSION) -OutFile $(Join-Path C:/ProgramData/Jenkins $env:AGENT_FILENAME) -UseBasicParsing ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar.sha1' -f $env:VERSION) -OutFile (Join-Path C:/ProgramData/Jenkins $env:AGENT_HASH_FILENAME) -UseBasicParsing ; `
@@ -94,9 +93,9 @@ RUN New-Item -Type Directory $('{0}/.jenkins' -f $env:AGENT_ROOT) | Out-Null ; `
 
 RUN git config --global core.longpaths true
 
-VOLUME ${AGENT_ROOT}/.jenkins
-VOLUME ${AGENT_WORKDIR}
-WORKDIR ${AGENT_ROOT}
+VOLUME "${AGENT_ROOT}"/.jenkins
+VOLUME "${AGENT_WORKDIR}"
+WORKDIR "${AGENT_ROOT}"
 
 LABEL `
     org.opencontainers.image.vendor="Jenkins project" `
