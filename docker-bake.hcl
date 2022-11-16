@@ -5,7 +5,6 @@ group "linux" {
     "archlinux_jdk11",
     "debian_jdk11",
     "debian_jdk17",
-    "debian_jdk17_arm32"
   ]
 }
 
@@ -19,7 +18,7 @@ group "linux-arm64" {
 group "linux-arm32" {
   targets = [
     "debian_jdk11",
-    "debian_jdk17_arm32"
+    "debian_jdk17"
   ]
 }
 
@@ -145,9 +144,7 @@ target "debian_jdk17" {
   context = "."
   args = {
     VERSION = REMOTING_VERSION,
-    
   }
-  target = "default"
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk17": "",
     "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk17",
@@ -155,23 +152,5 @@ target "debian_jdk17" {
     "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk17",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk17",
   ]
-  platforms = ["linux/amd64", "linux/arm64"]
-}
-
-target "debian_jdk17_arm32" {
-  dockerfile = "17/bullseye/Dockerfile"
-  context = "."
-  args = {
-    VERSION = REMOTING_VERSION,
-    
-  }
-  target = "arm32"
-  tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk17": "",
-    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk17",
-    "${REGISTRY}/${JENKINS_REPO}:jdk17",
-    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk17",
-    "${REGISTRY}/${JENKINS_REPO}:latest-jdk17",
-  ]
-  platforms = ["linux/arm/v7"]
+  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7"]
 }

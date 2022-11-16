@@ -20,28 +20,28 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-# To avoid "jmods: Value too large for defined data type" error,
-# Check docker bake target debian_jdk17_arm32
-# Cannot get jlink to properly work, in the v7 environment.
-# The jmods error above gets generated each time.
-# Better to have a larger image than incorrect java binaries in 32bit arm.
-ARG JAVA_VERSION=17.0.5_8
-FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-focal AS arm32-jre-build
-RUN cp -r /opt/java/openjdk /javaruntime
-
 ARG JAVA_VERSION=17.0.5_8
 FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-focal AS jre-build
+
+# This Build ARG is populated by Docker
+# Ref. https://docs.docker.com/engine/reference/builder/#automatic-platform-args-in-the-global-scope
+ARG TARGETPLATFORM
 
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
-RUN jlink \
+RUN if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
+  jlink \
     --add-modules ALL-MODULE-PATH \
     --strip-java-debug-attributes \
     --no-man-pages \
     --no-header-files \
     --compress=2 \
-    --output /javaruntime
+    --output /javaruntime; \
+  # It is acceptable to have a larger image in arm/v7 (arm 32 bits) environment.
+  # Because jlink fails with the error "jmods: Value too large for defined data type" error.
+  else cp -r /opt/java/openjdk /javaruntime; \
+  fi
 
 FROM debian:bullseye-20221024 AS build
 
@@ -78,6 +78,7 @@ RUN ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 ENV LANG C.UTF-8
 
 ENV JAVA_HOME=/opt/java/openjdk
+COPY --from=jre-build /javaruntime "$JAVA_HOME"
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
 
 USER "${user}"
@@ -96,9 +97,3 @@ LABEL \
   org.opencontainers.image.url="https://www.jenkins.io/" \
   org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
   org.opencontainers.image.licenses="MIT"
-
-FROM build AS default
-COPY --from=jre-build /javaruntime "$JAVA_HOME"
-
-FROM build AS arm32
-COPY --from=arm32-jre-build /javaruntime "$JAVA_HOME"
