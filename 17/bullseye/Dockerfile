@@ -60,10 +60,15 @@ ARG AGENT_WORKDIR=/home/"${user}"/agent
 # hadolint ignore=DL3008
 RUN apt-get update \
   && apt-get --yes --no-install-recommends install \
-    git-lfs \
-    curl \
     ca-certificates \
+    curl \
     fontconfig \
+    git \
+    git-lfs \
+    less \
+    netbase \
+    openssh-client \
+    patch \
   && rm -rf /var/lib/apt/lists/*
 
 ARG VERSION=3071.v7e9b_0dc08466
