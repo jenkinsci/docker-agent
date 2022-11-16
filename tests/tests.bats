@@ -32,7 +32,7 @@ ARCH=${ARCH:-x86_64}
   assert_equal "${output}" "UTF-8"
 }
 
-@test "[${SUT_IMAGE}] image has bash, curl and java installed and in the PATH" {
+@test "[${SUT_IMAGE}] image has bash, curl, ssh and java installed and in the PATH" {
   local cid
   cid="$(docker run -d -it -P "${SUT_IMAGE}" /bin/bash)"
 
@@ -45,13 +45,18 @@ ARCH=${ARCH:-x86_64}
 
   run docker exec "${cid}" sh -c "command -v curl"
   assert_success
-  run docker exec "${cid}" sh -c "curl --version"
+  run docker exec "${cid}" curl --version
   assert_success
 
   run docker exec "${cid}" sh -c "command -v java"
   assert_success
 
-  run docker exec "${cid}" sh -c "java -version"
+  run docker exec "${cid}" java -version
+  assert_success
+
+  run docker exec "${cid}" sh -c "command -v ssh"
+  assert_success
+  run docker exec "${cid}" ssh -V
   assert_success
 
   run docker exec "${cid}" sh -c "printenv | grep AGENT_WORKDIR"
