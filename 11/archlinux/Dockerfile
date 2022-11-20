@@ -48,7 +48,7 @@ ARG AGENT_WORKDIR=/home/"${user}"/agent
 
 RUN pacman -Syu curl git git-lfs openssh --noconfirm
 
-ARG VERSION=3071.v7e9b_0dc08466
+ARG VERSION=3077.vd69cf116da_6f
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
