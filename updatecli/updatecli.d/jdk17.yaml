@@ -42,36 +42,16 @@ conditions:
       architecture: amd64
       image: eclipse-temurin
       tag: '{{source "lastVersion" }}-jdk-alpine'
-  checkTemurinDebianDockerImageAmd64:
+  checkTemurinDebianDockerImages:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-focal" is available
     disablesourceinput: true
     spec:
-      architecture: amd64
-      image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-focal'
-  checkTemurinDebianDockerImageArm64:
-    kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-focal" is available
-    disablesourceinput: true
-    spec:
-      architecture: arm64
-      image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-focal'
-  checkTemurinDebianDockerImages390x:
-    kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-focal" is available
-    disablesourceinput: true
-    spec:
-      architecture: s390x
-      image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-focal'
-  checkTemurinDebianDockerImagesArmv7:
-    kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-focal" is available
-    disablesourceinput: true
-    spec:
-      architecture: arm/v7
+      architectures:
+        - amd64
+        - arm64
+        - s390x
+        - arm/v7
       image: eclipse-temurin
       tag: '{{source "lastVersion" }}-jdk-focal'
   checkTemurinWindowsCoreDockerImage:
