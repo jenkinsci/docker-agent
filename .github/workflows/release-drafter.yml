@@ -1,6 +1,7 @@
+# Automates creation of Release Drafts using Release Drafter
 # Note: additional setup is required, see https://github.com/jenkinsci/.github/blob/master/.github/release-drafter.adoc
 
-name: Release Drafter
+name: Release Drafter (Changelog)
 
 on:
   push:
