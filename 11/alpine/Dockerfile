@@ -40,7 +40,8 @@ RUN apk add --no-cache curl bash git git-lfs musl-locales openssh-client openssl
 
 ARG VERSION=3077.vd69cf116da_6f
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
-RUN ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
+RUN chmod 0644 /usr/share/jenkins/agent.jar \
+  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
 USER "${user}"
 ARG AGENT_WORKDIR=/home/"${user}"/agent

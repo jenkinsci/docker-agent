@@ -50,7 +50,8 @@ RUN pacman -Syu curl git git-lfs openssh --noconfirm
 
 ARG VERSION=3077.vd69cf116da_6f
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
-RUN ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
+RUN chmod 0644 /usr/share/jenkins/agent.jar \
+  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
 ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH "${JAVA_HOME}/bin:${PATH}"

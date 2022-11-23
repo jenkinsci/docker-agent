@@ -83,6 +83,11 @@ ARCH=${ARCH:-x86_64}
   cleanup "$cid"
 }
 
+@test "[${SUT_IMAGE}] Another user 'root' or 'jenkins' is able to start an agent process" {
+  run docker run --rm --user=2222:2222 --entrypoint='' "${SUT_IMAGE}" java -cp /usr/share/jenkins/agent.jar hudson.remoting.jnlp.Main -version
+  assert_success
+}
+
 @test "[${SUT_IMAGE}] use build args correctly" {
   cd "${BATS_TEST_DIRNAME}"/.. || false
 
