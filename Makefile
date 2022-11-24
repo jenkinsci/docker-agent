@@ -52,9 +52,7 @@ list: check-reqs
 	@set -x; make --silent show | jq -r '.target | path(.. | select(.platforms[] | contains("linux/$(ARCH)"))?) | add'
 
 bats:
-	git clone https://github.com/bats-core/bats-core bats ;\
-	cd bats ;\
-	git checkout v1.4.1
+	git clone --branch v1.8.2 https://github.com/bats-core/bats-core ./bats
 
 prepare-test: bats check-reqs
 	git submodule update --init --recursive
