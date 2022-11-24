@@ -40,7 +40,6 @@ ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
-ENV TIME_ZONE Asia/Shanghai
 
 RUN groupadd -g "${gid}" "${group}" \
   && useradd -l -c "Jenkins user" -d /home/${user} -u "${uid}" -g "${gid}" -m "${user}"
@@ -61,8 +60,6 @@ RUN apt-get update \
     openssh-client \
     patch \
     tzdata \
-  && ln -snf /usr/share/zoneinfo/$TIME_ZONE /etc/localtime && echo $TIME_ZONE > /etc/timezone \
-  && dpkg-reconfigure -f noninteractive tzdata \
   && apt-get clean \
   && rm -rf /tmp/* /var/cache/* /usr/share/doc/* /usr/share/man/* /var/lib/apt/lists/*
 
