@@ -109,7 +109,7 @@ Should you want to adapt it to your local timezone while creating your own image
 ```dockerfile
 FROM jenkins/agent as agent
  [...]
-ENV TIME_ZONE=Asia/Shanghai
+ENV TZ=Asia/Shanghai
  [...]
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
     && dpkg-reconfigure -f noninteractive tzdata \
