@@ -79,3 +79,17 @@ The file `docker-bake.hcl` defines all the configuration for Linux images and th
 
 There are also versioned tags in DockerHub, and they are recommended for production use.
 See the full list [here](https://hub.docker.com/r/jenkins/agent/tags)
+
+## Timezones
+
+By default, the image is using the `Etc/UTC` timezone. Should you want to adapt it to your local timezone while creating your own image based on `jenkins/agent`, you could use the following command (inspired by issue #[291](https://github.com/jenkinsci/docker-inbound-agent/issues/291)):
+
+```dockerfile
+FROM jenkins/agent as agent
+ [...]
+ENV TIME_ZONE=Asia/Shanghai
+ [...]
+RUN ln -snf /usr/share/zoneinfo/$TIME_ZONE /etc/localtime && echo $TIME_ZONE > /etc/timezone \
+    && dpkg-reconfigure -f noninteractive tzdata \
+ [...] 
+```
