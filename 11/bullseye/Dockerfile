@@ -45,6 +45,7 @@ RUN groupadd -g "${gid}" "${group}" \
   && useradd -l -c "Jenkins user" -d /home/${user} -u "${uid}" -g "${gid}" -m "${user}"
 
 ARG AGENT_WORKDIR=/home/${user}/agent
+ENV TIME_ZONE=Etc/UTC
 
 ## Always use the latest Debian packages: no need for versions
 # hadolint ignore=DL3008
@@ -71,7 +72,7 @@ RUN chmod 0644 /usr/share/jenkins/agent.jar \
 ENV LANG C.UTF-8
 
 ENV JAVA_HOME=/opt/java/openjdk
-ENV PATH "${JAVA_HOME}/bin:${PATH}"
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 COPY --from=jre-build /javaruntime "$JAVA_HOME"
 
 USER "${user}"
