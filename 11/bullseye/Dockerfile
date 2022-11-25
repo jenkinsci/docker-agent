@@ -45,7 +45,7 @@ RUN groupadd -g "${gid}" "${group}" \
   && useradd -l -c "Jenkins user" -d /home/${user} -u "${uid}" -g "${gid}" -m "${user}"
 
 ARG AGENT_WORKDIR=/home/${user}/agent
-ENV TIME_ZONE=Etc/UTC
+ENV TZ=Etc/UTC
 
 ## Always use the latest Debian packages: no need for versions
 # hadolint ignore=DL3008
