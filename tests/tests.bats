@@ -98,6 +98,7 @@ ARCH=${ARCH:-x86_64}
   local TEST_GID=3000
   local TEST_AGENT_WORKDIR="/home/test-user/something"
   local sut_image="${SUT_IMAGE}-tests-${BATS_TEST_NUMBER}"
+}
 
 @test "[${SUT_IMAGE}] `tzdata` is correctly installed" {
   local cid
