@@ -111,7 +111,7 @@ FROM jenkins/agent as agent
  [...]
 ENV TIME_ZONE=Asia/Shanghai
  [...]
-RUN ln -snf /usr/share/zoneinfo/$TIME_ZONE /etc/localtime && echo $TIME_ZONE > /etc/timezone \
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
     && dpkg-reconfigure -f noninteractive tzdata \
  [...] 
 ```
