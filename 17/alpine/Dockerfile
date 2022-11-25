@@ -33,11 +33,21 @@ RUN addgroup -g "${gid}" "${group}" \
 ARG AGENT_WORKDIR=/home/"${user}"/agent
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+ENV TIME_ZONE=Etc/UTC
 
 ## Always use the latest Alpine packages: no need for versions
 # hadolint ignore=DL3018
-RUN apk add --no-cache curl bash git git-lfs musl-locales openssh-client openssl procps \
-  && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
+RUN apk add --no-cache \
+      curl \
+      bash \
+      git \
+      git-lfs \
+      musl-locales \
+      openssh-client \
+      openssl \
+      procps \
+      tzdata \
+    && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
 ARG VERSION=3077.vd69cf116da_6f
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
