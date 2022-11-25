@@ -82,7 +82,28 @@ See the full list [here](https://hub.docker.com/r/jenkins/agent/tags)
 
 ## Timezones
 
+### Using directly the `jenkins/agent` image
+
 By default, the image is using the `Etc/UTC` timezone.
+If you want to use your timezone of your machine, you can mount the `/etc/localtime` file from the host (as per [this comment](https://github.com/moby/moby/issues/12084#issuecomment-89697533)).
+In this example, the machine is using the `Europe/Paris` timezone.
+
+```bash
+$ docker run --rm -ti --entrypoint=date -v /etc/localtime:/etc/localtime:ro jenkins/agent
+Fri Nov 25 18:27:22 CET 2022
+```
+
+You can also set the `TZ` environment variable to the desired timezone.
+`TZ` is a standard POSIX environment variable used by many images, see [Wikipedia](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of valid values.
+The next command is run on a machine using the `Europe/Paris` timezone a few seconds after the previous one.
+
+```bash
+$ docker run --rm -ti --env TZ=Asia/Shanghai --entrypoint=date jenkins/agent
+Sat Nov 26 01:27:58 CST 2022 
+```
+
+### Using the `jenkins/agent` image as a base image
+
 Should you want to adapt it to your local timezone while creating your own image based on `jenkins/agent`, you could use the following command (inspired by issue #[291](https://github.com/jenkinsci/docker-inbound-agent/issues/291)):
 
 ```dockerfile
