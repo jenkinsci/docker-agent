@@ -99,6 +99,33 @@ ARCH=${ARCH:-x86_64}
   local TEST_AGENT_WORKDIR="/home/test-user/something"
   local sut_image="${SUT_IMAGE}-tests-${BATS_TEST_NUMBER}"
 
+@test "[${SUT_IMAGE}] `tzdata` is correctly installed" {
+  local cid
+  cid="$(docker run -d -it -P "${SUT_IMAGE}" /bin/bash)"
+
+  is_agent_container_running "${cid}"
+
+  run docker exec "${cid}" sh -c "command -v tzselect"
+  assert_success
+  run docker exec "${cid}" tzselect --version
+  assert_success
+
+  run docker exec "${cid}" sh -c "command -v zdump"
+  assert_success
+  run docker exec "${cid}" zdump --version
+  assert_success
+
+  run docker exec "${cid}" sh -c "command -v zic"
+  assert_success
+  run docker exec "${cid}" zic --version
+  assert_success
+
+  run docker exec "${cid}" cat /et/timezone
+  assert_equal "${output}" "Etc/UTC"
+
+  cleanup "$cid"
+}
+
 # false positive detecting platform
 # shellcheck disable=SC2140
 docker buildx bake \
