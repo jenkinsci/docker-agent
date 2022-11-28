@@ -150,3 +150,22 @@ docker buildx bake \
 
   cleanup "$cid"
 }
+
+@test "[${SUT_IMAGE}] 'tzdata' is correctly installed" {
+  local cid
+  cid="$(docker run -d -it -P "${SUT_IMAGE}" /bin/bash)"
+
+  is_agent_container_running "${cid}"
+
+  run docker exec "${cid}" sh -c "command -v zdump"
+  assert_success
+  run docker exec "${cid}" zdump --version
+  assert_success
+
+  run docker exec "${cid}" sh -c "command -v zic"
+  assert_success
+  run docker exec "${cid}" zic --version
+  assert_success
+
+  cleanup "$cid"
+}
