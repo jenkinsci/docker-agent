@@ -104,7 +104,7 @@ Sat Nov 26 01:27:58 CST 2022
 
 ### Using the `jenkins/agent` image as a base image
 
-Should you want to adapt it to your local timezone while creating your own image based on `jenkins/agent`, you could use the following command (inspired by issue #[291](https://github.com/jenkinsci/docker-inbound-agent/issues/291)):
+Should you want to adapt the `jenkins/agent` image to your local timezone while creating your own image based on it, you could use the following command (inspired by issue #[291](https://github.com/jenkinsci/docker-inbound-agent/issues/291)):
 
 ```dockerfile
 FROM jenkins/agent as agent
