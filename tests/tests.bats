@@ -172,7 +172,7 @@ docker buildx bake \
   run docker exec "${cid}" zic --version
   assert_success
 
-  run docker exec "${cid}" cat /et/timezone
+  run docker exec "${cid}" cat /etc/timezone
   assert_equal "${output}" "Etc/UTC"
 
   cleanup "$cid"
