@@ -79,3 +79,39 @@ The file `docker-bake.hcl` defines all the configuration for Linux images and th
 
 There are also versioned tags in DockerHub, and they are recommended for production use.
 See the full list [here](https://hub.docker.com/r/jenkins/agent/tags)
+
+## Timezones
+
+### Using directly the `jenkins/agent` image
+
+By default, the image is using the `Etc/UTC` timezone.
+If you want to use the timezone of your machine, you can mount the `/etc/localtime` file from the host (as per [this comment](https://github.com/moby/moby/issues/12084#issuecomment-89697533)) and the `/etc/timezone` from the host too.
+In this example, the machine is using the `Europe/Paris` timezone.
+
+```bash
+docker run --rm --tty --interactive --entrypoint=date --volume=/etc/localtime:/etc/localtime:ro --volume=/etc/timezone:/etc/timezone:ro jenkins/agent
+Fri Nov 25 18:27:22 CET 2022
+```
+
+You can also set the `TZ` environment variable to the desired timezone.
+`TZ` is a standard POSIX environment variable used by many images, see [Wikipedia](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of valid values.
+The next command is run on a machine using the `Europe/Paris` timezone a few seconds after the previous one.
+
+```bash
+docker run --rm --tty --interactive --env TZ=Asia/Shanghai --entrypoint=date jenkins/agent
+Sat Nov 26 01:27:58 CST 2022 
+```
+
+### Using the `jenkins/agent` image as a base image
+
+Should you want to adapt the `jenkins/agent` image to your local timezone while creating your own image based on it, you could use the following command (inspired by issue #[291](https://github.com/jenkinsci/docker-inbound-agent/issues/291)):
+
+```dockerfile
+FROM jenkins/agent as agent
+ [...]
+ENV TZ=Asia/Shanghai
+ [...]
+RUN ln -snf /usr/share/zoneinfo/"${TZ}" /etc/localtime && echo "${TZ}" > /etc/timezone \
+    && dpkg-reconfigure -f noninteractive tzdata \
+ [...] 
+```
