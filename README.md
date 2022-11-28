@@ -89,7 +89,7 @@ If you want to use the timezone of your machine, you can mount the `/etc/localti
 In this example, the machine is using the `Europe/Paris` timezone.
 
 ```bash
-$ docker run --rm -ti --entrypoint=date -v /etc/localtime:/etc/localtime:ro -v /etc/timezone:/etc/timezone:ro jenkins/agent
+docker run --rm --tty --interactive --entrypoint=date --volume=/etc/localtime:/etc/localtime:ro --volume=/etc/timezone:/etc/timezone:ro jenkins/agent
 Fri Nov 25 18:27:22 CET 2022
 ```
 
