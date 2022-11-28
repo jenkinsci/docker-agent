@@ -45,6 +45,7 @@ RUN groupadd -g "${gid}" "${group}" \
   && useradd -l -c "Jenkins user" -d /home/${user} -u "${uid}" -g "${gid}" -m "${user}"
 
 ARG AGENT_WORKDIR=/home/${user}/agent
+ENV TZ=Etc/UTC
 
 ## Always use the latest Debian packages: no need for versions
 # hadolint ignore=DL3008
@@ -59,7 +60,9 @@ RUN apt-get update \
     netbase \
     openssh-client \
     patch \
-  && rm -rf /var/lib/apt/lists/*
+    tzdata \
+  && apt-get clean \
+  && rm -rf /tmp/* /var/cache/* /usr/share/doc/* /usr/share/man/* /var/lib/apt/lists/*
 
 ARG VERSION=3077.vd69cf116da_6f
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
@@ -69,7 +72,7 @@ RUN chmod 0644 /usr/share/jenkins/agent.jar \
 ENV LANG C.UTF-8
 
 ENV JAVA_HOME=/opt/java/openjdk
-ENV PATH "${JAVA_HOME}/bin:${PATH}"
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 COPY --from=jre-build /javaruntime "$JAVA_HOME"
 
 USER "${user}"
