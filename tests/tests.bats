@@ -157,11 +157,6 @@ docker buildx bake \
 
   is_agent_container_running "${cid}"
 
-  run docker exec "${cid}" sh -c "command -v tzselect"
-  assert_success
-  run docker exec "${cid}" tzselect --version
-  assert_success
-
   run docker exec "${cid}" sh -c "command -v zdump"
   assert_success
   run docker exec "${cid}" zdump --version
