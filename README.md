@@ -98,7 +98,7 @@ You can also set the `TZ` environment variable to the desired timezone.
 The next command is run on a machine using the `Europe/Paris` timezone a few seconds after the previous one.
 
 ```bash
-$ docker run --rm -ti --env TZ=Asia/Shanghai --entrypoint=date jenkins/agent
+docker run --rm --tty --interactive --env TZ=Asia/Shanghai --entrypoint=date jenkins/agent
 Sat Nov 26 01:27:58 CST 2022 
 ```
 
