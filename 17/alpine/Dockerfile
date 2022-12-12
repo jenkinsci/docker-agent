@@ -47,6 +47,7 @@ RUN apk add --no-cache \
       openssl \
       procps \
       tzdata \
+      tzdata-utils \
     && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
 ARG VERSION=3077.vd69cf116da_6f
