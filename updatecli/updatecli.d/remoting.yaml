@@ -156,9 +156,9 @@ targets:
         REMOTING_VERSION={{ source "lastVersion" }}
     scmid: default
 
-pullrequests:
+actions:
   default:
-    kind: github
+    kind: github/pullrequest
     scmid: default
     title: Bump the Jenkins remoting version to {{ source "lastVersion" }}
     spec:

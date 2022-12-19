@@ -110,9 +110,9 @@ targets:
         matcher: JAVA_VERSION
     scmid: default
 
-pullrequests:
+actions:
   default:
-    kind: github
+    kind: github/pullrequest
     scmid: default
     title: Bump JDK11 version to {{ source "lastVersion" }}
     spec:

@@ -37,9 +37,9 @@ targets:
         git clone --branch {{ source "lastVersion" }} https://github.com/bats-core/bats-core ./bats
     scmid: default
 
-pullrequests:
+actions:
   default:
-    kind: github
+    kind: github/pullrequest
     scmid: default
     title: Bump bats version to {{ source "lastVersion" }}
     spec:
