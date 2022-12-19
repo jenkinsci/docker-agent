@@ -45,7 +45,7 @@ RUN if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
 
 FROM debian:bullseye-20221205 AS build
 
-ARG VERSION=3077.vd69cf116da_6f
+ARG VERSION=3085.vc4c6977c075a
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
@@ -74,7 +74,7 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /tmp/* /var/cache/* /usr/share/doc/* /usr/share/man/* /var/lib/apt/lists/*
 
-ARG VERSION=3077.vd69cf116da_6f
+ARG VERSION=3085.vc4c6977c075a
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
