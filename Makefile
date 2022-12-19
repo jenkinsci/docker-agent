@@ -8,7 +8,7 @@ export DOCKER_CLI_EXPERIMENTAL=enabled
 export BUILDKIT_PROGRESS=plain
 
 current_arch := $(shell uname -m)
-export ARCH ?= $(shell case $(current_arch) in (x86_64) echo "amd64" ;; (i386) echo "386";; (aarch64|arm64) echo "arm64" ;; (armv6*) echo "arm/v6";; (armv7*) echo "arm/v7";; (ppc64*|s390*|riscv*) echo $(current_arch);; (*) echo "UNKNOWN-CPU";; esac)
+export ARCH ?= $(shell case $(current_arch) in (x86_64) echo "amd64" ;; (i386) echo "386";; (aarch64|arm64) echo "arm64" ;; (armv6*) echo "arm/v6";; (armv7*) echo "arm/v7";; (s390*|riscv*) echo $(current_arch);; (*) echo "UNKNOWN-CPU";; esac)
 
 IMAGE_NAME:=jenkins4eval/agent
 IMAGE_NAME_AGENT:=jenkins4eval/slave
@@ -52,9 +52,7 @@ list: check-reqs
 	@set -x; make --silent show | jq -r '.target | path(.. | select(.platforms[] | contains("linux/$(ARCH)"))?) | add'
 
 bats:
-	git clone https://github.com/bats-core/bats-core bats ;\
-	cd bats ;\
-	git checkout v1.4.1
+	git clone --branch v1.8.2 https://github.com/bats-core/bats-core ./bats
 
 prepare-test: bats check-reqs
 	git submodule update --init --recursive

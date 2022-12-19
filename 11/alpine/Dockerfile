@@ -20,59 +20,48 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-ARG ALPINE_TAG=3.15.0
-FROM alpine:$ALPINE_TAG as jre-build
+ARG JAVA_VERSION=11.0.17_8
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-alpine
 
-RUN apk add --update --no-cache openjdk11-jdk openjdk11-jmods
-
-# Generate smaller java runtime without unneeded files
-# for now we include the full module path to maintain compatibility
-# while still saving space (approx 200mb from the full distribution)
-RUN jlink \
-         --module-path /usr/lib/jvm/default-jvm/jmods \
-         --add-modules ALL-MODULE-PATH \
-         --strip-debug \
-         --no-man-pages \
-         --no-header-files \
-         --compress=2 \
-         --output /javaruntime
-
-ARG ALPINE_TAG=3.15.0
-FROM alpine:$ALPINE_TAG
-
-ARG VERSION=4.12
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
 
-RUN addgroup -g ${gid} ${group}
-RUN adduser -h /home/${user} -u ${uid} -G ${group} -D ${user}
-LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="${VERSION}"
-
-ARG AGENT_WORKDIR=/home/${user}/agent
+RUN addgroup -g "${gid}" "${group}" \
+  && adduser -h /home/"${user}" -u "${uid}" -G "${group}" -D "${user}"
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+ENV TZ=Etc/UTC
 
-RUN apk add --update --no-cache curl bash git git-lfs musl-locales openssh-client openssl procps \
-  && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
-  && chmod 755 /usr/share/jenkins \
-  && chmod 644 /usr/share/jenkins/agent.jar \
-  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar \
-  && apk del --purge curl \
-  && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
+## Always use the latest Alpine packages: no need for versions
+# hadolint ignore=DL3018
+RUN apk add --no-cache \
+     bash \
+     curl \
+     git \
+     git-lfs \
+     musl-locales \
+     openssh-client \
+     openssl \
+     procps \
+     tzdata \
+     tzdata-utils \
+    && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_HOME=/opt/java/openjdk
-ENV PATH "${JAVA_HOME}/bin:${PATH}"
-COPY --from=jre-build /javaruntime $JAVA_HOME
+ARG VERSION=3085.vc4c6977c075a
+ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
+RUN chmod 0644 /usr/share/jenkins/agent.jar \
+  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
-USER ${user}
-ENV AGENT_WORKDIR=${AGENT_WORKDIR}
-RUN mkdir /home/${user}/.jenkins && mkdir -p ${AGENT_WORKDIR}
+USER "${user}"
+ARG AGENT_WORKDIR=/home/"${user}"/agent
+ENV AGENT_WORKDIR="${AGENT_WORKDIR}"
+RUN mkdir /home/"${user}"/.jenkins && mkdir -p "${AGENT_WORKDIR}"
 
-VOLUME /home/${user}/.jenkins
-VOLUME ${AGENT_WORKDIR}
-WORKDIR /home/${user}
+VOLUME /home/"${user}"/.jenkins
+VOLUME "${AGENT_WORKDIR}"
+WORKDIR /home/"${user}"
 
 LABEL \
     org.opencontainers.image.vendor="Jenkins project" \

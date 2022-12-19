@@ -5,7 +5,7 @@ updates:
 # Alpine Linux
 
 - package-ecosystem: docker
-  directory: "11/alpine"
+  directory: "17/alpine"
   schedule:
     interval: weekly
   open-pull-requests-limit: 2
@@ -16,7 +16,7 @@ updates:
   - dependencies
 
 - package-ecosystem: docker
-  directory: "8/alpine"
+  directory: "11/alpine"
   schedule:
     interval: weekly
   open-pull-requests-limit: 2
@@ -42,7 +42,7 @@ updates:
 # Debian Linux
 
 - package-ecosystem: docker
-  directory: "11/bullseye"
+  directory: "17/bullseye"
   schedule:
     interval: weekly
   open-pull-requests-limit: 2
@@ -53,7 +53,7 @@ updates:
   - dependencies
 
 - package-ecosystem: docker
-  directory: "8/bullseye"
+  directory: "11/bullseye"
   schedule:
     interval: weekly
   open-pull-requests-limit: 2
@@ -64,6 +64,28 @@ updates:
   - dependencies
 
 # Windows
+
+- package-ecosystem: docker
+  directory: "17/windows/nanoserver-1809"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - slide
+  labels:
+  - dependencies
+
+- package-ecosystem: docker
+  directory: "17/windows/windowsservercore-ltsc2019"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 2
+  target-branch: master
+  reviewers:
+  - slide
+  labels:
+  - dependencies
 
 - package-ecosystem: docker
   directory: "11/windows/nanoserver-1809"
@@ -87,13 +109,11 @@ updates:
   labels:
   - dependencies
 
-- package-ecosystem: docker
-  directory: "8/windows/windowsservercore-ltsc2019"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
+# GitHub actions
+
+- package-ecosystem: "github-actions"
   target-branch: master
-  reviewers:
-  - slide
-  labels:
-  - dependencies
+  directory: "/"
+  schedule:
+    # Check for updates to GitHub Actions every week
+    interval: "weekly"

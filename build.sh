@@ -6,8 +6,8 @@ set -u -o pipefail
 OPTIND=1
 
 target="build"
-build_number=""
-remoting_version="4.3"
+build_number="1"
+remoting_version="3085.vc4c6977c075a"
 disable_env_props=0
 exit_result=0
 

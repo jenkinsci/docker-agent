@@ -20,58 +20,68 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM eclipse-temurin:11.0.14.1_1-jdk-focal AS jre-build
+ARG JAVA_VERSION=11.0.17_8
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-focal AS jre-build
 
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
 RUN jlink \
-         --add-modules ALL-MODULE-PATH \
-         --strip-debug \
-         --no-man-pages \
-         --no-header-files \
-         --compress=2 \
-         --output /javaruntime
+  --add-modules ALL-MODULE-PATH \
+  --strip-debug \
+  --no-man-pages \
+  --no-header-files \
+  --compress=2 \
+  --output /javaruntime
 
-FROM debian:bullseye-20220316
+FROM debian:bullseye-20221205
 
-ARG VERSION=4.12
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
 
-RUN groupadd -g ${gid} ${group}
-RUN useradd -c "Jenkins user" -d /home/${user} -u ${uid} -g ${gid} -m ${user}
-LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
+RUN groupadd -g "${gid}" "${group}" \
+  && useradd -l -c "Jenkins user" -d /home/${user} -u "${uid}" -g "${gid}" -m "${user}"
 
 ARG AGENT_WORKDIR=/home/${user}/agent
+ENV TZ=Etc/UTC
 
+## Always use the latest Debian packages: no need for versions
+# hadolint ignore=DL3008
 RUN apt-get update \
-  && apt-get -y install \
-    git-lfs \
+  && apt-get --yes --no-install-recommends install \
+    ca-certificates \
     curl \
     fontconfig \
-  && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
-  && chmod 755 /usr/share/jenkins \
-  && chmod 644 /usr/share/jenkins/agent.jar \
-  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar \
-  && apt-get remove -y curl \
-  && rm -rf /var/lib/apt/lists/*
+    git \
+    git-lfs \
+    less \
+    netbase \
+    openssh-client \
+    patch \
+    tzdata \
+  && apt-get clean \
+  && rm -rf /tmp/* /var/cache/* /usr/share/doc/* /usr/share/man/* /var/lib/apt/lists/*
+
+ARG VERSION=3085.vc4c6977c075a
+ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
+RUN chmod 0644 /usr/share/jenkins/agent.jar \
+  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
 ENV LANG C.UTF-8
 
 ENV JAVA_HOME=/opt/java/openjdk
-ENV PATH "${JAVA_HOME}/bin:${PATH}"
-COPY --from=jre-build /javaruntime $JAVA_HOME
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+COPY --from=jre-build /javaruntime "$JAVA_HOME"
 
-USER ${user}
-ENV AGENT_WORKDIR=${AGENT_WORKDIR}
-RUN mkdir /home/${user}/.jenkins && mkdir -p ${AGENT_WORKDIR}
+USER "${user}"
+ENV AGENT_WORKDIR="${AGENT_WORKDIR}"
+RUN mkdir /home/${user}/.jenkins && mkdir -p "${AGENT_WORKDIR}"
 
-VOLUME /home/${user}/.jenkins
-VOLUME ${AGENT_WORKDIR}
-WORKDIR /home/${user}
+VOLUME /home/"${user}"/.jenkins
+VOLUME "${AGENT_WORKDIR}"
+WORKDIR /home/"${user}"
 
 LABEL \
     org.opencontainers.image.vendor="Jenkins project" \

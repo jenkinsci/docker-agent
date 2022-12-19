@@ -4,8 +4,8 @@ Param(
     [String] $Target = "build",
     [String] $AdditionalArgs = '',
     [String] $Build = '',
-    [String] $RemotingVersion = '4.6',
-    [String] $BuildNumber = "6",
+    [String] $RemotingVersion = '3085.vc4c6977c075a',
+    [String] $BuildNumber = '1',
     [switch] $PushVersions = $false,
     [switch] $DisableEnvProps = $false
 )
@@ -37,7 +37,7 @@ if(![String]::IsNullOrWhiteSpace($env:REMOTING_VERSION)) {
 }
 
 # this is the jdk version that will be used for the 'bare tag' images, e.g., jdk8-windowsservercore-1809 -> windowsserver-1809
-$defaultBuild = '8'
+$defaultBuild = '11'
 $builds = @{}
 $env:REMOTING_VERSION = "$RemotingVersion"
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
@@ -57,7 +57,8 @@ Get-ChildItem -Recurse -Include windows -Directory | ForEach-Object {
         $jdkVersion = $items[0]
         $baseImage = $items[2]
         $basicTag = "jdk${jdkVersion}-${baseImage}"
-        $tags = @( $basicTag )
+        $versionTag = "${RemotingVersion}-${BuildNumber}-${basicTag}"
+        $tags = @( $basicTag, $versionTag )
         if($jdkVersion -eq $defaultBuild) {
             $tags += $baseImage
         }
@@ -119,7 +120,7 @@ if($target -eq "test") {
 
     # Only fail the run afterwards in case of any test failures
     $testFailed = $false
-    $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.0.0 -MaximumVersion 5.0.2 -ErrorAction SilentlyContinue
+    $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.3.0 -MaximumVersion 5.3.3 -ErrorAction SilentlyContinue
     if($null -eq $mod) {
         $module = "c:\Program Files\WindowsPowerShell\Modules\Pester"
         if(Test-Path $module) {
@@ -128,11 +129,11 @@ if($target -eq "test") {
             icacls $module /grant Administrators:'F' /inheritance:d /T
             Remove-Item -Path $module -Recurse -Force -Confirm:$false
         }
-        Install-Module -Force -Name Pester -MaximumVersion 5.0.2
+        Install-Module -Force -Name Pester -MaximumVersion 5.3.3
     }
 
     Import-Module Pester
-    $configuration = [PesterConfiguration]@{}
+    $configuration = [PesterConfiguration]::Default
     $configuration.Run.PassThru = $true
     $configuration.Run.Path = '.\tests'
     $configuration.Run.Exit = $true

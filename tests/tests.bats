@@ -32,7 +32,7 @@ ARCH=${ARCH:-x86_64}
   assert_equal "${output}" "UTF-8"
 }
 
-@test "[${SUT_IMAGE}] image has bash and java installed and in the PATH" {
+@test "[${SUT_IMAGE}] image has bash, curl, ssh and java installed and in the PATH" {
   local cid
   cid="$(docker run -d -it -P "${SUT_IMAGE}" /bin/bash)"
 
@@ -42,10 +42,21 @@ ARCH=${ARCH:-x86_64}
   assert_success
   run docker exec "${cid}" bash --version
   assert_success
+
+  run docker exec "${cid}" sh -c "command -v curl"
+  assert_success
+  run docker exec "${cid}" curl --version
+  assert_success
+
   run docker exec "${cid}" sh -c "command -v java"
   assert_success
 
-  run docker exec "${cid}" sh -c "java -version"
+  run docker exec "${cid}" java -version
+  assert_success
+
+  run docker exec "${cid}" sh -c "command -v ssh"
+  assert_success
+  run docker exec "${cid}" ssh -V
   assert_success
 
   run docker exec "${cid}" sh -c "printenv | grep AGENT_WORKDIR"
@@ -72,10 +83,15 @@ ARCH=${ARCH:-x86_64}
   cleanup "$cid"
 }
 
+@test "[${SUT_IMAGE}] Another user 'root' or 'jenkins' is able to start an agent process" {
+  run docker run --rm --user=2222:2222 --entrypoint='' "${SUT_IMAGE}" java -cp /usr/share/jenkins/agent.jar hudson.remoting.jnlp.Main -version
+  assert_success
+}
+
 @test "[${SUT_IMAGE}] use build args correctly" {
   cd "${BATS_TEST_DIRNAME}"/.. || false
 
-  local TEST_VERSION="3.36"
+  local TEST_VERSION="3025.vf64a_a_3da_6b_55" # Older version, must work with JDK11 and JDK17 and should contain https://github.com/jenkinsci/remoting/pull/532
   local TEST_USER="test-user"
   local TEST_GROUP="test-group"
   local TEST_UID=2000
@@ -102,12 +118,8 @@ docker buildx bake \
 
   is_agent_container_running "${cid}"
 
-  # TODO https://github.com/jenkinsci/remoting/pull/481
-  # Current line is: 'A terminally deprecated method in java.lang.System has been called'
-  if [[ $IMAGE != *"17"* ]]; then
-    run docker exec "${cid}" sh -c "java -cp /usr/share/jenkins/agent.jar hudson.remoting.jnlp.Main -version"
-    assert_line --index 0 "${TEST_VERSION}"
-  fi
+  run docker exec "${cid}" sh -c "java -cp /usr/share/jenkins/agent.jar hudson.remoting.jnlp.Main -version"
+  assert_line --index 0 "${TEST_VERSION}"
 
   run docker exec "${cid}" sh -c "id -u -n ${TEST_USER}"
   assert_line --index 0 "${TEST_USER}"
@@ -134,6 +146,25 @@ docker buildx bake \
   assert_success
 
   run docker exec "${cid}" touch /home/test-user/something/a
+  assert_success
+
+  cleanup "$cid"
+}
+
+@test "[${SUT_IMAGE}] 'tzdata' is correctly installed" {
+  local cid
+  cid="$(docker run -d -it -P "${SUT_IMAGE}" /bin/bash)"
+
+  is_agent_container_running "${cid}"
+
+  run docker exec "${cid}" sh -c "command -v zdump"
+  assert_success
+  run docker exec "${cid}" zdump --version
+  assert_success
+
+  run docker exec "${cid}" sh -c "command -v zic"
+  assert_success
+  run docker exec "${cid}" zic --version
   assert_success
 
   cleanup "$cid"

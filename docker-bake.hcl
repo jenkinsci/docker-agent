@@ -1,10 +1,8 @@
 group "linux" {
   targets = [
-    "alpine_jdk8",
     "alpine_jdk11",
     "alpine_jdk17",
     "archlinux_jdk11",
-    "debian_jdk8",
     "debian_jdk11",
     "debian_jdk17",
   ]
@@ -17,14 +15,17 @@ group "linux-arm64" {
   ]
 }
 
+group "linux-arm32" {
+  targets = [
+    "debian_jdk11",
+    "debian_jdk17"
+  ]
+}
+
 group "linux-s390x" {
   targets = [
     "debian_jdk11",
   ]
-}
-
-group "linux-ppc64le" {
-  targets = []
 }
 
 group "windows" {
@@ -34,7 +35,7 @@ group "windows" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "4.3"
+  default = "3085.vc4c6977c075a"
 }
 
 variable "REGISTRY" {
@@ -46,7 +47,7 @@ variable "JENKINS_REPO" {
 }
 
 variable "BUILD_NUMBER" {
-  default = "6"
+  default = "1"
 }
 
 variable "ON_TAG" {
@@ -54,7 +55,7 @@ variable "ON_TAG" {
 }
 
 variable "ALPINE_FULL_TAG" {
-  default = "3.15.0"
+  default = "3.16.2"
 }
 
 variable "ALPINE_SHORT_TAG" {
@@ -74,24 +75,6 @@ target "archlinux_jdk11" {
     "${REGISTRY}/${JENKINS_REPO}:latest-archlinux",
     "${REGISTRY}/${JENKINS_REPO}:archlinux-jdk11",
     "${REGISTRY}/${JENKINS_REPO}:latest-archlinux-jdk11",
-  ]
-  platforms = ["linux/amd64"]
-}
-
-target "alpine_jdk8" {
-  dockerfile = "8/alpine/Dockerfile"
-  context = "."
-  args = {
-    ALPINE_TAG = ALPINE_FULL_TAG
-    VERSION = REMOTING_VERSION
-  }
-  tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk8": "",
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk8": "",
-    "${REGISTRY}/${JENKINS_REPO}:alpine-jdk8",
-    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk8",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk8",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk8",
   ]
   platforms = ["linux/amd64"]
 }
@@ -130,26 +113,10 @@ target "alpine_jdk17" {
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk17": "",
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk17": "",
-    "${REGISTRY}/${JENKINS_REPO}:alpine-jdk17-preview",
-    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk17-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk17-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk17-preview",
-  ]
-  platforms = ["linux/amd64"]
-}
-
-target "debian_jdk8" {
-  dockerfile = "8/bullseye/Dockerfile"
-  context = "."
-  args = {
-    VERSION = REMOTING_VERSION
-  }
-  tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk8": "",
-    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk8",
-    "${REGISTRY}/${JENKINS_REPO}:jdk8",
-    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk8",
-    "${REGISTRY}/${JENKINS_REPO}:latest-jdk8",
+    "${REGISTRY}/${JENKINS_REPO}:alpine-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk17",
   ]
   platforms = ["linux/amd64"]
 }
@@ -169,21 +136,21 @@ target "debian_jdk11" {
     "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk11",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk11",
   ]
-  platforms = ["linux/amd64", "linux/arm64", "linux/s390x"]
+  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/s390x"]
 }
 
 target "debian_jdk17" {
   dockerfile = "17/bullseye/Dockerfile"
   context = "."
   args = {
-    VERSION = REMOTING_VERSION
+    VERSION = REMOTING_VERSION,
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk17-preview": "",
-    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk17-preview",
-    "${REGISTRY}/${JENKINS_REPO}:jdk17-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk17-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-jdk17-preview",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk17": "",
+    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:latest-jdk17",
   ]
-  platforms = ["linux/amd64", "linux/arm64"]
+  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7"]
 }

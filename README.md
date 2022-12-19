@@ -63,23 +63,55 @@ The image has several supported configurations, which can be accessed via the fo
 
 * Linux Images:
   * `latest` (`jdk11`, `bullseye-jdk11`, `latest-bullseye-jdk11`, `latest-jdk11`): Latest version with the newest remoting and Java 11 (based on `debian:bullseye-${builddate}`)
-  * `latest-jdk8` (`jdk8`, `bullseye-jdk8`, `latest-bullseye-jdk8`): Latest version with the newest remoting (based on `debian:bullseye-${builddate}`)
   * `alpine` (`alpine-jdk11`, `latest-alpine`, `latest-alpine-jdk11`): Small image based on Alpine Linux (based on `alpine:${version}`)
-  * `alpine-jdk8` (`latest-alpine-jdk8`): Small image based on Alpine Linux (based on `alpine:${version}`)
   * `archlinux` (`latest-archlinux`, `archlinux-jdk11`, `latest-archlinux-jdk11`): Image based on Arch Linux with JDK11 (based on `archlinux:latest`)
-  * `bullseye-jdk17-preview` (`jdk17-preview`, `latest-bullseye-jdk17-preview`, `latest-jdk17-preview`): Preview JDK17 version with the newest remoting (based on `debian:bullseye-${builddate}`)
+  * `bullseye-jdk17` (`jdk17`, `latest-bullseye-jdk17`, `latest-jdk17`): JDK17 version with the newest remoting (based on `debian:bullseye-${builddate}`)
 
-From version 4.11.2, the alpine images are tagged using the alpine OS version as well (i.e. `alpine` ==> `alpine3.15`, `alpine-jdk8` ==> `alpine3.15-jdk8`).
+From version 4.11.2, the alpine images are tagged using the alpine OS version as well (i.e. `alpine` ==> `alpine3.16`, `alpine-jdk11` ==> `alpine3.16-jdk11`).
 
 * Windows Images:
-  * `jdk8-windowsservercore-1809`: Latest version with the newest remoting and Java 8 (based on `eclipse-temurin:8.xxx-jdk-windowsservercore-1809`)
-  * `jdk8-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 8 (based on `eclipse-temurin:8.xxx-jdk-nanoserver-1809`)
-  * `jdk11-windowsservercore-1809`: Latest version with the newest remoting and Java 11 (based on `eclipse-temurin:11.xxx-jdk-windowsservercore-1809`)
+  * `jdk11-windowsservercore-ltsc2019`: Latest version with the newest remoting and Java 11 (based on `eclipse-temurin:11.xxx-jdk-windowsservercore-ltsc2019`)
   * `jdk11-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 11 (based on `eclipse-temurin:11.xxx-jdk-nanoserver-1809`)
-  * `jdk17-windowsservercore-1809`: Latest version with the newest remoting and Java 17 (based on `eclipse-temurin:17.xxx-jdk-windowsservercore-1809`)
+  * `jdk17-windowsservercore-ltsc2019`: Latest version with the newest remoting and Java 17 (based on `eclipse-temurin:17.xxx-jdk-windowsservercore-ltsc2019`)
   * `jdk17-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 17 (based on `eclipse-temurin:17.xxx-jdk-nanoserver-1809`)
 
 The file `docker-bake.hcl` defines all the configuration for Linux images and their associated tags.
 
 There are also versioned tags in DockerHub, and they are recommended for production use.
 See the full list [here](https://hub.docker.com/r/jenkins/agent/tags)
+
+## Timezones
+
+### Using directly the `jenkins/agent` image
+
+By default, the image is using the `Etc/UTC` timezone.
+If you want to use the timezone of your machine, you can mount the `/etc/localtime` file from the host (as per [this comment](https://github.com/moby/moby/issues/12084#issuecomment-89697533)) and the `/etc/timezone` from the host too.
+In this example, the machine is using the `Europe/Paris` timezone.
+
+```bash
+docker run --rm --tty --interactive --entrypoint=date --volume=/etc/localtime:/etc/localtime:ro --volume=/etc/timezone:/etc/timezone:ro jenkins/agent
+Fri Nov 25 18:27:22 CET 2022
+```
+
+You can also set the `TZ` environment variable to the desired timezone.
+`TZ` is a standard POSIX environment variable used by many images, see [Wikipedia](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for a list of valid values.
+The next command is run on a machine using the `Europe/Paris` timezone a few seconds after the previous one.
+
+```bash
+docker run --rm --tty --interactive --env TZ=Asia/Shanghai --entrypoint=date jenkins/agent
+Sat Nov 26 01:27:58 CST 2022 
+```
+
+### Using the `jenkins/agent` image as a base image
+
+Should you want to adapt the `jenkins/agent` image to your local timezone while creating your own image based on it, you could use the following command (inspired by issue #[291](https://github.com/jenkinsci/docker-inbound-agent/issues/291)):
+
+```dockerfile
+FROM jenkins/agent as agent
+ [...]
+ENV TZ=Asia/Shanghai
+ [...]
+RUN ln -snf /usr/share/zoneinfo/"${TZ}" /etc/localtime && echo "${TZ}" > /etc/timezone \
+    && dpkg-reconfigure -f noninteractive tzdata \
+ [...] 
+```

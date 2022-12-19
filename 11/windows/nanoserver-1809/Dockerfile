@@ -21,15 +21,15 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-ARG JAVA_VERSION="11.0.14.1_1"
-FROM eclipse-temurin:${JAVA_VERSION}-jdk-windowsservercore-1809 AS core
+ARG JAVA_VERSION=11.0.17_8
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-1809 AS core
 
 # If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
 # use the 'latest'
 ARG POWERSHELL_VERSION=
-FROM mcr.microsoft.com/powershell:${POWERSHELL_VERSION}nanoserver-1809
+FROM mcr.microsoft.com/powershell:"${POWERSHELL_VERSION}nanoserver-1809"
 
-ARG JAVA_VERSION
+ARG JAVA_VERSION=11.0.17_8
 ARG JAVA_HOME="C:\openjdk-11"
 
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
@@ -40,16 +40,16 @@ COPY --from=core $JAVA_HOME $JAVA_HOME
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 USER ContainerAdministrator
 
-ARG GIT_VERSION=2.33.1
-ARG GIT_PATCH_VERSION=1
+ARG GIT_VERSION=2.37.2
+ARG GIT_PATCH_VERSION=2
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
-    $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
+    $url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}.{1}-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION) ; `
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest $url -OutFile 'mingit.zip' -UseBasicParsing ; `
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
     Remove-Item mingit.zip -Force
 
-ARG GIT_LFS_VERSION=3.0.2
+ARG GIT_LFS_VERSION=3.1.4
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     $url = $('https://github.com/git-lfs/git-lfs/releases/download/v{0}/git-lfs-windows-amd64-v{0}.zip' -f $env:GIT_LFS_VERSION) ; `
     Write-Host "Retrieving $url..." ; `
@@ -79,8 +79,7 @@ ARG AGENT_WORKDIR=${AGENT_ROOT}/Work
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 
 # Get the Agent from the Jenkins Artifacts Repository
-ARG VERSION=4.12
-LABEL Description="This is a base image, which provides the Jenkins agent executable (agent.jar)" Vendor="Jenkins project" Version="${VERSION}"
+ARG VERSION=3085.vc4c6977c075a
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar' -f $env:VERSION) -OutFile $(Join-Path C:/ProgramData/Jenkins $env:AGENT_FILENAME) -UseBasicParsing ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar.sha1' -f $env:VERSION) -OutFile (Join-Path C:/ProgramData/Jenkins $env:AGENT_HASH_FILENAME) -UseBasicParsing ; `
@@ -92,9 +91,11 @@ USER $user
 RUN New-Item -Type Directory $('{0}/.jenkins' -f $env:AGENT_ROOT) | Out-Null ; `
     New-Item -Type Directory $env:AGENT_WORKDIR | Out-Null
 
-VOLUME ${AGENT_ROOT}/.jenkins
-VOLUME ${AGENT_WORKDIR}
-WORKDIR ${AGENT_ROOT}
+RUN git config --global core.longpaths true
+
+VOLUME "${AGENT_ROOT}/.jenkins"
+VOLUME "${AGENT_WORKDIR}"
+WORKDIR "${AGENT_ROOT}"
 
 LABEL `
     org.opencontainers.image.vendor="Jenkins project" `
