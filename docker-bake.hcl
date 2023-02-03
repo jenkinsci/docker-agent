@@ -35,7 +35,7 @@ group "windows" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "3085.vc4c6977c075a"
+  default = "3107.v665000b_51092"
 }
 
 variable "REGISTRY" {
