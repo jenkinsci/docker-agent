@@ -1,0 +1,151 @@
+---
+name: Bump Git version on Windows
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  lastVersion:
+    kind: githubrelease
+    name: Get the latest Git version
+    spec:
+      owner: "git-for-windows"
+      repository: "git"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versionfilter:
+        kind: regex
+        ## Latest stable v{x.y.z}.windows.<patch>
+        pattern: 'v(\d*)\.(\d*)\.(\d*)\.windows\.(\d*)$'
+    transformers:
+      - trimprefix: "v"
+
+targets:
+  ############# JDK11 Nanoserver 18.09
+  setGitVersionJDK11WindowsNanoserver1809:
+    name: Update the Git Windows version for JDK11 Windows Nanoserver 1809
+    transformers:
+      - findsubmatch:
+          pattern: '(.*).windows\.(\d*)$'
+          captureindex: 1
+    kind: dockerfile
+    spec:
+      file: 11/windows/nanoserver-1809/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: GIT_VERSION
+    scmid: default
+  setGitPackagePatchJDK11WindowsNanoserver1809:
+    name: Update the Git Package Windows patch for JDK11 Windows Nanoserver 1809
+    transformers:
+      - findsubmatch:
+          pattern: '(.*).windows\.(\d*)$'
+          captureindex: 2
+    kind: dockerfile
+    spec:
+      file: 11/windows/nanoserver-1809/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: GIT_PATCH_VERSION
+    scmid: default
+  ############# JDK11 Windows Server Core LTSC2019
+  setGitVersionJDK11WindowsServer2019:
+    name: Update the Git Windows version for JDK11 Windows Server Core LTSC2019
+    transformers:
+      - findsubmatch:
+          pattern: '(.*).windows\.(\d*)$'
+          captureindex: 1
+    kind: dockerfile
+    spec:
+      file: 11/windows/windowsservercore-ltsc2019/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: GIT_VERSION
+    scmid: default
+  setGitPackagePatchJDK11WindowsServer2019:
+    name: Update the Git Package Windows patch for Windows Server Core LTSC2019
+    transformers:
+      - findsubmatch:
+          pattern: '(.*).windows\.(\d*)$'
+          captureindex: 2
+    kind: dockerfile
+    spec:
+      file: 11/windows/windowsservercore-ltsc2019/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: GIT_PATCH_VERSION
+    scmid: default
+  ############# JDK17 Nanoserver 18.09
+  setGitVersionJDK17WindowsNanoserver1809:
+    name: Update the Git Windows version for JDK17 Windows Nanoserver 1809
+    transformers:
+      - findsubmatch:
+          pattern: '(.*).windows\.(\d*)$'
+          captureindex: 1
+    kind: dockerfile
+    spec:
+      file: 17/windows/nanoserver-1809/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: GIT_VERSION
+    scmid: default
+  setGitPackagePatchJDK17WindowsNanoserver1809:
+    name: Update the Git Package Windows patch for JDK17 Windows Nanoserver 1809
+    transformers:
+      - findsubmatch:
+          pattern: '(.*).windows\.(\d*)$'
+          captureindex: 2
+    kind: dockerfile
+    spec:
+      file: 17/windows/nanoserver-1809/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: GIT_PATCH_VERSION
+    scmid: default
+  ############# JDK17 Windows Server Core LTSC2019
+  setGitVersionJDK17WindowsServer2019:
+    name: Update the Git Windows version for JDK17 Windows Server Core LTSC2019
+    transformers:
+      - findsubmatch:
+          pattern: '(.*).windows\.(\d*)$'
+          captureindex: 1
+    kind: dockerfile
+    spec:
+      file: 17/windows/windowsservercore-ltsc2019/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: GIT_VERSION
+    scmid: default
+  setGitPackagePatchJDK17WindowsServer2019:
+    name: Update the Git Package Windows patch for JDK17 Windows Server Core LTSC2019
+    transformers:
+      - findsubmatch:
+          pattern: '(.*).windows\.(\d*)$'
+          captureindex: 2
+    kind: dockerfile
+    spec:
+      file: 17/windows/windowsservercore-ltsc2019/Dockerfile
+      instruction:
+        keyword: ARG
+        matcher: GIT_PATCH_VERSION
+    scmid: default
+
+actions:
+  default:
+    kind: github/pullrequest
+    title: Bump Git version on Windows to {{ source "lastVersion" }}
+    scmid: default
+    spec:
+      labels:
+        - enhancement
+        - git
+        - windows
