@@ -43,7 +43,7 @@ RUN if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
   else cp -r /opt/java/openjdk /javaruntime; \
   fi
 
-FROM debian:bullseye-20230202 AS build
+FROM debian:bullseye-20230208 AS build
 
 ARG VERSION=3107.v665000b_51092
 ARG user=jenkins
