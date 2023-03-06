@@ -45,7 +45,6 @@ RUN if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
 
 FROM debian:bullseye-20230208 AS build
 
-ARG VERSION=3107.v665000b_51092
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
@@ -57,7 +56,7 @@ RUN groupadd -g "${gid}" "${group}" \
 ARG AGENT_WORKDIR=/home/"${user}"/agent
 ENV TZ=Etc/UTC
 
-## Always use the latest Alpine packages: no need for versions
+## Always use the latest Debian packages: no need for versions
 # hadolint ignore=DL3008
 RUN apt-get update \
   && apt-get --yes --no-install-recommends install \
