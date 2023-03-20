@@ -31,6 +31,7 @@ group "linux-s390x" {
 group "linux-ppc64le" {
   targets = [
     "debian_jdk11",
+    "debian_jdk17",
   ]
 }
 
@@ -158,5 +159,5 @@ target "debian_jdk17" {
     "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk17",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk17",
   ]
-  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7"]
+  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le"]
 }
