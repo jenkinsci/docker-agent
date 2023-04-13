@@ -120,6 +120,7 @@ if($target -eq "test") {
 
     # Only fail the run afterwards in case of any test failures
     $testFailed = $false
+    Get-PackageProvider NuGet -ForceBootstrap
     $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.3.0 -MaximumVersion 5.3.3 -ErrorAction SilentlyContinue
     if($null -eq $mod) {
         $module = "c:\Program Files\WindowsPowerShell\Modules\Pester"
