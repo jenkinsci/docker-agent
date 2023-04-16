@@ -65,7 +65,7 @@ RUN mkdir /home/"${user}"/.jenkins && mkdir -p "${AGENT_WORKDIR}"
 VOLUME /home/"${user}"/.jenkins
 VOLUME "${AGENT_WORKDIR}"
 WORKDIR /home/"${user}"
-
+ENV user=${user}
 LABEL \
     org.opencontainers.image.vendor="Jenkins project" \
     org.opencontainers.image.title="Official Jenkins Agent Base Docker image" \

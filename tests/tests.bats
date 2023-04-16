@@ -169,3 +169,7 @@ docker buildx bake \
 
   cleanup "$cid"
 }
+
+@test "[${SUT_IMAGE}] default user is exposed in the environment" {
+  docker inspect --format '{{ .Config.Env }}' "${SUT_IMAGE}" | grep 'user=jenkins'
+}
