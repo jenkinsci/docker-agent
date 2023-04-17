@@ -34,7 +34,7 @@ RUN jlink \
   --compress=2 \
   --output /javaruntime
 
-FROM archlinux:base-20230319.0.135218
+FROM archlinux:base-20230409.0.141585
 
 ARG user=jenkins
 ARG group=jenkins
