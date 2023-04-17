@@ -80,10 +80,16 @@ Describe "[$global:JDK $global:FLAVOR] image has correct applications in the PAT
         }
     }
 
-    It 'has AGENT_WORKDIR in the envrionment' {
+    It 'has AGENT_WORKDIR in the environment' {
         $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "exec $global:AGENT_CONTAINER $global:SHELL -C `"Get-ChildItem env:`""
         $exitCode | Should -Be 0
         $stdout.Trim() | Should -Match "AGENT_WORKDIR.*C:/Users/jenkins/Work"
+    }
+
+    It 'has user in the environment' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "exec $global:AGENT_CONTAINER $global:SHELL -C `"Get-ChildItem env:`""
+        $exitCode | Should -Be 0
+        $stdout.Trim() | Should -Match "user.*jenkins"
     }
 
     AfterAll {
