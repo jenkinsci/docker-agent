@@ -2,7 +2,6 @@
 Param(
     [Parameter(Position=1)]
     [String] $Target = "build",
-    [String] $AdditionalArgs = '',
     [String] $Build = '',
     [String] $RemotingVersion = '3107.v665000b_51092',
     [String] $BuildNumber = '1',
@@ -10,6 +9,7 @@ Param(
     [switch] $DisableEnvProps = $false
 )
 
+$ErrorActionPreference = "Stop"
 $Repository = 'agent'
 $Organization = 'jenkins'
 
@@ -36,49 +36,68 @@ if(![String]::IsNullOrWhiteSpace($env:REMOTING_VERSION)) {
     $RemotingVersion = $env:REMOTING_VERSION
 }
 
+# Check for required commands
+Function Test-CommandExists {
+    # From https://devblogs.microsoft.com/scripting/use-a-powershell-function-to-see-if-a-command-exists/
+    Param (
+        [String] $command
+    )
+
+    $oldPreference = $ErrorActionPreference
+    $ErrorActionPreference = 'stop'
+    try {
+        if(Get-Command $command){
+            Write-Debug "$command exists"
+        }
+    }
+    Catch {
+        "$command does not exist"
+    }
+    Finally {
+        $ErrorActionPreference=$oldPreference
+    }
+}
+
 # this is the jdk version that will be used for the 'bare tag' images, e.g., jdk8-windowsservercore-1809 -> windowsserver-1809
-$defaultBuild = '11'
+$defaultJdk = '11'
 $builds = @{}
 $env:REMOTING_VERSION = "$RemotingVersion"
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
 
-# Ensures that docker-compose is present
-# Docker-compose v2 does not works and prints a "not implemented" message (tested with 2.0.1)
-$dockerComposeBin = "C:\tools\docker-compose.exe"
-if (-not(Test-Path -Path $dockerComposeBin)) {
-    Invoke-WebRequest "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Windows-x86_64.exe" -OutFile "$dockerComposeBin"
-}
-& "$dockerComposeBin" --version
+Test-CommandExists "docker"
+Test-CommandExists "docker-compose"
+Test-CommandExists "yq"
 
-Get-ChildItem -Recurse -Include windows -Directory | ForEach-Object {
-    Get-ChildItem -Directory -Path $_ | Where-Object { Test-Path (Join-Path $_.FullName "Dockerfile") } | ForEach-Object {
-        $dir = $_.FullName.Replace((Get-Location), "").TrimStart("\")
-        $items = $dir.Split("\")
-        $jdkVersion = $items[0]
-        $baseImage = $items[2]
-        $basicTag = "jdk${jdkVersion}-${baseImage}"
-        $versionTag = "${RemotingVersion}-${BuildNumber}-${basicTag}"
-        $tags = @( $basicTag, $versionTag )
-        if($jdkVersion -eq $defaultBuild) {
-            $tags += $baseImage
-        }
+$baseDockerCmd = 'docker-compose --file=build-windows.yaml'
+$baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
-        $builds[$basicTag] = @{
-            'Folder' = $dir;
-            'Tags' = $tags;
-        }
+Invoke-Expression "$baseDockerCmd config --services" 2>NULL | ForEach-Object {
+    $image = $_
+    $items = $image.Split("-")
+    $jdkMajorVersion = $items[0].Remove(0,3)
+    $windowsType = $items[1]
+    $windowsVersion = $items[2]
+
+    $baseImage = "${windowsType}-${windowsVersion}"
+    $versionTag = "${RemotingVersion}-${BuildNumber}-${image}"
+    $tags = @( $image, $versionTag )
+    if($jdkMajorVersion -eq "$defaultJdk") {
+        $tags += $baseImage
+    }
+
+    $builds[$image] = @{
+        'Tags' = $tags;
     }
 }
 
-# Prebuild in parallel all images to populate the cache
-Write-Host "BUILD: Starting Docker Compose General Build"
-& "$dockerComposeBin" --file=build-windows.yaml build --parallel --pull
-Write-Host "BUILD: Finished Docker Compose General Build"
+function Tag-Image {
+    param (
+        [String] $ImageName
+    )
 
-if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-    foreach($tag in $builds[$Build]['Tags']) {
-        Write-Host "BUILD: Building $Build => tag=$tag"
-        $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$Build]['Folder']
+    foreach($tag in $builds[$ImageName]['Tags']) {
+        Write-Host "= BUILD: Tagging $ImageName => tag=$tag"
+        $cmd = "docker tag {0} {1}" -f $ImageName, $tag
         Invoke-Expression $cmd
 
         if($PushVersions) {
@@ -86,28 +105,27 @@ if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)
             if($tag -eq 'latest') {
                 $buildTag = "$RemotingVersion-$BuildNumber"
             }
-            Write-Host "BUILD: Building $Build => tag=$buildTag"
-            $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$Build]['Folder']
+            Write-Host "= BUILD: Tagging $ImageName => tag=$buildTag"
+            $cmd = "docker tag {0} {1}" -f $ImageName, $buildTag
             Invoke-Expression $cmd
         }
     }
-} else {
-    foreach($b in $builds.Keys) {
-        foreach($tag in $builds[$b]['Tags']) {
-            Write-Host "BUILD: Building $b => tag=$tag"
-            $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $tag, $AdditionalArgs, $builds[$b]['Folder']
-            Invoke-Expression $cmd
+}
 
-            if($PushVersions) {
-                $buildTag = "$RemotingVersion-$BuildNumber-$tag"
-                if($tag -eq 'latest') {
-                    $buildTag = "$RemotingVersion-$BuildNumber"
-                }
-                Write-Host "BUILD: Building $Build => tag=$buildTag"
-                $cmd = "docker build --build-arg VERSION='$RemotingVersion' -t {0}/{1}:{2} {3} {4}" -f $Organization, $Repository, $buildTag, $AdditionalArgs, $builds[$b]['Folder']
-                Invoke-Expression $cmd
-            }
-        }
+if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
+    Write-Host "= BUILD: Building image ${Build}..."
+    $dockerBuildCmd = '{0} {1}' -f $baseDockerBuildCmd, $Build
+    Invoke-Expression $dockerBuildCmd
+    Write-Host "= BUILD: Finished building image ${Build}"
+
+    Tag-Image $Build
+} else {
+    Write-Host "= BUILD: Building all images..."
+    Invoke-Expression $baseDockerBuildCmd
+    Write-Host "= BUILD: Finished building all image"
+
+    foreach($image in $builds.Keys) {
+        Tag-Image $image
     }
 }
 
@@ -115,13 +133,43 @@ if($lastExitCode -ne 0) {
     exit $lastExitCode
 }
 
+function Test-Image {
+    param (
+        $ImageName
+    )
+
+    Write-Host "= TEST: Testing image ${ImageName}:"
+
+    $env:AGENT_IMAGE = $ImageName
+    $env:IMAGE_FOLDER = Invoke-Expression "$baseDockerCmd config" 2>NULL |  yq -r ".services.${ImageName}.build.context"
+    $env:VERSION = "$RemotingVersion-$BuildNumber"
+
+
+    if(Test-Path ".\target\$ImageName") {
+        Remove-Item -Recurse -Force ".\target\$ImageName"
+    }
+    New-Item -Path ".\target\$ImageName" -Type Directory | Out-Null
+    $configuration.TestResult.OutputPath = ".\target\$ImageName\junit-results.xml"
+    $TestResults = Invoke-Pester -Configuration $configuration
+    if ($TestResults.FailedCount -gt 0) {
+        Write-Host "There were $($TestResults.FailedCount) failed tests in $ImageName"
+        $testFailed = $true
+    } else {
+        Write-Host "There were $($TestResults.PassedCount) passed tests out of $($TestResults.TotalCount) in $ImageName"
+    }
+    Remove-Item env:\AGENT_IMAGE
+    Remove-Item env:\IMAGE_FOLDER
+    Remove-Item env:\VERSION
+}
+
 if($target -eq "test") {
-    Write-Host "BUILD: Starting test harness"
+    Write-Host "= TEST: Starting test harness"
 
     # Only fail the run afterwards in case of any test failures
     $testFailed = $false
     $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.3.0 -MaximumVersion 5.3.3 -ErrorAction SilentlyContinue
     if($null -eq $mod) {
+        Write-Host "= TEST: Pester 5.3.x not found: installing..."
         $module = "c:\Program Files\WindowsPowerShell\Modules\Pester"
         if(Test-Path $module) {
             takeown /F $module /A /R
@@ -133,6 +181,7 @@ if($target -eq "test") {
     }
 
     Import-Module Pester
+    Write-Host "= TEST: Setting up Pester environment..."
     $configuration = [PesterConfiguration]::Default
     $configuration.Run.PassThru = $true
     $configuration.Run.Path = '.\tests'
@@ -143,42 +192,10 @@ if($target -eq "test") {
     $configuration.CodeCoverage.Enabled = $false
 
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-        $folder = $builds[$Build]['Folder']
-        $env:FOLDER = $folder
-        $env:VERSION = "$RemotingVersion-$BuildNumber"
-        if(Test-Path ".\target\$folder") {
-            Remove-Item -Recurse -Force ".\target\$folder"
-        }
-        New-Item -Path ".\target\$folder" -Type Directory | Out-Null
-        $configuration.TestResult.OutputPath = ".\target\$folder\junit-results.xml"
-        $TestResults = Invoke-Pester -Configuration $configuration
-        if ($TestResults.FailedCount -gt 0) {
-            Write-Host "There were $($TestResults.FailedCount) failed tests in $Build"
-            $testFailed = $true
-        } else {
-            Write-Host "There were $($TestResults.PassedCount) passed tests out of $($TestResults.TotalCount) in $Build"
-        }
-        Remove-Item env:\FOLDER
-        Remove-Item env:\VERSION
+        Test-Image $Build
     } else {
-        foreach($b in $builds.Keys) {
-            $folder = $builds[$b]['Folder']
-            $env:FOLDER = $folder
-            $env:VERSION = "$RemotingVersion-$BuildNumber"
-            if(Test-Path ".\target\$folder") {
-                Remove-Item -Recurse -Force ".\target\$folder"
-            }
-            New-Item -Path ".\target\$folder" -Type Directory | Out-Null
-            $configuration.TestResult.OutputPath = ".\target\$folder\junit-results.xml"
-            $TestResults = Invoke-Pester -Configuration $configuration
-            if ($TestResults.FailedCount -gt 0) {
-                Write-Host "There were $($TestResults.FailedCount) failed tests in $b"
-                $testFailed = $true
-            } else {
-                Write-Host "There were $($TestResults.PassedCount) passed tests out of $($TestResults.TotalCount) in $b"
-            }
-            Remove-Item env:\FOLDER
-            Remove-Item env:\VERSION
+        foreach($image in $builds.Keys) {
+            Test-Image $image
         }
     }
 
