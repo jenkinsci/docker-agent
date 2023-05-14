@@ -70,9 +70,10 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 target "archlinux_jdk11" {
-  dockerfile = "11/archlinux/Dockerfile"
+  dockerfile = "archlinux/Dockerfile"
   context = "."
   args = {
+    JAVA_VERSION = "11.0.19_7"
     VERSION = REMOTING_VERSION
   }
   tags = [
@@ -87,10 +88,11 @@ target "archlinux_jdk11" {
 }
 
 target "alpine_jdk11" {
-  dockerfile = "11/alpine/Dockerfile"
+  dockerfile = "alpine/Dockerfile"
   context = "."
   args = {
     ALPINE_TAG = ALPINE_FULL_TAG
+    JAVA_VERSION = "11.0.19_7"
     VERSION = REMOTING_VERSION
   }
   tags = [
@@ -111,10 +113,11 @@ target "alpine_jdk11" {
 }
 
 target "alpine_jdk17" {
-  dockerfile = "17/alpine/Dockerfile"
+  dockerfile = "alpine/Dockerfile"
   context = "."
   args = {
     ALPINE_TAG = ALPINE_FULL_TAG
+    JAVA_VERSION = "17.0.7_7"
     VERSION = REMOTING_VERSION
   }
   tags = [
@@ -129,9 +132,10 @@ target "alpine_jdk17" {
 }
 
 target "debian_jdk11" {
-  dockerfile = "11/bullseye/Dockerfile"
+  dockerfile = "debian/Dockerfile"
   context = "."
   args = {
+    JAVA_VERSION = "11.0.19_7"
     VERSION = REMOTING_VERSION
   }
   tags = [
@@ -147,9 +151,10 @@ target "debian_jdk11" {
 }
 
 target "debian_jdk17" {
-  dockerfile = "17/bullseye/Dockerfile"
+  dockerfile = "debian/Dockerfile"
   context = "."
   args = {
+    JAVA_VERSION = "17.0.7_7"
     VERSION = REMOTING_VERSION,
   }
   tags = [
