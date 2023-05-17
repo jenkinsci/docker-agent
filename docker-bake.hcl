@@ -69,11 +69,19 @@ variable "ALPINE_SHORT_TAG" {
   default = regex_replace(ALPINE_FULL_TAG, "\\.\\d+$", "")
 }
 
+variable "JAVA11_VERSION" {
+  default = "11.0.19_7"
+}
+
+variable "JAVA17_VERSION" {
+  default = "17.0.7_7"
+}
+
 target "archlinux_jdk11" {
   dockerfile = "archlinux/Dockerfile"
   context = "."
   args = {
-    JAVA_VERSION = "11.0.19_7"
+    JAVA_VERSION = JAVA11_VERSION
     VERSION = REMOTING_VERSION
   }
   tags = [
@@ -92,7 +100,7 @@ target "alpine_jdk11" {
   context = "."
   args = {
     ALPINE_TAG = ALPINE_FULL_TAG
-    JAVA_VERSION = "11.0.19_7"
+    JAVA_VERSION = JAVA11_VERSION
     VERSION = REMOTING_VERSION
   }
   tags = [
@@ -117,7 +125,7 @@ target "alpine_jdk17" {
   context = "."
   args = {
     ALPINE_TAG = ALPINE_FULL_TAG
-    JAVA_VERSION = "17.0.7_7"
+    JAVA_VERSION = JAVA17_VERSION
     VERSION = REMOTING_VERSION
   }
   tags = [
@@ -135,7 +143,7 @@ target "debian_jdk11" {
   dockerfile = "debian/Dockerfile"
   context = "."
   args = {
-    JAVA_VERSION = "11.0.19_7"
+    JAVA_VERSION = JAVA11_VERSION
     VERSION = REMOTING_VERSION
   }
   tags = [
@@ -154,7 +162,7 @@ target "debian_jdk17" {
   dockerfile = "debian/Dockerfile"
   context = "."
   args = {
-    JAVA_VERSION = "17.0.7_7"
+    JAVA_VERSION = JAVA17_VERSION
     VERSION = REMOTING_VERSION,
   }
   tags = [
