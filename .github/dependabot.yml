@@ -3,20 +3,8 @@ version: 2
 updates:
 
 # Alpine Linux
-
 - package-ecosystem: docker
-  directory: "17/alpine"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
-  target-branch: master
-  reviewers:
-  - MarkEWaite
-  labels:
-  - dependencies
-
-- package-ecosystem: docker
-  directory: "11/alpine"
+  directory: "alpine"
   schedule:
     interval: weekly
   open-pull-requests-limit: 2
@@ -29,7 +17,7 @@ updates:
 # Arch Linux
 
 - package-ecosystem: docker
-  directory: "11/archlinux"
+  directory: "archlinux"
   schedule:
     interval: weekly
   open-pull-requests-limit: 2
@@ -42,18 +30,7 @@ updates:
 # Debian Linux
 
 - package-ecosystem: docker
-  directory: "17/bullseye"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
-  target-branch: master
-  reviewers:
-  - MarkEWaite
-  labels:
-  - dependencies
-
-- package-ecosystem: docker
-  directory: "11/bullseye"
+  directory: "debian"
   schedule:
     interval: weekly
   open-pull-requests-limit: 2
@@ -64,7 +41,6 @@ updates:
   - dependencies
 
 # Windows
-
 - package-ecosystem: docker
   directory: "windows/nanoserver-1809"
   schedule:
@@ -75,29 +51,6 @@ updates:
   - slide
   labels:
   - dependencies
-
-- package-ecosystem: docker
-  directory: "windows/windowsservercore-ltsc2019"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
-  target-branch: master
-  reviewers:
-  - slide
-  labels:
-  - dependencies
-
-- package-ecosystem: docker
-  directory: "windows/nanoserver-1809"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
-  target-branch: master
-  reviewers:
-  - slide
-  labels:
-  - dependencies
-
 - package-ecosystem: docker
   directory: "windows/windowsservercore-ltsc2019"
   schedule:
