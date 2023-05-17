@@ -64,41 +64,47 @@ conditions:
       tag: '{{source "lastVersion" }}-jdk-windowsservercore-1809'
 
 targets:
+  setJDK17VersionDockerBake:
+    name: "Bump JDK17 version for Linux images in the docker-bake.hcl file"
+    kind: file
+    spec:
+      file: docker-bake.hcl
+      matchpattern: >-
+        variable(.*)"JAVA17_VERSION"(.*){(.*)(\r\n|\r|\n)(.*)default(.*)=(.*)
+      replacepattern: >-
+        variable${1}"JAVA17_VERSION"${2}{${3}${4}${5}default${6}= "{{ source "lastVersion" }}"
+    scmid: default
   setJDK17VersionAlpine:
-    name: "Bump JDK17 version on Alpine image"
+    name: "Bump JDK17 default ARG version on Alpine Dockerfile"
     kind: dockerfile
     spec:
-      file: 17/alpine/Dockerfile
+      file: alpine/Dockerfile
       instruction:
         keyword: ARG
         matcher: JAVA_VERSION
     scmid: default
   setJDK17VersionDebian:
-    name: "Bump JDK17 version on Debian image"
+    name: "Bump JDK17 default ARG version on Debian Dockerfile"
     kind: dockerfile
     spec:
-      file: 17/bullseye/Dockerfile
+      file: debian/Dockerfile
       instruction:
         keyword: ARG
         matcher: JAVA_VERSION
     scmid: default
   setJDK17VersionWindowsNanoserver1809:
     name: "Bump JDK17 version on Windows Nanoserver 1809 image"
-    kind: dockerfile
+    kind: yaml
     spec:
-      file: 17/windows/nanoserver-1809/Dockerfile
-      instruction:
-        keyword: ARG
-        matcher: JAVA_VERSION
+      file: build-windows.yaml
+      key: services.jdk17-nanoserver-1809.build.args.JAVA_VERSION
     scmid: default
   setJDK17VersionWindowsServerLtsc2019:
     name: "Bump JDK17 version on Windows Server LTSC 2019 image"
-    kind: dockerfile
+    kind: yaml
     spec:
-      file: 17/windows/windowsservercore-ltsc2019/Dockerfile
-      instruction:
-        keyword: ARG
-        matcher: JAVA_VERSION
+      file: build-windows.yaml
+      key: services.jdk17-windowsservercore-ltsc2019.build.args.JAVA_VERSION
     scmid: default
 
 actions:
