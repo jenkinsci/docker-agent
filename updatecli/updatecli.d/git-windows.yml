@@ -39,7 +39,7 @@ targets:
           captureindex: 1
     kind: dockerfile
     spec:
-      file: 11/windows/nanoserver-1809/Dockerfile
+      file: windows/nanoserver-1809/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_VERSION
@@ -52,7 +52,7 @@ targets:
           captureindex: 2
     kind: dockerfile
     spec:
-      file: 11/windows/nanoserver-1809/Dockerfile
+      file: windows/nanoserver-1809/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_PATCH_VERSION
@@ -66,7 +66,7 @@ targets:
           captureindex: 1
     kind: dockerfile
     spec:
-      file: 11/windows/windowsservercore-ltsc2019/Dockerfile
+      file: windows/windowsservercore-ltsc2019/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_VERSION
@@ -79,7 +79,7 @@ targets:
           captureindex: 2
     kind: dockerfile
     spec:
-      file: 11/windows/windowsservercore-ltsc2019/Dockerfile
+      file: windows/windowsservercore-ltsc2019/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_PATCH_VERSION
@@ -93,7 +93,7 @@ targets:
           captureindex: 1
     kind: dockerfile
     spec:
-      file: 17/windows/nanoserver-1809/Dockerfile
+      file: windows/nanoserver-1809/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_VERSION
@@ -106,7 +106,7 @@ targets:
           captureindex: 2
     kind: dockerfile
     spec:
-      file: 17/windows/nanoserver-1809/Dockerfile
+      file: windows/nanoserver-1809/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_PATCH_VERSION
@@ -120,7 +120,7 @@ targets:
           captureindex: 1
     kind: dockerfile
     spec:
-      file: 17/windows/windowsservercore-ltsc2019/Dockerfile
+      file: windows/windowsservercore-ltsc2019/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_VERSION
@@ -133,7 +133,7 @@ targets:
           captureindex: 2
     kind: dockerfile
     spec:
-      file: 17/windows/windowsservercore-ltsc2019/Dockerfile
+      file: windows/windowsservercore-ltsc2019/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_PATCH_VERSION
