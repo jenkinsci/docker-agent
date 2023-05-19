@@ -90,43 +90,15 @@ Invoke-Expression "$baseDockerCmd config --services" 2>NULL | ForEach-Object {
     }
 }
 
-function Tag-Image {
-    param (
-        [String] $ImageName
-    )
-
-    foreach($tag in $builds[$ImageName]['Tags']) {
-        Write-Host "= BUILD: Tagging $ImageName => tag=$tag"
-        $cmd = "docker tag {0} {1}" -f $ImageName, $tag
-        Invoke-Expression $cmd
-
-        if($PushVersions) {
-            $buildTag = "$RemotingVersion-$BuildNumber-$tag"
-            if($tag -eq 'latest') {
-                $buildTag = "$RemotingVersion-$BuildNumber"
-            }
-            Write-Host "= BUILD: Tagging $ImageName => tag=$buildTag"
-            $cmd = "docker tag {0} {1}" -f $ImageName, $buildTag
-            Invoke-Expression $cmd
-        }
-    }
-}
-
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
     Write-Host "= BUILD: Building image ${Build}..."
     $dockerBuildCmd = '{0} {1}' -f $baseDockerBuildCmd, $Build
     Invoke-Expression $dockerBuildCmd
     Write-Host "= BUILD: Finished building image ${Build}"
-
-    Tag-Image $Build
 } else {
     Write-Host "= BUILD: Building all images..."
     Invoke-Expression $baseDockerBuildCmd
     Write-Host "= BUILD: Finished building all image"
-
-    foreach($image in $builds.Keys) {
-        Tag-Image $image
-    }
 }
 
 if($lastExitCode -ne 0) {
@@ -208,14 +180,28 @@ if($target -eq "test") {
     }
 }
 
+function Publish-Image {
+    param (
+        [String] $Build,
+        [String] $ImageName
+    )
+    # foreach($tag in $builds[$ImageName]['Tags']) {
+    #     $fullImageName = '{0}/{1}:{2}' -f $Organization, $Repository, $tag
+    #     $cmd = "docker tag {0} {1}" -f $ImageName, $tag
+    Write-Host "= PUBLISH: Tagging $Build => full name = $ImageName"
+    docker tag "$Build" "$ImageName"
+
+    Write-Host "= PUBLISH: Publishing $ImageName..."
+    docker push "$ImageName"
+}
+
+
 if($target -eq "publish") {
     # Only fail the run afterwards in case of any issues when publishing the docker images
     $publishFailed = 0
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
         foreach($tag in $Builds[$Build]['Tags']) {
-            Write-Host "Publishing $Build => tag=$tag"
-            $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $tag
-            Invoke-Expression $cmd
+            Publish-Image  "$Build" "${Organization}/${Repository}:${tag}"
             if($lastExitCode -ne 0) {
                 $publishFailed = 1
             }
@@ -225,9 +211,7 @@ if($target -eq "publish") {
                 if($tag -eq 'latest') {
                     $buildTag = "$RemotingVersion-$BuildNumber"
                 }
-                Write-Host "Publishing $Build => tag=$buildTag"
-                $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $buildTag
-                Invoke-Expression $cmd
+                Publish-Image "$Build" "${Organization}/${Repository}:${buildTag}"
                 if($lastExitCode -ne 0) {
                     $publishFailed = 1
                 }
@@ -236,9 +220,7 @@ if($target -eq "publish") {
     } else {
         foreach($b in $builds.Keys) {
             foreach($tag in $Builds[$b]['Tags']) {
-                Write-Host "Publishing $b => tag=$tag"
-                $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $tag
-                Invoke-Expression $cmd
+                Publish-Image "$b" "${Organization}/${Repository}:${tag}"
                 if($lastExitCode -ne 0) {
                     $publishFailed = 1
                 }
@@ -248,9 +230,7 @@ if($target -eq "publish") {
                     if($tag -eq 'latest') {
                         $buildTag = "$RemotingVersion-$BuildNumber"
                     }
-                    Write-Host "Publishing $Build => tag=$buildTag"
-                    $cmd = "docker push {0}/{1}:{2}" -f $Organization, $Repository, $buildTag
-                    Invoke-Expression $cmd
+                    Publish-Image "$b" "${Organization}/${Repository}:${buildTag}"
                     if($lastExitCode -ne 0) {
                         $publishFailed = 1
                     }
