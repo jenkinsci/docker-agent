@@ -21,21 +21,18 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-ARG JAVA_VERSION=17.0.7_7
-FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-1809 AS core
-
-# If you pass in a POWERSHELL_VERSION, make sure it ends with a hyphen, leaving it empty will
-# use the 'latest'
-ARG POWERSHELL_VERSION=
-FROM mcr.microsoft.com/powershell:"${POWERSHELL_VERSION}nanoserver-1809"
 
 ARG JAVA_VERSION=17.0.7_7
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-1809 AS jdk-core
+
+FROM mcr.microsoft.com/powershell:nanoserver-1809
+
 ARG JAVA_HOME="C:\openjdk-17"
 
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
-COPY --from=core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
-COPY --from=core /windows/system32/whoami.exe /windows/system32/whoami.exe
-COPY --from=core $JAVA_HOME $JAVA_HOME
+COPY --from=jdk-core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
+COPY --from=jdk-core /windows/system32/whoami.exe /windows/system32/whoami.exe
+COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 USER ContainerAdministrator
