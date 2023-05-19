@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 ARG JAVA_VERSION=17.0.7_7
-ARG ALPINE_TAG=3.17
+ARG ALPINE_TAG=3.17.3
 FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-alpine AS jre-build
 
 RUN if [ "$TARGETPLATFORM" != 'linux/arm/v7' ]; then \
@@ -40,7 +40,7 @@ RUN if [ "$TARGETPLATFORM" != 'linux/arm/v7' ]; then \
     cp -r /opt/java/openjdk /javaruntime; \
   fi
 
-ARG ALPINE_TAG=3.17
+ARG ALPINE_TAG=3.17.3
 FROM alpine:"${ALPINE_TAG}" AS build
 
 ARG user=jenkins
