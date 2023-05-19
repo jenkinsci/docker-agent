@@ -71,7 +71,7 @@ Test-CommandExists "yq"
 $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
-Invoke-Expression "$baseDockerCmd config --services" 2>NULL | ForEach-Object {
+Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
     $image = $_
     $items = $image.Split("-")
     $jdkMajorVersion = $items[0].Remove(0,3)
@@ -113,7 +113,7 @@ function Test-Image {
     Write-Host "= TEST: Testing image ${ImageName}:"
 
     $env:AGENT_IMAGE = $ImageName
-    $env:IMAGE_FOLDER = Invoke-Expression "$baseDockerCmd config" 2>NULL |  yq -r ".services.${ImageName}.build.context"
+    $env:IMAGE_FOLDER = Invoke-Expression "$baseDockerCmd config" 2>$null |  yq -r ".services.${ImageName}.build.context"
     $env:VERSION = "$RemotingVersion-$BuildNumber"
 
 
