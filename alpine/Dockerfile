@@ -40,7 +40,6 @@ RUN if [ "$TARGETPLATFORM" != 'linux/arm/v7' ]; then \
     cp -r /opt/java/openjdk /javaruntime; \
   fi
 
-ARG ALPINE_TAG=3.17.3
 FROM alpine:"${ALPINE_TAG}" AS build
 
 ARG user=jenkins
