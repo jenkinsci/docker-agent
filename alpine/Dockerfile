@@ -20,7 +20,28 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 ARG JAVA_VERSION=17.0.7_7
-FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-alpine
+ARG ALPINE_TAG=3.17.3
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-alpine AS jre-build
+
+RUN if [ "$TARGETPLATFORM" != 'linux/arm/v7' ]; then \
+    case "$(jlink --version 2>&1)" in \
+      # jlink version 11 has less features than JDK17+
+      "11."*) strip_java_debug_flags="--strip-debug" ;; \
+      *) strip_java_debug_flags="--strip-java-debug-attributes" ;; \
+    esac; \
+    jlink \
+      --add-modules ALL-MODULE-PATH \
+      "$strip_java_debug_flags" \
+      --no-man-pages \
+      --no-header-files \
+      --compress=2 \
+      --output /javaruntime; \
+  else \
+    cp -r /opt/java/openjdk /javaruntime; \
+  fi
+
+ARG ALPINE_TAG=3.17.3
+FROM alpine:"${ALPINE_TAG}" AS build
 
 ARG user=jenkins
 ARG group=jenkins
@@ -54,6 +75,11 @@ ARG VERSION=3107.v665000b_51092
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
+
+
+ENV JAVA_HOME=/opt/java/openjdk
+COPY --from=jre-build /javaruntime "$JAVA_HOME"
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 USER "${user}"
 ENV AGENT_WORKDIR="${AGENT_WORKDIR}"
