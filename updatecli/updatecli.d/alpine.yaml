@@ -57,7 +57,16 @@ targets:
         keyword: "ARG"
         matcher: "ALPINE_TAG"
     scmid: default
-
+  updateDockerBake:
+    name: "Update the value of the base image (ARG ALPINE_TAG) in the docker-bake.hcl"
+    kind: file
+    spec:
+      file: docker-bake.hcl
+      matchpattern: >-
+        variable(.*)"ALPINE_FULL_TAG"(.*){(.*)(\r\n|\r|\n)(.*)default(.*)=(.*)
+      replacepattern: >-
+        variable${1}"ALPINE_FULL_TAG"${2}{${3}${4}${5}default${6}= "{{ source "latestVersion" }}"
+    scmid: default
 actions:
   default:
     kind: github/pullrequest
