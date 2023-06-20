@@ -51,6 +51,7 @@ updates:
   - slide
   labels:
   - dependencies
+
 - package-ecosystem: docker
   directory: "windows/windowsservercore-ltsc2019"
   schedule:
