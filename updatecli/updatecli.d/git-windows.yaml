@@ -30,56 +30,54 @@ sources:
       - trimprefix: "v"
 
 targets:
-  ############# Nanoserver 18.09
-  setGitVersionWindowsNanoserver1809:
-    name: Update the Git Windows version for Windows Nanoserver 1809
+  setGitVersionNanoserver:
+    name: Update the Git Windows version for Windows Nanoserver
     transformers:
       - findsubmatch:
           pattern: '(.*).windows\.(\d*)$'
           captureindex: 1
     kind: dockerfile
     spec:
-      file: windows/nanoserver-1809/Dockerfile
+      file: windows/nanoserver/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_VERSION
     scmid: default
-  setGitPackagePatchWindowsNanoserver1809:
-    name: Update the Git Package Windows patch for Windows Nanoserver 1809
+  setGitPackagePatchNanoserver:
+    name: Update the Git Package Windows patch for Windows Nanoserver
     transformers:
       - findsubmatch:
           pattern: '(.*).windows\.(\d*)$'
           captureindex: 2
     kind: dockerfile
     spec:
-      file: windows/nanoserver-1809/Dockerfile
+      file: windows/nanoserver/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_PATCH_VERSION
     scmid: default
-  ############# Windows Server Core LTSC2019
-  setGitVersionWindowsServer2019:
-    name: Update the Git Windows version for Windows Server Core LTSC2019
+  setGitVersionWindowsServerCore:
+    name: Update the Git Windows version for Windows Server Core
     transformers:
       - findsubmatch:
           pattern: '(.*).windows\.(\d*)$'
           captureindex: 1
     kind: dockerfile
     spec:
-      file: windows/windowsservercore-ltsc2019/Dockerfile
+      file: windows/windowsservercore/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_VERSION
     scmid: default
-  setGitPackagePatchWindowsServer2019:
-    name: Update the Git Package Windows patch for Windows Server Core LTSC2019
+  setGitPackagePatchWindowsServerCore:
+    name: Update the Git Package Windows patch for Windows Server Core
     transformers:
       - findsubmatch:
           pattern: '(.*).windows\.(\d*)$'
           captureindex: 2
     kind: dockerfile
     spec:
-      file: windows/windowsservercore-ltsc2019/Dockerfile
+      file: windows/windowsservercore/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_PATCH_VERSION

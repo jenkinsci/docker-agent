@@ -6,7 +6,8 @@ Param(
     [String] $RemotingVersion = '3131.vf2b_b_798b_ce99',
     [String] $BuildNumber = '1',
     [switch] $PushVersions = $false,
-    [switch] $DisableEnvProps = $false
+    [switch] $DisableEnvProps = $false,
+    [String] $BuildFile = 'build-windows-2019.yaml'
 )
 
 $ErrorActionPreference = "Stop"
@@ -68,7 +69,7 @@ Test-CommandExists "docker"
 Test-CommandExists "docker-compose"
 Test-CommandExists "yq"
 
-$baseDockerCmd = 'docker-compose --file=build-windows.yaml'
+$baseDockerCmd = 'docker-compose --file={0}' -f $BuildFile
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
