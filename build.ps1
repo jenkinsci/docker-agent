@@ -161,6 +161,7 @@ if($target -eq "test") {
     $configuration.TestResult.Enabled = $true
     $configuration.TestResult.OutputFormat = 'JUnitXml'
     $configuration.Output.Verbosity = 'Diagnostic'
+    $configuration.Output.RenderMode = 'ANSI'
     $configuration.CodeCoverage.Enabled = $false
 
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
