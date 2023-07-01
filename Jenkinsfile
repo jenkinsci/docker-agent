@@ -8,57 +8,29 @@ pipeline {
 
     stages {
         stage('docker-agent') {
-            failFast true
             matrix {
-                axes { 
-                    axis { 
-                        name 'OS_FAMILY'
-                        values 'linux', 'windows'
-                    }
+                axes {
                     axis {
-                        name 'WINDOWS_VERSION'
-                        values 'none', '2019'
-                    }
-                }
-                excludes {
-                    exclude {
-                        axis {
-                            name 'OS_FAMILY'
-                            values 'linux'
-                        }
-                        axis {
-                            name 'WINDOWS_VERSION'
-                            notValues 'none'
-                        }
-                    }
-                    exclude {
-                        axis {
-                            name 'OS_FAMILY'
-                            values 'windows'
-                        }
-                        axis {
-                            name 'WINDOWS_VERSION'
-                            values 'none'
-                        }
+                        name 'AGENT_TYPE'
+                        values 'linux', 'windows-2019'
                     }
                 }
                 stages {
                     stage('Main') {
                         agent {
-                            label "${env.OS_FAMILY == 'linux' ? 'docker && linux' : (env.WINDOWS_VERSION != '2019' ? "windows-$WINDOWS_VERSION" : 'docker-windows')}"
+                            label env.AGENT_TYPE
                         }
                         options {
-                            timeout(time: "${env.OS_FAMILY == 'linux' ? 30 : 60}", unit: 'MINUTES')
+                            timeout(time: "${env.AGENT_TYPE == 'linux' ? 30 : 60}", unit: 'MINUTES')
                         }
                         environment {
                             DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
-                            BUILD_FILE = "build-windows-${env.WINDOWS_VERSION}.yaml"
-                            WINDOWS_VERSION_TAG = "${env.WINDOWS_VERSION != '2019' ? "windows-$WINDOWS_VERSION" : 'docker-windows'}"
+
                         }
                         stages {
                             stage('Prepare Docker') {
                                 when {
-                                    environment name: 'OS_FAMILY', value: 'linux'
+                                    environment name: 'AGENT_TYPE', value: 'linux'
                                 }
                                 steps {
                                     sh '''
@@ -80,7 +52,7 @@ pipeline {
                                             // If the tests are passing for Linux AMD64, then we can build all the CPU architectures
                                             sh 'docker buildx bake --file docker-bake.hcl linux'
                                         } else {
-                                            powershell "& ./build.ps1 -BuildFile ${env.BUILD_FILE} test"
+                                            powershell "& ./build.ps1 test"
                                         }
                                     }
                                 }
