@@ -70,7 +70,7 @@ targets:
         keyword: ARG
         matcher: VERSION
     scmid: default
-  set11WindowsServer2019DockerImage:
+  setWindowsServer2019DockerImage:
     name: Bump the Jenkins remoting version on Windows Server Core 2019
     kind: dockerfile
     spec:
