@@ -28,6 +28,7 @@ FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-1809 AS jdk-core
 FROM mcr.microsoft.com/powershell:windowsservercore-1809
 
 ARG JAVA_HOME="C:\openjdk-17"
+ENV JAVA_HOME=${JAVA_HOME}
 
 COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
 
