@@ -6,13 +6,13 @@ Param(
     [String] $RemotingVersion = '3131.vf2b_b_798b_ce99',
     [String] $BuildNumber = '1',
     [switch] $PushVersions = $false,
-    [switch] $DisableEnvProps = $false,
-    [String] $BuildFile = 'build-windows-2019.yaml'
+    [switch] $DisableEnvProps = $false
 )
 
 $ErrorActionPreference = "Stop"
 $Repository = 'agent'
 $Organization = 'jenkins'
+$BuildFile = 'build-windows-2019.yaml'
 
 if(!$DisableEnvProps) {
     Get-Content env.props | ForEach-Object {
@@ -35,6 +35,10 @@ if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_ORGANISATION)) {
 
 if(![String]::IsNullOrWhiteSpace($env:REMOTING_VERSION)) {
     $RemotingVersion = $env:REMOTING_VERSION
+}
+
+if(![String]::IsNullOrWhiteSpace($env:AGENT_TYPE)) {
+    $BuildFile = 'build-{0}.yaml' -f $env:AGENT_TYPE
 }
 
 # Check for required commands
