@@ -8,6 +8,7 @@ pipeline {
 
     stages {
         stage('Build') {
+            failFast true
             parallel {
                 stage('Windows') {
                     agent {
