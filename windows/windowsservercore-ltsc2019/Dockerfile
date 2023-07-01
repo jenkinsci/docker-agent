@@ -23,7 +23,14 @@
 #  THE SOFTWARE.
 
 ARG JAVA_VERSION=17.0.7_7
-FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-1809
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-1809 AS jdk-core
+
+FROM mcr.microsoft.com/powershell:windowsservercore-1809
+
+ARG JAVA_HOME="C:\openjdk-17"
+ENV JAVA_HOME=${JAVA_HOME}
+
+COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
@@ -47,7 +54,8 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Remove-Item GitLfs.zip -Force ; `
     & C:\mingit\cmd\git.exe lfs install ; `
     $CurrentPath = (Get-Itemproperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path).Path ; `
-    $NewPath = $CurrentPath + ';C:\mingit\cmd' ; `
+    # Add git and java in PATH
+    $NewPath = $CurrentPath + $(';{0}\bin;C:\mingit\cmd' -f $env:JAVA_HOME) ; `
     Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath
 
 ARG user=jenkins
