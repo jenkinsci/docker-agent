@@ -35,7 +35,7 @@ conditions:
 
 targets:
   setAlpineDockerImage:
-    name: Bump the Jenkins remoting version on JDK11 Alpine
+    name: Bump the Jenkins remoting version on Alpine
     kind: dockerfile
     spec:
       file: alpine/Dockerfile
@@ -44,7 +44,7 @@ targets:
         matcher: VERSION
     scmid: default
   setArchlinuxDockerImage:
-    name: Bump the Jenkins remoting version on JDK11 Archlinux
+    name: Bump the Jenkins remoting version on Archlinux
     kind: dockerfile
     spec:
       file: archlinux/Dockerfile
@@ -53,7 +53,7 @@ targets:
         matcher: VERSION
     scmid: default
   setDebianDockerImage:
-    name: Bump the Jenkins remoting version on JDK11 Debian Bullseye
+    name: Bump the Jenkins remoting version on Debian Bullseye
     kind: dockerfile
     spec:
       file: debian/Dockerfile
@@ -61,8 +61,8 @@ targets:
         keyword: ARG
         matcher: VERSION
     scmid: default
-  setJdk11WindowsNanoserver1809DockerImage:
-    name: Bump the Jenkins remoting version on JDK11 Windows Nanoserver 1809
+  setWindowsNanoserver1809DockerImage:
+    name: Bump the Jenkins remoting version on Windows Nanoserver 1809
     kind: dockerfile
     spec:
       file: windows/nanoserver-1809/Dockerfile
@@ -70,26 +70,8 @@ targets:
         keyword: ARG
         matcher: VERSION
     scmid: default
-  setJdk11WindowsServer2019DockerImage:
-    name: Bump the Jenkins remoting version on JDK11 Windows Server 2019
-    kind: dockerfile
-    spec:
-      file: windows/windowsservercore-ltsc2019/Dockerfile
-      instruction:
-        keyword: ARG
-        matcher: VERSION
-    scmid: default
-  setJdk17WindowsNanoserver1809DockerImage:
-    name: Bump the Jenkins remoting version on JDK17 Windows Nanoserver 1809
-    kind: dockerfile
-    spec:
-      file: windows/nanoserver-1809/Dockerfile
-      instruction:
-        keyword: ARG
-        matcher: VERSION
-    scmid: default
-  setJdk17WindowsServer2019DockerImage:
-    name: Bump the Jenkins remoting version on JDK17 Windows Server 2019
+  setWindowsServer2019DockerImage:
+    name: Bump the Jenkins remoting version on Windows Server Core 2019
     kind: dockerfile
     spec:
       file: windows/windowsservercore-ltsc2019/Dockerfile
