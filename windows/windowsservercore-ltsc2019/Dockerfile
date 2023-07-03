@@ -25,7 +25,7 @@
 ARG JAVA_VERSION=17.0.7_7
 FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-1809 AS jdk-core
 
-FROM mcr.microsoft.com/powershell:windowsservercore-1809
+FROM mcr.microsoft.com/powershell:windowsservercore-2004
 
 ARG JAVA_HOME="C:\openjdk-17"
 ENV JAVA_HOME=${JAVA_HOME}
