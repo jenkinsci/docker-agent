@@ -70,7 +70,7 @@ $env:REMOTING_VERSION = "$RemotingVersion"
 $env:WINDOWS_VERSION_NAME = $AgentType.replace('windows-', 'ltsc')
 $env:NANOSERVER_VERSION_NAME = $env:WINDOWS_VERSION_NAME
 $env:WINDOWS_VERSION_TAG = $env:WINDOWS_VERSION_NAME
-# Unconsistent naming for the 2019 version
+# Unconsistent naming for the 2019 version, needed as while nanoserver-ltsc2019 and windowsserver-ltsc2019 tags exist eclipse-temurin:<...>-ltsc2019 does not
 if ($AgentType -eq 'windows-2019') {
     $env:WINDOWS_VERSION_TAG = 1809
     $env:NANOSERVER_VERSION_NAME = 1809
