@@ -86,14 +86,14 @@ targets:
     name: "Bump JDK11 version on Windows Nanoserver 1809 image"
     kind: yaml
     spec:
-      file: build-windows-2019.yaml
+      file: build-windows.yaml
       key: services.jdk11-nanoserver-1809.build.args.JAVA_VERSION
     scmid: default
   setJDK11VersionWindowsServerLtsc2019:
     name: "Bump JDK11 version on Windows Server LTSC 2019 image"
     kind: yaml
     spec:
-      file: build-windows-2019.yaml
+      file: build-windows.yaml
       key: services.jdk11-windowsservercore-ltsc2019.build.args.JAVA_VERSION
     scmid: default
 
