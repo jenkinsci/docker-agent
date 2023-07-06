@@ -13,7 +13,6 @@ Param(
 $ErrorActionPreference = "Stop"
 $Repository = 'agent'
 $Organization = 'jenkins'
-$BuildFile = 'build-windows-2019.yaml'
 
 if(!$DisableEnvProps) {
     Get-Content env.props | ForEach-Object {
