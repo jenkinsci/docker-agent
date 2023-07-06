@@ -23,10 +23,10 @@
 #  THE SOFTWARE.
 
 ARG JAVA_VERSION=17.0.7_7
-ARG WINDOWS_VERSION_TAG=1809
-FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-"${WINDOWS_VERSION_TAG}" AS jdk-core
+ARG WINDOWS_VERSION=ltsc2019
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-"${WINDOWS_VERSION}" AS jdk-core
 
-FROM mcr.microsoft.com/powershell:windowsservercore-"${WINDOWS_VERSION_TAG}"
+FROM mcr.microsoft.com/powershell:windowsservercore-"${WINDOWS_VERSION}"
 
 ARG JAVA_HOME="C:\openjdk-17"
 ENV JAVA_HOME=${JAVA_HOME}
