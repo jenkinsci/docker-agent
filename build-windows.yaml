@@ -1,6 +1,6 @@
 services:
   jdk11-nanoserver:
-    image: jdk11-nanoserver-${WINDOWS_VERSION_NAME}
+    image: jdk11-nanoserver-${NANOSERVER_VERSION_NAME}
     build:
       context: ./windows/nanoserver/
       args:
@@ -9,7 +9,7 @@ services:
         VERSION: ${REMOTING_VERSION}
         WINDOWS_VERSION_TAG: ${WINDOWS_VERSION_TAG}
   jdk17-nanoserver:
-    image: jdk17-nanoserver-${WINDOWS_VERSION_NAME}
+    image: jdk17-nanoserver-${NANOSERVER_VERSION_NAME}
     build:
       context: ./windows/nanoserver/
       args:

@@ -68,10 +68,12 @@ $defaultJdk = '11'
 $builds = @{}
 $env:REMOTING_VERSION = "$RemotingVersion"
 $env:WINDOWS_VERSION_NAME = $AgentType.replace('windows-', 'ltsc')
+$env:NANOSERVER_VERSION_NAME = $env:WINDOWS_VERSION_NAME
 $env:WINDOWS_VERSION_TAG = $env:WINDOWS_VERSION_NAME
 # Unconsistent naming for the 2019 version
 if ($AgentType -eq 'windows-2019') {
     $env:WINDOWS_VERSION_TAG = 1809
+    $env:NANOSERVER_VERSION_NAME = 1809
 }
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
 
