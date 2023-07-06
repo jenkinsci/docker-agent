@@ -101,6 +101,13 @@ Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
     }
 }
 
+Write-Host "= BUILD: images list extracted from build-windows.yaml:"
+foreach($image in $builds.Keys) {
+    foreach($tag in $uilds[$image]['Tags']) {
+        '- {0} image, {1} tag' -f $image, $build
+    }
+}
+
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
     Write-Host "= BUILD: Building image ${Build}..."
     $dockerBuildCmd = '{0} {1}' -f $baseDockerBuildCmd, $Build
