@@ -116,6 +116,7 @@ function Run-Program($cmd, $params) {
     $proc.WaitForExit()
     if($proc.ExitCode -ne 0) {
         Write-Host "`n`nstdout:`n$stdout`n`nstderr:`n$stderr`n`n"
+        Write-Host "`n`ncmd:`n$cmd`n`nparams:`n$params`n`n"
     }
 
     return $proc.ExitCode, $stdout, $stderr
