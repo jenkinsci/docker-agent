@@ -83,7 +83,7 @@ $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
-    $image = $_
+    $image = '{0}-{1}' -f $_, $env:WINDOWS_VERSION_NAME
     $items = $image.Split("-")
     $jdkMajorVersion = $items[0].Remove(0,3)
     $windowsType = $items[1]
@@ -184,6 +184,7 @@ if($target -eq "test") {
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
         Test-Image $Build
     } else {
+        Write-Host "= TEST: Testing all images"
         foreach($image in $builds.Keys) {
             Test-Image $image
         }
