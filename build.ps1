@@ -7,6 +7,7 @@ Param(
     [String] $BuildNumber = '1',
     [switch] $PushVersions = $false,
     [switch] $DisableEnvProps = $false
+    [String] $AgentType = 'windows-2019',
 )
 
 $ErrorActionPreference = "Stop"
@@ -38,7 +39,7 @@ if(![String]::IsNullOrWhiteSpace($env:REMOTING_VERSION)) {
 }
 
 if(![String]::IsNullOrWhiteSpace($env:AGENT_TYPE)) {
-    $BuildFile = 'build-{0}.yaml' -f $env:AGENT_TYPE
+    $AgentType = $env:AGENT_TYPE
 }
 
 # Check for required commands
@@ -67,13 +68,19 @@ Function Test-CommandExists {
 $defaultJdk = '11'
 $builds = @{}
 $env:REMOTING_VERSION = "$RemotingVersion"
+$env:WINDOWS_VERSION_NAME = $AgentType.replace('windows-', 'ltsc')
+$env:WINDOWS_VERSION_TAG = $env:WINDOWS_VERSION_NAME
+# Unconsistent naming for the 2019 version
+if ($AgentType -eq 'windows-2019') {
+    $env:WINDOWS_VERSION_TAG = 1809
+}
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
 
 Test-CommandExists "docker"
 Test-CommandExists "docker-compose"
 Test-CommandExists "yq"
 
-$baseDockerCmd = 'docker-compose --file={0}' -f $BuildFile
+$baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {

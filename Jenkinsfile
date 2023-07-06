@@ -26,7 +26,6 @@ pipeline {
                         }
                         environment {
                             DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
-
                         }
                         stages {
                             stage('Prepare Docker') {
