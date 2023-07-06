@@ -22,7 +22,7 @@ pipeline {
                             label env.AGENT_TYPE
                         }
                         options {
-                            timeout(time: "${env.AGENT_TYPE == 'linux' ? 30 : 60}", unit: 'MINUTES')
+                            timeout(time: 30, unit: 'MINUTES')
                         }
                         environment {
                             DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
