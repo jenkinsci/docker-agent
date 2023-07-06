@@ -70,22 +70,20 @@ pipeline {
                                 }
                                 steps {
                                     script {
-                                        if(env.TAG_NAME != null) {
-                                            def tagItems = env.TAG_NAME.split('-')
-                                            if(tagItems.length == 2) {
-                                                def remotingVersion = tagItems[0]
-                                                def buildNumber = tagItems[1]
-                                                // This function is defined in the jenkins-infra/pipeline-library
-                                                infra.withDockerCredentials {
-                                                    if (isUnix()) {
-                                                        sh """
-                                                        docker buildx create --use
-                                                        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-                                                        ./build.sh -r ${remotingVersion} -b ${buildNumber} -d publish
-                                                        """
-                                                    } else {
-                                                        powershell "& ./build.ps1 -PushVersions -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
-                                                    }
+                                        def tagItems = env.TAG_NAME.split('-')
+                                        if(tagItems.length == 2) {
+                                            def remotingVersion = tagItems[0]
+                                            def buildNumber = tagItems[1]
+                                            // This function is defined in the jenkins-infra/pipeline-library
+                                            infra.withDockerCredentials {
+                                                if (isUnix()) {
+                                                    sh """
+                                                    docker buildx create --use
+                                                    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+                                                    ./build.sh -r ${remotingVersion} -b ${buildNumber} -d publish
+                                                    """
+                                                } else {
+                                                    powershell "& ./build.ps1 -PushVersions -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
                                                 }
                                             }
                                         }
