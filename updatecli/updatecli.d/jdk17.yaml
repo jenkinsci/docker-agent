@@ -105,14 +105,14 @@ targets:
     kind: yaml
     spec:
       file: build-windows.yaml
-      key: services.jdk17-nanoserver-1809.build.args.JAVA_VERSION
+      key: $.services.jdk17-nanoserver.build.args.JAVA_VERSION
     scmid: default
   setJDK17VersionWindowsServerLtsc2019:
     name: "Bump JDK17 version on Windows Server LTSC 2019 image"
     kind: yaml
     spec:
       file: build-windows.yaml
-      key: services.jdk17-windowsservercore-ltsc2019.build.args.JAVA_VERSION
+      key: $.services.jdk17-windowsservercore.build.args.JAVA_VERSION
     scmid: default
 
 actions:
