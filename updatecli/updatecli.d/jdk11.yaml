@@ -54,7 +54,15 @@ conditions:
         - arm/v7
       image: eclipse-temurin
       tag: '{{source "lastVersion" }}-jdk-focal'
-  checkTemurinWindowsCoreDockerImage:
+  checkTemurinNanocore2019DockerImage:
+    kind: dockerimage
+    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-1809" is available
+    disablesourceinput: true
+    spec:
+      architecture: amd64
+      image: eclipse-temurin
+      tag: '{{source "lastVersion" }}-jdk-nanoserver-1809'
+  checkTemurinWindowsCore2019DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-1809" is available
     disablesourceinput: true

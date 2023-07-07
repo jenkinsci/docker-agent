@@ -9,9 +9,10 @@ Param(
     [switch] $DisableEnvProps = $false
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = 'Stop'
 $Repository = 'agent'
 $Organization = 'jenkins'
+$AgentType = 'windows-2019'
 
 if(!$DisableEnvProps) {
     Get-Content env.props | ForEach-Object {
@@ -34,6 +35,10 @@ if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_ORGANISATION)) {
 
 if(![String]::IsNullOrWhiteSpace($env:REMOTING_VERSION)) {
     $RemotingVersion = $env:REMOTING_VERSION
+}
+
+if(![String]::IsNullOrWhiteSpace($env:AGENT_TYPE)) {
+    $AgentType = $env:AGENT_TYPE
 }
 
 # Check for required commands
@@ -62,6 +67,15 @@ Function Test-CommandExists {
 $defaultJdk = '11'
 $builds = @{}
 $env:REMOTING_VERSION = "$RemotingVersion"
+$env:WINDOWS_VERSION_NAME = $AgentType.replace('windows-', 'ltsc')
+$env:NANOSERVER_VERSION_NAME = $env:WINDOWS_VERSION_NAME
+$env:WINDOWS_VERSION_TAG = $env:WINDOWS_VERSION_NAME
+# Unconsistent naming for the 2019 version, needed as while nanoserver-ltsc2019 and windowsserver-ltsc2019 tags exist eclipse-temurin:<...>-ltsc2019 does not
+# We also need to keep the `jdkN-nanoserver-1809` images for now, cf https://github.com/jenkinsci/docker-agent/issues/451
+if ($AgentType -eq 'windows-2019') {
+    $env:WINDOWS_VERSION_TAG = 1809
+    $env:NANOSERVER_VERSION_NAME = 1809
+}
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
 
 Test-CommandExists "docker"
@@ -72,7 +86,9 @@ $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
-    $image = $_
+    $image = '{0}-{1}' -f $_, $env:WINDOWS_VERSION_NAME
+    # Special case for nanoserver-1809 images
+    $image = $image.replace('nanoserver-ltsc2019', 'nanoserver-1809')
     $items = $image.Split("-")
     $jdkMajorVersion = $items[0].Remove(0,3)
     $windowsType = $items[1]
@@ -113,7 +129,8 @@ function Test-Image {
     Write-Host "= TEST: Testing image ${ImageName}:"
 
     $env:AGENT_IMAGE = $ImageName
-    $env:IMAGE_FOLDER = Invoke-Expression "$baseDockerCmd config" 2>$null |  yq -r ".services.${ImageName}.build.context"
+    $serviceName = $ImageName.SubString(0, $ImageName.LastIndexOf('-'))
+    $env:IMAGE_FOLDER = Invoke-Expression "$baseDockerCmd config" 2>$null |  yq -r ".services.${serviceName}.build.context"
     $env:VERSION = "$RemotingVersion-$BuildNumber"
 
 
@@ -166,6 +183,7 @@ if($target -eq "test") {
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
         Test-Image $Build
     } else {
+        Write-Host "= TEST: Testing all images"
         foreach($image in $builds.Keys) {
             Test-Image $image
         }
