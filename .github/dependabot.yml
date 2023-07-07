@@ -42,7 +42,7 @@ updates:
 
 # Windows
 - package-ecosystem: docker
-  directory: "windows/nanoserver-1809"
+  directory: "windows/nanoserver"
   schedule:
     interval: weekly
   open-pull-requests-limit: 2
@@ -53,7 +53,7 @@ updates:
   - dependencies
 
 - package-ecosystem: docker
-  directory: "windows/windowsservercore-ltsc2019"
+  directory: "windows/windowsservercore"
   schedule:
     interval: weekly
   open-pull-requests-limit: 2
