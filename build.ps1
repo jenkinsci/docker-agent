@@ -6,13 +6,13 @@ Param(
     [String] $RemotingVersion = '3131.vf2b_b_798b_ce99',
     [String] $BuildNumber = '1',
     [switch] $PushVersions = $false,
-    [switch] $DisableEnvProps = $false,
-    [String] $AgentType = 'windows-2019'
+    [switch] $DisableEnvProps = $false
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = 'Stop'
 $Repository = 'agent'
 $Organization = 'jenkins'
+$AgentType = 'windows-2019'
 
 if(!$DisableEnvProps) {
     Get-Content env.props | ForEach-Object {
