@@ -96,9 +96,11 @@ Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
 
     $baseImage = "${windowsType}-${windowsVersion}"
     $versionTag = "${RemotingVersion}-${BuildNumber}-${image}"
+    Write-Host "= PREPARE: Preparing image ${image}, versionTag ${versionTag}"
     $tags = @( $image, $versionTag )
     if($jdkMajorVersion -eq "$defaultJdk") {
         $tags += $baseImage
+        Write-Host "= PREPARE: Bare image tag ${baseImage}"
     }
 
     $builds[$image] = @{
@@ -183,7 +185,7 @@ if($target -eq "test") {
     if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
         Test-Image $Build
     } else {
-        Write-Host "= TEST: Testing all images"
+        Write-Host "= TEST: Testing all images..."
         foreach($image in $builds.Keys) {
             Test-Image $image
         }
