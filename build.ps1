@@ -86,10 +86,11 @@ $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
-    $image = '{0}-{1}' -f $_, $env:WINDOWS_VERSION_NAME
+    $initialImage = '{0}-{1}' -f $_, $env:WINDOWS_VERSION_NAME
     # Special case for nanoserver-1809 images
-    $image = $image.replace('nanoserver-ltsc2019', 'nanoserver-1809')
+    $image = $initialImage.replace('nanoserver-ltsc2019', 'nanoserver-1809')
     $items = $image.Split("-")
+    # Remove the 'jdk' prefix (3 first characters)
     $jdkMajorVersion = $items[0].Remove(0,3)
     $windowsType = $items[1]
     $windowsVersion = $items[2]
@@ -99,6 +100,11 @@ Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
     $tags = @( $image, $versionTag )
     if($jdkMajorVersion -eq "$defaultJdk") {
         $tags += $baseImage
+    }
+    # Special case for nanoserver-ltsc2019 additional tag
+    if($image.Contains('nanoserver-1809')) {
+        $additionalVersionTag = "${RemotingVersion}-${BuildNumber}-${initialImage}"
+        $tags += @( $initialImage, $additionalVersionTag )
     }
 
     $builds[$image] = @{
