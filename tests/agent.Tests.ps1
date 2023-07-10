@@ -13,7 +13,7 @@ $global:WINDOWSFLAVOR = $items[1]
 $global:WINDOWSVERSION = $items[2]
 
 # TODO: make this name unique for concurency
-$global:CONTAINERNAME = 'pester-jenkins-inbound-agent-{0}' -f $global:AGENT_IMAGE
+$global:CONTAINERNAME = 'pester-jenkins-agent-{0}' -f $global:AGENT_IMAGE
 
 $global:CONTAINERSHELL="powershell.exe"
 if($global:WINDOWSFLAVOR -eq 'nanoserver') {
