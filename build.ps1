@@ -116,7 +116,7 @@ Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
 
 Write-Host '= PREPARE: Images list prepared:'
 Foreach($image in $builds) {
-    Write-Host "== $image (" + ($image.Tags - join ", ") + ")"
+    Write-Host "== $image (" + ($image.Tags -join ", ") + ")"
 }
 
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
