@@ -54,9 +54,9 @@ conditions:
         - arm/v7
       image: eclipse-temurin
       tag: '{{source "lastVersion" }}-jdk-focal'
-  checkTemurinNanocore2019DockerImage:
+  checkTemurinNanoserver2019DockerImage:
     kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-1809" is available
+    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-nanoserver-1809" is available
     disablesourceinput: true
     spec:
       architecture: amd64
@@ -82,15 +82,15 @@ targets:
       replacepattern: >-
         variable${1}"JAVA11_VERSION"${2}{${3}${4}${5}default${6}= "{{ source "lastVersion" }}"
     scmid: default
-  setJDK11VersionWindowsNanoserver1809:
-    name: "Bump JDK11 version on Windows Nanoserver 1809 image"
+  setJDK11VersionWindowsNanoserver:
+    name: "Bump JDK11 version on Windows Nanoserver image"
     kind: yaml
     spec:
       file: build-windows.yaml
       key: $.services.jdk11-nanoserver.build.args.JAVA_VERSION
     scmid: default
-  setJDK11VersionWindowsServerLtsc2019:
-    name: "Bump JDK11 version on Windows Server LTSC 2019 image"
+  setJDK11VersionWindowsServer:
+    name: "Bump JDK11 version on Windows Server image"
     kind: yaml
     spec:
       file: build-windows.yaml
