@@ -70,10 +70,14 @@ The image has several supported configurations, which can be accessed via the fo
 From version 4.11.2, the alpine images are tagged using the alpine OS version as well (i.e. `alpine` ==> `alpine3.16`, `alpine-jdk11` ==> `alpine3.16-jdk11`).
 
 * Windows Images:
-  * `jdk11-windowsservercore-ltsc2019`: Latest version with the newest remoting and Java 11 (based on `eclipse-temurin:11.xxx-jdk-windowsservercore-ltsc2019`)
   * `jdk11-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 11 (based on `eclipse-temurin:11.xxx-jdk-nanoserver-1809`)
-  * `jdk17-windowsservercore-ltsc2019`: Latest version with the newest remoting and Java 17 (based on `eclipse-temurin:17.xxx-jdk-windowsservercore-ltsc2019`)
+  * `jdk11-windowsservercore-ltsc2019`: Latest version with the newest remoting and Java 11 (based on `eclipse-temurin:11.xxx-jdk-windowsservercore-ltsc2019`)
   * `jdk17-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 17 (based on `eclipse-temurin:17.xxx-jdk-nanoserver-1809`)
+  * `jdk17-windowsservercore-ltsc2019`: Latest version with the newest remoting and Java 17 (based on `eclipse-temurin:17.xxx-jdk-windowsservercore-ltsc2019`)
+  * `jdk11-nanoserver-ltsc2022`: Latest version with the newest remoting with Windows Nano Server and Java 11 (based on `eclipse-temurin:11.xxx-jdk-nanoserver-ltsc2022`)
+  * `jdk11-windowsservercore-ltsc2022`: Latest version with the newest remoting and Java 11 (based on `eclipse-temurin:11.xxx-jdk-windowsservercore-ltsc2022`)
+  * `jdk17-nanoserver-ltsc2022`: Latest version with the newest remoting with Windows Nano Server and Java 17 (based on `eclipse-temurin:17.xxx-jdk-nanoserver-ltsc2022`)
+  * `jdk17-windowsservercore-ltsc2022`: Latest version with the newest remoting and Java 17 (based on `eclipse-temurin:17.xxx-jdk-windowsservercore-ltsc2022`)
 
 The file `docker-bake.hcl` defines all the configuration for Linux images and their associated tags.
 
