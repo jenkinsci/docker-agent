@@ -96,17 +96,18 @@ Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
 
     $baseImage = "${windowsType}-${windowsVersion}"
     $versionTag = "${RemotingVersion}-${BuildNumber}-${image}"
-    Write-Host "= PREPARE: Preparing image ${image}, versionTag ${versionTag}"
     $tags = @( $image, $versionTag )
     if($jdkMajorVersion -eq "$defaultJdk") {
         $tags += $baseImage
-        Write-Host "= PREPARE: Bare image tag ${baseImage}"
     }
 
     $builds[$image] = @{
         'Tags' = $tags;
     }
 }
+
+Write-Host '= PREPARE: List of images and tags to be processed:'
+ConvertTo-Json $builds -Depth 1
 
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
     Write-Host "= BUILD: Building image ${Build}..."
