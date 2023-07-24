@@ -98,7 +98,7 @@ Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
     $baseImage = "${windowsType}-${windowsVersion}"
     $versionTag = "${RemotingVersion}-${BuildNumber}-${image}"
     $tags = @( $image, $versionTag )
-    # Additional image tag without any jdk prefix for the default JDK
+    # Additional image tag without any 'jdk' prefix for the default JDK
     if($jdkMajorVersion -eq "$defaultJdk") {
         $tags += $baseImage
     }
@@ -106,7 +106,7 @@ Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
     if($image.Contains('nanoserver-1809')) {
         $additionalVersionTag = "${RemotingVersion}-${BuildNumber}-${initialImage}"
         $tags += @( $initialImage, $additionalVersionTag )
-        # Additional image tag without any jdk prefix for the default JDK
+        # Additional image tag without any 'jdk' prefix for the default JDK
         if($jdkMajorVersion -eq "$defaultJdk") {
             $tags += 'nanoserver-ltsc2019'
         }
