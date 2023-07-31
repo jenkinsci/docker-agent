@@ -1,3 +1,16 @@
+def agentSelector() {
+    // Image type running on a Linux agent
+    if (env.IMAGE_TYPE == 'linux') {
+        return 'linux'
+    }
+    // Image types running on a Windows Server Core 2022 agent
+    if (env.IMAGE_TYPE.contains('2022')) {
+        return 'windows-2022'
+    }
+    // Remaining image types running on a Windows Server Core 2019 agent: (nanoserver|windowservercore)-(1809|2019)
+    return 'windows-2019'
+}
+
 pipeline {
     agent none
 
@@ -11,14 +24,14 @@ pipeline {
             matrix {
                 axes {
                     axis {
-                        name 'AGENT_TYPE'
-                        values 'linux', 'windows-2019', 'windows-2022'
+                        name 'IMAGE_TYPE'
+                        values 'linux', 'nanoserver-1809', 'nanoserver-ltsc2019', 'nanoserver-ltsc2022', 'windowsservercore-ltsc2019', 'windowsservercore-ltsc2022'
                     }
                 }
                 stages {
                     stage('Main') {
                         agent {
-                            label env.AGENT_TYPE
+                            label agentSelector()
                         }
                         options {
                             timeout(time: 30, unit: 'MINUTES')

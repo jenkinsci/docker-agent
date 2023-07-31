@@ -24,9 +24,10 @@
 
 ARG JAVA_VERSION=17.0.7_7
 ARG WINDOWS_VERSION_TAG=1809
+ARG WINDOWS_FLAVOR=nanoserver
 FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-"${WINDOWS_VERSION_TAG}" AS jdk-core
 
-FROM mcr.microsoft.com/powershell:nanoserver-"${WINDOWS_VERSION_TAG}"
+FROM mcr.microsoft.com/powershell:"${WINDOWS_FLAVOR}"-"${WINDOWS_VERSION_TAG}"
 
 ARG JAVA_HOME="C:\openjdk-17"
 

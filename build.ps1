@@ -12,7 +12,7 @@ Param(
 $ErrorActionPreference = 'Stop'
 $Repository = 'agent'
 $Organization = 'jenkins'
-$AgentType = 'windows-2019'
+$ImageType = 'windows-ltsc2019'
 
 if(!$DisableEnvProps) {
     Get-Content env.props | ForEach-Object {
@@ -37,8 +37,8 @@ if(![String]::IsNullOrWhiteSpace($env:REMOTING_VERSION)) {
     $RemotingVersion = $env:REMOTING_VERSION
 }
 
-if(![String]::IsNullOrWhiteSpace($env:AGENT_TYPE)) {
-    $AgentType = $env:AGENT_TYPE
+if(![String]::IsNullOrWhiteSpace($env:IMAGE_TYPE)) {
+    $ImageType = $env:IMAGE_TYPE
 }
 
 # Check for required commands
@@ -67,15 +67,11 @@ Function Test-CommandExists {
 $defaultJdk = '11'
 $builds = @{}
 $env:REMOTING_VERSION = "$RemotingVersion"
-$env:WINDOWS_VERSION_NAME = $AgentType.replace('windows-', 'ltsc')
-$env:NANOSERVER_VERSION_NAME = $env:WINDOWS_VERSION_NAME
-$env:WINDOWS_VERSION_TAG = $env:WINDOWS_VERSION_NAME
-# Unconsistent naming for the 2019 version, needed as while nanoserver-ltsc2019 and windowsserver-ltsc2019 tags exist eclipse-temurin:<...>-ltsc2019 does not
-# We also need to keep the `jdkN-nanoserver-1809` images for now, cf https://github.com/jenkinsci/docker-agent/issues/451
-if ($AgentType -eq 'windows-2019') {
-    $env:WINDOWS_VERSION_TAG = 1809
-    $env:NANOSERVER_VERSION_NAME = 1809
-}
+
+$imageItems = $ImageType.Split("-")
+$env:WINDOWS_FLAVOR = $imageItems[0]
+$env:WINDOWS_VERSION_TAG = $imageItems[1]
+
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
 
 Test-CommandExists "docker"
@@ -86,9 +82,7 @@ $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
-    $initialImage = '{0}-{1}' -f $_, $env:WINDOWS_VERSION_NAME
-    # Special case for nanoserver-1809 images
-    $image = $initialImage.replace('nanoserver-ltsc2019', 'nanoserver-1809')
+    $image = '{0}-{1}-{2}' -f $_, $env:WINDOWS_FLAVOR, $env:WINDOWS_VERSION_TAG
     $items = $image.Split("-")
     # Remove the 'jdk' prefix (3 first characters)
     $jdkMajorVersion = $items[0].Remove(0,3)
@@ -105,20 +99,6 @@ Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
 
     $builds[$image] = @{
         'Tags' = $tags;
-    }
-
-    # Special case for nanoserver-ltsc2019 additional image and tags
-    if($image.Contains('nanoserver-1809')) {
-        $initialVersionTag = "${RemotingVersion}-${BuildNumber}-${initialImage}"
-        $initialTags = @( $initialImage, $initialVersionTag )
-        # Additional image tag without any 'jdk' prefix for the default JDK
-        if($jdkMajorVersion -eq "$defaultJdk") {
-            $initialTags += 'nanoserver-ltsc2019'
-        }
-
-        $builds[$initialImage] = @{
-            'Tags' = $initialTags;
-        }
     }
 }
 
