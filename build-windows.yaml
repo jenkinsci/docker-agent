@@ -32,6 +32,6 @@ services:
       context: ./windows/windowsservercore/
       args:
         JAVA_HOME: "C:/openjdk-17"
-        JAVA_VERSION: 17.0.7_7
+        JAVA_VERSION: 17.0.8_7
         VERSION: ${REMOTING_VERSION}
         WINDOWS_VERSION_TAG: ${WINDOWS_VERSION_TAG}
