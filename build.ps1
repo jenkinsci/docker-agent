@@ -3,7 +3,7 @@ Param(
     [Parameter(Position=1)]
     [String] $Target = "build",
     [String] $Build = '',
-    [String] $RemotingVersion = '3131.vf2b_b_798b_ce99',
+    [String] $RemotingVersion = '3142.vcfca_0cd92128',
     [String] $BuildNumber = '1',
     [switch] $PushVersions = $false,
     [switch] $DisableEnvProps = $false

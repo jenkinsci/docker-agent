@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-ARG JAVA_VERSION=17.0.7_7
+ARG JAVA_VERSION=17.0.8_7
 FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-focal AS jre-build
 
 # This Build ARG is populated by Docker
@@ -50,7 +50,7 @@ RUN if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
   else cp -r /opt/java/openjdk /javaruntime; \
   fi
 
-FROM debian:bullseye-20230703 AS build
+FROM debian:bullseye-20230725 AS build
 
 ARG user=jenkins
 ARG group=jenkins
@@ -80,7 +80,7 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /tmp/* /var/cache/* /usr/share/doc/* /usr/share/man/* /var/lib/apt/lists/*
 
-ARG VERSION=3131.vf2b_b_798b_ce99
+ARG VERSION=3142.vcfca_0cd92128
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar

@@ -34,7 +34,7 @@ RUN jlink \
   --compress=2 \
   --output /javaruntime
 
-FROM archlinux:base-20230716.0.165339
+FROM archlinux:base-20230723.0.166908
 
 ARG user=jenkins
 ARG group=jenkins
@@ -49,7 +49,7 @@ ENV TZ=Etc/UTC
 
 RUN pacman -Syu curl git git-lfs openssh tzdata --noconfirm
 
-ARG VERSION=3131.vf2b_b_798b_ce99
+ARG VERSION=3142.vcfca_0cd92128
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar

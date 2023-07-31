@@ -5,7 +5,7 @@ services:
       context: ./windows/${WINDOWS_FLAVOR}/
       args:
         JAVA_HOME: "C:/openjdk-11"
-        JAVA_VERSION: 11.0.19_7
+        JAVA_VERSION: 11.0.20_8
         VERSION: ${REMOTING_VERSION}
         WINDOWS_FLAVOR: ${WINDOWS_FLAVOR}
         WINDOWS_VERSION_TAG: ${WINDOWS_VERSION_TAG}
@@ -15,7 +15,7 @@ services:
       context: ./windows/${WINDOWS_FLAVOR}/
       args:
         JAVA_HOME: "C:/openjdk-17"
-        JAVA_VERSION: 17.0.7_7
+        JAVA_VERSION: 17.0.8_7
         VERSION: ${REMOTING_VERSION}
         WINDOWS_FLAVOR: ${WINDOWS_FLAVOR}
         WINDOWS_VERSION_TAG: ${WINDOWS_VERSION_TAG}
