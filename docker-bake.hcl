@@ -42,7 +42,7 @@ group "windows" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "3131.vf2b_b_798b_ce99"
+  default = "3142.vcfca_0cd92128"
 }
 
 variable "REGISTRY" {
@@ -70,7 +70,7 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "JAVA11_VERSION" {
-  default = "11.0.19_7"
+  default = "11.0.20_8"
 }
 
 variable "JAVA17_VERSION" {
