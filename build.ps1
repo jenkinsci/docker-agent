@@ -68,9 +68,14 @@ $defaultJdk = '11'
 $builds = @{}
 $env:REMOTING_VERSION = "$RemotingVersion"
 
-$imageItems = $ImageType.Split("-")
-$env:WINDOWS_FLAVOR = $imageItems[0]
-$env:WINDOWS_VERSION_TAG = $imageItems[1]
+$items = $ImageType.Split("-")
+$env:WINDOWS_FLAVOR = $items[0]
+$env:WINDOWS_VERSION_TAG = $items[1]
+$env:WINDOWS_VERSION_FALLBACK_TAG = $items[1]
+if ($items[1] -eq 'ltsc2019') {
+    # There are no eclipse-temurin:*-ltsc2019 or mcr.microsoft.com/powershell:*-ltsc2019 docker images unfortunately, only "1809" ones
+    $env:WINDOWS_VERSION_FALLBACK_TAG = '1809'
+}
 
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
 
@@ -128,10 +133,9 @@ function Test-Image {
     Write-Host "= TEST: Testing image ${ImageName}:"
 
     $env:AGENT_IMAGE = $ImageName
-    $serviceName = $ImageName.SubString(0, $ImageName.LastIndexOf('-'))
+    $serviceName = $ImageName.SubString(0, $ImageName.IndexOf('-'))
     $env:IMAGE_FOLDER = Invoke-Expression "$baseDockerCmd config" 2>$null |  yq -r ".services.${serviceName}.build.context"
     $env:VERSION = "$RemotingVersion-$BuildNumber"
-
 
     if(Test-Path ".\target\$ImageName") {
         Remove-Item -Recurse -Force ".\target\$ImageName"

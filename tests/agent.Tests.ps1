@@ -3,20 +3,23 @@ Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
 $global:AGENT_IMAGE = Get-EnvOrDefault 'AGENT_IMAGE' ''
 $global:IMAGE_FOLDER = Get-EnvOrDefault 'IMAGE_FOLDER' ''
 $global:VERSION = Get-EnvOrDefault 'VERSION' ''
-$global:WINDOWS_VERSION_TAG = Get-EnvOrDefault 'WINDOWS_VERSION_TAG' ''
 
 $items = $global:AGENT_IMAGE.Split("-")
 
 # Remove the 'jdk' prefix (3 first characters)
-$global:JDKMAJORVERSION = $items[0].Remove(0,3)
-$global:WINDOWSFLAVOR = $items[1]
-$global:WINDOWSVERSION = $items[2]
+$global:JAVA_MAJOR_VERSION = $items[0].Remove(0,3)
+$global:WINDOWS_FLAVOR = $items[1]
+$global:WINDOWS_VERSION_TAG = $items[2]
+$global:WINDOWS_VERSION_FALLBACK_TAG = $items[2]
+if ($items[2] -eq 'ltsc2019') {
+    $global:WINDOWS_VERSION_FALLBACK_TAG = '1809'
+}
 
 # TODO: make this name unique for concurency
 $global:CONTAINERNAME = 'pester-jenkins-agent-{0}' -f $global:AGENT_IMAGE
 
 $global:CONTAINERSHELL="powershell.exe"
-if($global:WINDOWSFLAVOR -eq 'nanoserver') {
+if($global:WINDOWS_FLAVOR -eq 'nanoserver') {
     $global:CONTAINERSHELL = "pwsh.exe"
 }
 
@@ -52,7 +55,7 @@ Describe "[$global:AGENT_IMAGE] image has correct applications in the PATH" {
         $r = [regex] "^openjdk version `"(?<major>\d+)"
         $m = $r.Match($stdout)
         $m | Should -Not -Be $null
-        $m.Groups['major'].ToString() | Should -Be $global:JDKMAJORVERSION
+        $m.Groups['major'].ToString() | Should -Be $global:JAVA_MAJOR_VERSION
     }
 
     It 'has AGENT_WORKDIR in the environment' {
@@ -127,7 +130,7 @@ Describe "[$global:AGENT_IMAGE] can be built with custom build arguments" {
     BeforeAll {
         Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"VERSION=${global:TEST_VERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWS_VERSION_TAG}`" --build-arg `"user=${global:TEST_USER}`" --build-arg `"AGENT_WORKDIR=${global:TEST_AGENT_WORKDIR}`" -t ${global:AGENT_IMAGE} ${global:IMAGE_FOLDER}"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"VERSION=${global:TEST_VERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWS_VERSION_TAG}`" --build-arg `"WINDOWS_VERSION_FALLBACK_TAG=${global:WINDOWS_VERSION_FALLBACK_TAG}`" --build-arg `"user=${global:TEST_USER}`" --build-arg `"AGENT_WORKDIR=${global:TEST_AGENT_WORKDIR}`" -t ${global:AGENT_IMAGE} ${global:IMAGE_FOLDER}"
         $exitCode | Should -Be 0
 
         docker run -d -it --name "$global:CONTAINERNAME" -P "$global:AGENT_IMAGE" "$global:CONTAINERSHELL"
