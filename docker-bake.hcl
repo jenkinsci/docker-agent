@@ -42,7 +42,7 @@ group "windows" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "3131.vf2b_b_798b_ce99"
+  default = "3142.vcfca_0cd92128"
 }
 
 variable "REGISTRY" {
