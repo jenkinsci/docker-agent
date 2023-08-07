@@ -87,14 +87,12 @@ $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
-    $image = '{0}-{1}-{2}' -f $_, $env:WINDOWS_FLAVOR, $env:WINDOWS_VERSION_TAG
-    $items = $image.Split("-")
-    # Remove the 'jdk' prefix (3 first characters)
-    $jdkMajorVersion = $items[0].Remove(0,3)
-    $windowsType = $items[1]
-    $windowsVersion = $items[2]
+    $image = '{0}-{1}-{2}' -f $_, $env:WINDOWS_FLAVOR, $env:WINDOWS_VERSION_TAG # Ex: "jdk11-nanoserver-1809"
 
-    $baseImage = "${windowsType}-${windowsVersion}"
+    # Remove the 'jdk' prefix
+    $jdkMajorVersion = $_.Remove(0,3)
+
+    $baseImage = "${env:WINDOWS_FLAVOR}-${env:WINDOWS_VERSION_TAG}"
     $versionTag = "${RemotingVersion}-${BuildNumber}-${image}"
     $tags = @( $image, $versionTag )
     # Additional image tag without any 'jdk' prefix for the default JDK
