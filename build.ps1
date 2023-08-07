@@ -132,7 +132,7 @@ function Test-Image {
 
     $env:AGENT_IMAGE = $ImageName
     $serviceName = $ImageName.SubString(0, $ImageName.IndexOf('-'))
-    $env:IMAGE_FOLDER = Invoke-Expression "$baseDockerCmd config" 2>$null |  yq -r ".services.${serviceName}.build.context"
+    $env:BUILD_CONTEXT = Invoke-Expression "$baseDockerCmd config" 2>$null |  yq -r ".services.${serviceName}.build.context"
     $env:VERSION = "$RemotingVersion-$BuildNumber"
 
     if(Test-Path ".\target\$ImageName") {
@@ -148,7 +148,7 @@ function Test-Image {
         Write-Host "There were $($TestResults.PassedCount) passed tests out of $($TestResults.TotalCount) in $ImageName"
     }
     Remove-Item env:\AGENT_IMAGE
-    Remove-Item env:\IMAGE_FOLDER
+    Remove-Item env:\BUILD_CONTEXT
     Remove-Item env:\VERSION
 }
 

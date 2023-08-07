@@ -1,7 +1,7 @@
 Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
 
 $global:AGENT_IMAGE = Get-EnvOrDefault 'AGENT_IMAGE' ''
-$global:IMAGE_FOLDER = Get-EnvOrDefault 'IMAGE_FOLDER' ''
+$global:BUILD_CONTEXT = Get-EnvOrDefault 'BUILD_CONTEXT' ''
 $global:VERSION = Get-EnvOrDefault 'VERSION' ''
 
 $items = $global:AGENT_IMAGE.Split("-")
@@ -130,7 +130,7 @@ Describe "[$global:AGENT_IMAGE] can be built with custom build arguments" {
     BeforeAll {
         Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"VERSION=${global:TEST_VERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWS_VERSION_TAG}`" --build-arg `"WINDOWS_VERSION_FALLBACK_TAG=${global:WINDOWS_VERSION_FALLBACK_TAG}`" --build-arg `"user=${global:TEST_USER}`" --build-arg `"AGENT_WORKDIR=${global:TEST_AGENT_WORKDIR}`" -t ${global:AGENT_IMAGE} ${global:IMAGE_FOLDER}"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"VERSION=${global:TEST_VERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWS_VERSION_TAG}`" --build-arg `"WINDOWS_VERSION_FALLBACK_TAG=${global:WINDOWS_VERSION_FALLBACK_TAG}`" --build-arg `"user=${global:TEST_USER}`" --build-arg `"AGENT_WORKDIR=${global:TEST_AGENT_WORKDIR}`" -t ${global:AGENT_IMAGE} ${global:BUILD_CONTEXT}"
         $exitCode | Should -Be 0
 
         docker run -d -it --name "$global:CONTAINERNAME" -P "$global:AGENT_IMAGE" "$global:CONTAINERSHELL"
