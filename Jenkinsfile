@@ -20,7 +20,6 @@ pipeline {
 
     stages {
         stage('docker-agent') {
-            failFast true
             matrix {
                 axes {
                     axis {
