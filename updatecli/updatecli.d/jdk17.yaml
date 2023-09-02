@@ -90,13 +90,10 @@ conditions:
 targets:
   setJDK17VersionDockerBake:
     name: "Bump JDK17 version for Linux images in the docker-bake.hcl file"
-    kind: file
+    kind: hcl
     spec:
       file: docker-bake.hcl
-      matchpattern: >-
-        variable(.*)"JAVA17_VERSION"(.*){(.*)(\r\n|\r|\n)(.*)default(.*)=(.*)
-      replacepattern: >-
-        variable${1}"JAVA17_VERSION"${2}{${3}${4}${5}default${6}= "{{ source "lastVersion" }}"
+      path: variable.JAVA17_VERSION.default
     scmid: default
   setJDK17VersionAlpine:
     name: "Bump JDK17 default ARG version on Alpine Dockerfile"
