@@ -71,10 +71,10 @@ $env:REMOTING_VERSION = "$RemotingVersion"
 $items = $ImageType.Split("-")
 $env:WINDOWS_FLAVOR = $items[0]
 $env:WINDOWS_VERSION_TAG = $items[1]
-$env:WINDOWS_VERSION_FALLBACK_TAG = $items[1]
+$env:TOOLS_WINDOWS_VERSION = $items[1]
 if ($items[1] -eq 'ltsc2019') {
     # There are no eclipse-temurin:*-ltsc2019 or mcr.microsoft.com/powershell:*-ltsc2019 docker images unfortunately, only "1809" ones
-    $env:WINDOWS_VERSION_FALLBACK_TAG = '1809'
+    $env:TOOLS_WINDOWS_VERSION = '1809'
 }
 
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads

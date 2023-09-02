@@ -24,10 +24,10 @@
 
 ARG JAVA_VERSION=17.0.7_7
 ARG WINDOWS_VERSION_TAG=ltsc2019
-ARG WINDOWS_VERSION_FALLBACK_TAG=1809
-FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-"${WINDOWS_VERSION_FALLBACK_TAG}" AS jdk-core
+ARG TOOLS_WINDOWS_VERSION=1809
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-windowsservercore-"${TOOLS_WINDOWS_VERSION}" AS jdk-core
 
-FROM mcr.microsoft.com/powershell:nanoserver-"${WINDOWS_VERSION_FALLBACK_TAG}" AS pwsh-source
+FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-source
 
 FROM mcr.microsoft.com/windows/nanoserver:"${WINDOWS_VERSION_TAG}"
 
