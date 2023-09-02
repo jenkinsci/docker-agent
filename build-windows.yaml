@@ -3,7 +3,7 @@ services:
     image: jdk11-${WINDOWS_FLAVOR}-${WINDOWS_VERSION_TAG}
     build:
       context: ./
-      dockerfile: ./windows/${WINDOWS_FLAVOR}//Dockerfile
+      dockerfile: ./windows/${WINDOWS_FLAVOR}/Dockerfile
       args:
         JAVA_HOME: "C:/openjdk-11"
         JAVA_VERSION: 11.0.20_8
