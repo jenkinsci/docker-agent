@@ -70,22 +70,22 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "JAVA11_VERSION" {
-  default = "11.0.20_8"
+  default = "11.0.20.1_1"
 }
 
 variable "JAVA17_VERSION" {
-  default = "17.0.8_7"
+  default = "17.0.8.1_1"
 }
 
 target "archlinux_jdk11" {
   dockerfile = "archlinux/Dockerfile"
-  context = "."
+  context    = "."
   args = {
     JAVA_VERSION = JAVA11_VERSION
-    VERSION = REMOTING_VERSION
+    VERSION      = REMOTING_VERSION
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-archlinux": "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-archlinux" : "",
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-archlinux-jdk11" : "",
     "${REGISTRY}/${JENKINS_REPO}:archlinux",
     "${REGISTRY}/${JENKINS_REPO}:latest-archlinux",
@@ -97,17 +97,17 @@ target "archlinux_jdk11" {
 
 target "alpine_jdk11" {
   dockerfile = "alpine/Dockerfile"
-  context = "."
+  context    = "."
   args = {
-    ALPINE_TAG = ALPINE_FULL_TAG
+    ALPINE_TAG   = ALPINE_FULL_TAG
     JAVA_VERSION = JAVA11_VERSION
-    VERSION = REMOTING_VERSION
+    VERSION      = REMOTING_VERSION
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine": "",
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}": "",
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk11": "",
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk11": "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine" : "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}" : "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk11" : "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk11" : "",
     "${REGISTRY}/${JENKINS_REPO}:alpine",
     "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}",
     "${REGISTRY}/${JENKINS_REPO}:alpine-jdk11",
@@ -122,15 +122,15 @@ target "alpine_jdk11" {
 
 target "alpine_jdk17" {
   dockerfile = "alpine/Dockerfile"
-  context = "."
+  context    = "."
   args = {
-    ALPINE_TAG = ALPINE_FULL_TAG
+    ALPINE_TAG   = ALPINE_FULL_TAG
     JAVA_VERSION = JAVA17_VERSION
-    VERSION = REMOTING_VERSION
+    VERSION      = REMOTING_VERSION
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk17": "",
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk17": "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk17" : "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk17" : "",
     "${REGISTRY}/${JENKINS_REPO}:alpine-jdk17",
     "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk17",
     "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk17",
@@ -141,14 +141,14 @@ target "alpine_jdk17" {
 
 target "debian_jdk11" {
   dockerfile = "debian/Dockerfile"
-  context = "."
+  context    = "."
   args = {
     JAVA_VERSION = JAVA11_VERSION
-    VERSION = REMOTING_VERSION
+    VERSION      = REMOTING_VERSION
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}": "",
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk11": "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}" : "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk11" : "",
     "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk11",
     "${REGISTRY}/${JENKINS_REPO}:jdk11",
     "${REGISTRY}/${JENKINS_REPO}:latest",
@@ -160,13 +160,13 @@ target "debian_jdk11" {
 
 target "debian_jdk17" {
   dockerfile = "debian/Dockerfile"
-  context = "."
+  context    = "."
   args = {
     JAVA_VERSION = JAVA17_VERSION
-    VERSION = REMOTING_VERSION,
+    VERSION      = REMOTING_VERSION,
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk17": "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk17" : "",
     "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk17",
     "${REGISTRY}/${JENKINS_REPO}:jdk17",
     "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk17",
