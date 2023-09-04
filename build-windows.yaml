@@ -1,37 +1,23 @@
 services:
-  jdk11-nanoserver:
-    image: jdk11-nanoserver-${NANOSERVER_VERSION_NAME}
+  jdk11:
+    image: jdk11-${WINDOWS_FLAVOR}-${WINDOWS_VERSION_TAG}
     build:
-      context: ./windows/nanoserver/
+      context: ./
+      dockerfile: ./windows/${WINDOWS_FLAVOR}/Dockerfile
       args:
         JAVA_HOME: "C:/openjdk-11"
         JAVA_VERSION: 11.0.20.1_1
         VERSION: ${REMOTING_VERSION}
         WINDOWS_VERSION_TAG: ${WINDOWS_VERSION_TAG}
-  jdk17-nanoserver:
-    image: jdk17-nanoserver-${NANOSERVER_VERSION_NAME}
+        TOOLS_WINDOWS_VERSION: ${TOOLS_WINDOWS_VERSION}
+  jdk17:
+    image: jdk17-${WINDOWS_FLAVOR}-${WINDOWS_VERSION_TAG}
     build:
-      context: ./windows/nanoserver/
+      context: ./
+      dockerfile: ./windows/${WINDOWS_FLAVOR}/Dockerfile
       args:
         JAVA_HOME: "C:/openjdk-17"
         JAVA_VERSION: 17.0.8.1_1
         VERSION: ${REMOTING_VERSION}
         WINDOWS_VERSION_TAG: ${WINDOWS_VERSION_TAG}
-  jdk11-windowsservercore:
-    image: jdk11-windowsservercore-${WINDOWS_VERSION_NAME}
-    build:
-      context: ./windows/windowsservercore/
-      args:
-        JAVA_HOME: "C:/openjdk-11"
-        JAVA_VERSION: 11.0.20.1_1
-        VERSION: ${REMOTING_VERSION}
-        WINDOWS_VERSION_TAG: ${WINDOWS_VERSION_TAG}
-  jdk17-windowsservercore:
-    image: jdk17-windowsservercore-${WINDOWS_VERSION_NAME}
-    build:
-      context: ./windows/windowsservercore/
-      args:
-        JAVA_HOME: "C:/openjdk-17"
-        JAVA_VERSION: 17.0.8.1_1
-        VERSION: ${REMOTING_VERSION}
-        WINDOWS_VERSION_TAG: ${WINDOWS_VERSION_TAG}
+        TOOLS_WINDOWS_VERSION: ${TOOLS_WINDOWS_VERSION}

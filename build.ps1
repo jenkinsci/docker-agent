@@ -12,7 +12,7 @@ Param(
 $ErrorActionPreference = 'Stop'
 $Repository = 'agent'
 $Organization = 'jenkins'
-$AgentType = 'windows-2019'
+$ImageType = 'windows-ltsc2019'
 
 if(!$DisableEnvProps) {
     Get-Content env.props | ForEach-Object {
@@ -37,8 +37,8 @@ if(![String]::IsNullOrWhiteSpace($env:REMOTING_VERSION)) {
     $RemotingVersion = $env:REMOTING_VERSION
 }
 
-if(![String]::IsNullOrWhiteSpace($env:AGENT_TYPE)) {
-    $AgentType = $env:AGENT_TYPE
+if(![String]::IsNullOrWhiteSpace($env:IMAGE_TYPE)) {
+    $ImageType = $env:IMAGE_TYPE
 }
 
 # Check for required commands
@@ -67,15 +67,16 @@ Function Test-CommandExists {
 $defaultJdk = '11'
 $builds = @{}
 $env:REMOTING_VERSION = "$RemotingVersion"
-$env:WINDOWS_VERSION_NAME = $AgentType.replace('windows-', 'ltsc')
-$env:NANOSERVER_VERSION_NAME = $env:WINDOWS_VERSION_NAME
-$env:WINDOWS_VERSION_TAG = $env:WINDOWS_VERSION_NAME
-# Unconsistent naming for the 2019 version, needed as while nanoserver-ltsc2019 and windowsserver-ltsc2019 tags exist eclipse-temurin:<...>-ltsc2019 does not
-# We also need to keep the `jdkN-nanoserver-1809` images for now, cf https://github.com/jenkinsci/docker-agent/issues/451
-if ($AgentType -eq 'windows-2019') {
-    $env:WINDOWS_VERSION_TAG = 1809
-    $env:NANOSERVER_VERSION_NAME = 1809
+
+$items = $ImageType.Split("-")
+$env:WINDOWS_FLAVOR = $items[0]
+$env:WINDOWS_VERSION_TAG = $items[1]
+$env:TOOLS_WINDOWS_VERSION = $items[1]
+if ($items[1] -eq 'ltsc2019') {
+    # There are no eclipse-temurin:*-ltsc2019 or mcr.microsoft.com/powershell:*-ltsc2019 docker images unfortunately, only "1809" ones
+    $env:TOOLS_WINDOWS_VERSION = '1809'
 }
+
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
 
 Test-CommandExists "docker"
@@ -86,17 +87,15 @@ $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
-    $image = '{0}-{1}' -f $_, $env:WINDOWS_VERSION_NAME
-    # Special case for nanoserver-1809 images
-    $image = $image.replace('nanoserver-ltsc2019', 'nanoserver-1809')
-    $items = $image.Split("-")
-    $jdkMajorVersion = $items[0].Remove(0,3)
-    $windowsType = $items[1]
-    $windowsVersion = $items[2]
+    $image = '{0}-{1}-{2}' -f $_, $env:WINDOWS_FLAVOR, $env:WINDOWS_VERSION_TAG # Ex: "jdk11-nanoserver-1809"
 
-    $baseImage = "${windowsType}-${windowsVersion}"
+    # Remove the 'jdk' prefix
+    $jdkMajorVersion = $_.Remove(0,3)
+
+    $baseImage = "${env:WINDOWS_FLAVOR}-${env:WINDOWS_VERSION_TAG}"
     $versionTag = "${RemotingVersion}-${BuildNumber}-${image}"
     $tags = @( $image, $versionTag )
+    # Additional image tag without any 'jdk' prefix for the default JDK
     if($jdkMajorVersion -eq "$defaultJdk") {
         $tags += $baseImage
     }
@@ -106,7 +105,7 @@ Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
     }
 }
 
-Write-Host '= PREPARE: List of images and tags to be processed:'
+Write-Host "= PREPARE: List of $Organization/$Repository images and tags to be processed:"
 ConvertTo-Json $builds
 
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
@@ -132,10 +131,9 @@ function Test-Image {
     Write-Host "= TEST: Testing image ${ImageName}:"
 
     $env:AGENT_IMAGE = $ImageName
-    $serviceName = $ImageName.SubString(0, $ImageName.LastIndexOf('-'))
-    $env:IMAGE_FOLDER = Invoke-Expression "$baseDockerCmd config" 2>$null |  yq -r ".services.${serviceName}.build.context"
+    $serviceName = $ImageName.SubString(0, $ImageName.IndexOf('-'))
+    $env:BUILD_CONTEXT = Invoke-Expression "$baseDockerCmd config" 2>$null |  yq -r ".services.${serviceName}.build.context"
     $env:VERSION = "$RemotingVersion-$BuildNumber"
-
 
     if(Test-Path ".\target\$ImageName") {
         Remove-Item -Recurse -Force ".\target\$ImageName"
@@ -150,7 +148,7 @@ function Test-Image {
         Write-Host "There were $($TestResults.PassedCount) passed tests out of $($TestResults.TotalCount) in $ImageName"
     }
     Remove-Item env:\AGENT_IMAGE
-    Remove-Item env:\IMAGE_FOLDER
+    Remove-Item env:\BUILD_CONTEXT
     Remove-Item env:\VERSION
 }
 
