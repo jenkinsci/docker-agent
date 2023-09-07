@@ -12,7 +12,7 @@ Param(
 $ErrorActionPreference = 'Stop'
 $Repository = 'agent'
 $Organization = 'jenkins'
-$ImageType = 'windows-ltsc2019'
+$ImageType = 'windowsservercore-ltsc2019'
 
 if(!$DisableEnvProps) {
     Get-Content env.props | ForEach-Object {
@@ -68,15 +68,6 @@ $defaultJdk = '11'
 $builds = @{}
 $env:REMOTING_VERSION = "$RemotingVersion"
 
-$items = $ImageType.Split("-")
-$env:WINDOWS_FLAVOR = $items[0]
-$env:WINDOWS_VERSION_TAG = $items[1]
-$env:TOOLS_WINDOWS_VERSION = $items[1]
-if ($items[1] -eq 'ltsc2019') {
-    # There are no eclipse-temurin:*-ltsc2019 or mcr.microsoft.com/powershell:*-ltsc2019 docker images unfortunately, only "1809" ones
-    $env:TOOLS_WINDOWS_VERSION = '1809'
-}
-
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
 
 Test-CommandExists "docker"
@@ -87,21 +78,29 @@ $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
-    $image = '{0}-{1}-{2}' -f $_, $env:WINDOWS_FLAVOR, $env:WINDOWS_VERSION_TAG # Ex: "jdk11-nanoserver-1809"
+    $image = '{0}' -f $_ # Ex: "jdk11-windowsservercore-ltsc2019"
 
+    $items = $image.Split("-")
     # Remove the 'jdk' prefix
-    $jdkMajorVersion = $_.Remove(0,3)
+    $jdkMajorVersion = $items[0].Remove(0,3)
+    # TODO: check if we can omit setting these env vars
+    $env:WINDOWS_FLAVOR = $items[1]
+    $env:WINDOWS_VERSION_TAG = $items[2]
 
     $baseImage = "${env:WINDOWS_FLAVOR}-${env:WINDOWS_VERSION_TAG}"
-    $versionTag = "${RemotingVersion}-${BuildNumber}-${image}"
-    $tags = @( $image, $versionTag )
-    # Additional image tag without any 'jdk' prefix for the default JDK
-    if($jdkMajorVersion -eq "$defaultJdk") {
-        $tags += $baseImage
-    }
 
-    $builds[$image] = @{
-        'Tags' = $tags;
+    # Filter only images corresponding to the current image type
+    if($baseImage -eq $ImageType) {
+        $versionTag = "${RemotingVersion}-${BuildNumber}-${image}"
+        $tags = @( $image, $versionTag )
+        # Additional image tag without any 'jdk' prefix for the default JDK
+        if($jdkMajorVersion -eq "$defaultJdk") {
+            $tags += $baseImage
+        }
+    
+        $builds[$image] = @{
+            'Tags' = $tags;
+        }
     }
 }
 
@@ -131,8 +130,8 @@ function Test-Image {
     Write-Host "= TEST: Testing image ${ImageName}:"
 
     $env:AGENT_IMAGE = $ImageName
-    $serviceName = $ImageName.SubString(0, $ImageName.IndexOf('-'))
-    $env:BUILD_CONTEXT = Invoke-Expression "$baseDockerCmd config" 2>$null |  yq -r ".services.${serviceName}.build.context"
+    # $serviceName = $ImageName.SubString(0, $ImageName.IndexOf('-'))
+    $env:BUILD_CONTEXT = Invoke-Expression "$baseDockerCmd config" 2>$null |  yq -r ".services.${ImageName}.build.context"
     $env:VERSION = "$RemotingVersion-$BuildNumber"
 
     if(Test-Path ".\target\$ImageName") {
