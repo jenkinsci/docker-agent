@@ -113,19 +113,12 @@ targets:
         keyword: ARG
         matcher: JAVA_VERSION
     scmid: default
-  setJDK17VersionWindowsNanoserver:
+  setJDK17VersionWindows:
     name: "Bump JDK17 version on Windows Nanoserver image"
     kind: yaml
     spec:
       file: build-windows.yaml
-      key: $.services.jdk17-nanoserver.build.args.JAVA_VERSION
-    scmid: default
-  setJDK17VersionWindowsServer:
-    name: "Bump JDK17 version on Windows Server image"
-    kind: yaml
-    spec:
-      file: build-windows.yaml
-      key: $.services.jdk17-windowsservercore.build.args.JAVA_VERSION
+      key: $.services.jdk17.build.args.JAVA_VERSION
     scmid: default
 
 actions:

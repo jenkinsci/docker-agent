@@ -95,19 +95,12 @@ targets:
       file: docker-bake.hcl
       path: variable.JAVA11_VERSION.default
     scmid: default
-  setJDK11VersionWindowsNanoserver:
+  setJDK11VersionWindows:
     name: "Bump JDK11 version on Windows Nanoserver image"
     kind: yaml
     spec:
       file: build-windows.yaml
-      key: $.services.jdk11-nanoserver.build.args.JAVA_VERSION
-    scmid: default
-  setJDK11VersionWindowsServer:
-    name: "Bump JDK11 version on Windows Server image"
-    kind: yaml
-    spec:
-      file: build-windows.yaml
-      key: $.services.jdk11-windowsservercore.build.args.JAVA_VERSION
+      key: $.services.jdk11.build.args.JAVA_VERSION
     scmid: default
 
 actions:
