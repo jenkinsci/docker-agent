@@ -2,9 +2,11 @@ group "linux" {
   targets = [
     "alpine_jdk11",
     "alpine_jdk17",
+    "alpine_jdk21",
     "archlinux_jdk11",
     "debian_jdk11",
     "debian_jdk17",
+    "debian_jdk21",
   ]
 }
 
@@ -12,6 +14,8 @@ group "linux-arm64" {
   targets = [
     "debian_jdk11",
     "debian_jdk17",
+    "debian_jdk21",
+    "alpine_jdk21",
   ]
 }
 
@@ -77,6 +81,10 @@ variable "JAVA17_VERSION" {
   default = "17.0.8.1_1"
 }
 
+variable "JAVA21_VERSION" {
+  default = "21+35"
+}
+
 target "archlinux_jdk11" {
   dockerfile = "archlinux/Dockerfile"
   context    = "."
@@ -139,6 +147,25 @@ target "alpine_jdk17" {
   platforms = ["linux/amd64"]
 }
 
+target "alpine_jdk21" {
+  dockerfile = "alpine/21/Dockerfile"
+  context    = "."
+  args = {
+    ALPINE_TAG   = ALPINE_FULL_TAG
+    JAVA_VERSION = JAVA21_VERSION
+    VERSION      = REMOTING_VERSION
+  }
+  tags = [
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk21-preview" : "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk21-preview" : "",
+    "${REGISTRY}/${JENKINS_REPO}:alpine-jdk21-preview",
+    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk21-preview",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk21-preview",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk21-preview",
+  ]
+  platforms = ["linux/amd64", "linux/arm64"]
+}
+
 target "debian_jdk11" {
   dockerfile = "debian/Dockerfile"
   context    = "."
@@ -173,4 +200,22 @@ target "debian_jdk17" {
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk17",
   ]
   platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le"]
+}
+
+
+target "debian_jdk21" {
+  dockerfile = "debian/21/Dockerfile"
+  context    = "."
+  args = {
+    JAVA_VERSION = JAVA21_VERSION
+    VERSION      = REMOTING_VERSION,
+  }
+  tags = [
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk21-preview" : "",
+    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk21-preview",
+    "${REGISTRY}/${JENKINS_REPO}:jdk21-preview",
+    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk21-preview",
+    "${REGISTRY}/${JENKINS_REPO}:latest-jdk21-preview",
+  ]
+  platforms = ["linux/amd64", "linux/arm64"]
 }
