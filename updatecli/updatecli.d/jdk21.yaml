@@ -1,5 +1,5 @@
 ---
-name: Bump JDK21 version (Jenkins tools) on all controllers
+name: Bump JDK21 version for all Linux images
 
 scms:
   default:
@@ -54,7 +54,7 @@ actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump JDK21 version (Jenkins default tools) to {{ source "getLatestJDK21EAVersion" }}
+    title: Bump JDK21 version to {{ source "getLatestJDK21EAVersion" }}
     spec:
       labels:
         - dependencies
