@@ -55,6 +55,9 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
     Remove-Item mingit.zip -Force
 
+ENV ProgramFiles="C:\Program Files" `
+    WindowsPATH="C:\Windows\system32;C:\Windows" `
+    JAVA_HOME="${JAVA_HOME}"
 ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
 ARG GIT_LFS_VERSION=3.4.0
@@ -64,11 +67,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Invoke-WebRequest $url -OutFile 'GitLfs.zip' -UseBasicParsing ; `
     Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ; `
     Remove-Item GitLfs.zip -Force ; `
-    & C:\mingit\cmd\git.exe lfs install
-
-ENV ProgramFiles="C:\Program Files" `
-    WindowsPATH="C:\Windows\system32;C:\Windows" `
-    JAVA_HOME="${JAVA_HOME}"
+    & c:\mingit\mingw64\bin\git-lfs.exe install
 
 ARG user=jenkins
 
