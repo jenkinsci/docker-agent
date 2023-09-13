@@ -19,7 +19,7 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-
+ARG DEBIAN_RELEASE=bookworm-20230904
 ARG JAVA_VERSION=17.0.8.1_1
 FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-focal AS jre-build
 
@@ -50,7 +50,8 @@ RUN if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
   else cp -r /opt/java/openjdk /javaruntime; \
   fi
 
-FROM debian:bullseye-20230904 AS build
+
+FROM debian:"${DEBIAN_RELEASE}"-slim AS build
 
 ARG user=jenkins
 ARG group=jenkins

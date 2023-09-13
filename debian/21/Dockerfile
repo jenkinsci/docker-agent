@@ -1,5 +1,5 @@
-ARG BOOKWORM_TAG=20230725
-FROM debian:bookworm-"${BOOKWORM_TAG}"-slim as jre-build
+ARG DEBIAN_RELEASE=bookworm-20230904
+FROM debian:"${DEBIAN_RELEASE}"-slim as jre-build
 ARG JAVA_VERSION
 ARG TARGETPLATFORM
 
@@ -27,7 +27,7 @@ RUN jlink \
   --output /javaruntime
 
 
-FROM debian:bullseye-20230814 AS build
+FROM debian:"${DEBIAN_RELEASE}" AS build
 
 ARG user=jenkins
 ARG group=jenkins
