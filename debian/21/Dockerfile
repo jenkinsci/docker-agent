@@ -1,4 +1,4 @@
-ARG BOOKWORM_TAG=20230725
+ARG BOOKWORM_TAG=20230904
 FROM debian:bookworm-"${BOOKWORM_TAG}"-slim as jre-build
 ARG JAVA_VERSION
 ARG TARGETPLATFORM
@@ -13,7 +13,7 @@ RUN set -x; apt-get update \
   && BUILD_NUMBER=$(echo $JAVA_VERSION | cut -d'+' -f2) \
   && JAVA_MAJOR_VERSION=$(echo $JAVA_VERSION | cut -d'+' -f1) \
   && JAVA_VERSION_ENCODED=$(echo "$JAVA_VERSION" | jq "@uri" -jRr) \
-  && CONVERTED_ARCH=$(arch | sed 's/x86_64/x64/') \
+  && CONVERTED_ARCH=$(arch | sed -e 's/x86_64/x64/' -e 's/armv7l/arm/') \
   && wget --quiet https://github.com/adoptium/temurin"${JAVA_MAJOR_VERSION}"-binaries/releases/download/jdk-"${JAVA_VERSION_ENCODED}"-ea-beta/OpenJDK"${JAVA_MAJOR_VERSION}"U-jdk_"${CONVERTED_ARCH}"_linux_hotspot_ea_"${JAVA_MAJOR_VERSION}"-0-"${BUILD_NUMBER}".tar.gz -O /tmp/jdk.tar.gz \
   && tar -xzf /tmp/jdk.tar.gz -C /opt/ \
   && rm -f /tmp/jdk.tar.gz
@@ -27,7 +27,7 @@ RUN jlink \
   --output /javaruntime
 
 
-FROM debian:bullseye-20230814 AS build
+FROM debian:bookworm-"${BOOKWORM_TAG}" AS build
 
 ARG user=jenkins
 ARG group=jenkins
