@@ -23,6 +23,8 @@ if($global:WINDOWSFLAVOR -eq 'nanoserver') {
     $global:CONTAINERSHELL = "pwsh.exe"
 }
 
+$global:GITLFSVERSION = '3.1.4'
+
 Cleanup($global:CONTAINERNAME)
 
 Describe "[$global:AGENT_IMAGE] image is present" {
@@ -68,6 +70,12 @@ Describe "[$global:AGENT_IMAGE] image has correct applications in the PATH" {
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"Get-ChildItem env:`""
         $exitCode | Should -Be 0
         $stdout.Trim() | Should -Match "user.*jenkins"
+    }
+
+    It 'has git-lfs (and thus git) installed' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
+        $exitCode | Should -Be 0
+        $stdout.Trim() | Should -Match "git-lfs/${global:GITLFSVERSION}"
     }
 
     AfterAll {
