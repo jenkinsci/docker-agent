@@ -73,13 +73,13 @@ Describe "[$global:AGENT_IMAGE] image has correct applications in the PATH" {
     }
 
     It 'has git-lfs (and thus git) installed' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$global:GITLFSVERSION = git lfs version 2>&1 ; Write-Host `$global:GITLFSVERSION`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
         $exitCode | Should -Be 0
-        # $stdout.Trim() | Should -Match "git-lfs/${global:GITLFSVERSION}"
-        $r = [regex] "^git-lfs/`"(?<gitlfsversion>\d+)"
-        $m = $r.Match($stdout)
-        $m | Should -Not -Be $null
-        $m.Groups['gitlfsversion'].ToString() | Should -Be $global:GITLFSVERSION
+        $stdout.Trim() | Should -Match "git-lfs/${global:GITLFSVERSION}"
+        # $r = [regex] "^git-lfs/`"(?<gitlfsversion>\d+)"
+        # $m = $r.Match($stdout)
+        # $m | Should -Not -Be $null
+        # $m.Groups['gitlfsversion'].ToString() | Should -Be $global:GITLFSVERSION
     }
 
     AfterAll {
