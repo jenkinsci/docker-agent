@@ -1,5 +1,5 @@
-ARG BOOKWORM_TAG=20230904
-FROM debian:bookworm-"${BOOKWORM_TAG}"-slim as jre-build
+ARG DEBIAN_RELEASE=bookworm-20230904
+FROM debian:"${DEBIAN_RELEASE}"-slim as jre-build
 ARG JAVA_VERSION
 ARG TARGETPLATFORM
 
@@ -32,7 +32,7 @@ RUN if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
       cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
     fi
 
-FROM debian:bookworm-"${BOOKWORM_TAG}" AS build
+FROM debian:"${DEBIAN_RELEASE}" AS build
 
 ARG user=jenkins
 ARG group=jenkins

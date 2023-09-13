@@ -73,6 +73,10 @@ variable "ALPINE_SHORT_TAG" {
   default = regex_replace(ALPINE_FULL_TAG, "\\.\\d+$", "")
 }
 
+variable "DEBIAN_RELEASE" {
+  default = "bookworm-20230904"
+}
+
 variable "JAVA11_VERSION" {
   default = "11.0.20.1_1"
 }
@@ -170,8 +174,9 @@ target "debian_jdk11" {
   dockerfile = "debian/Dockerfile"
   context    = "."
   args = {
-    JAVA_VERSION = JAVA11_VERSION
-    VERSION      = REMOTING_VERSION
+    JAVA_VERSION   = JAVA11_VERSION
+    VERSION        = REMOTING_VERSION
+    DEBIAN_RELEASE = DEBIAN_RELEASE
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}" : "",
@@ -189,8 +194,9 @@ target "debian_jdk17" {
   dockerfile = "debian/Dockerfile"
   context    = "."
   args = {
-    JAVA_VERSION = JAVA17_VERSION
-    VERSION      = REMOTING_VERSION,
+    JAVA_VERSION   = JAVA17_VERSION
+    VERSION        = REMOTING_VERSION
+    DEBIAN_RELEASE = DEBIAN_RELEASE
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk17" : "",
@@ -207,8 +213,9 @@ target "debian_jdk21" {
   dockerfile = "debian/21/Dockerfile"
   context    = "."
   args = {
-    JAVA_VERSION = JAVA21_VERSION
-    VERSION      = REMOTING_VERSION,
+    JAVA_VERSION   = JAVA21_VERSION
+    VERSION        = REMOTING_VERSION
+    DEBIAN_RELEASE = DEBIAN_RELEASE
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk21-preview" : "",
