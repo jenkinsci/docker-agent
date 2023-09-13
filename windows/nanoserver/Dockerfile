@@ -66,9 +66,9 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest $url -OutFile 'GitLfs.zip' -UseBasicParsing ; `
     Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ; `
-    $gitLfsPath = 'c:\mingit\mingw64\bin\git-lfs-{0}' -f $env:GIT_LFS_VERSION) ; `
-    Move-Item -Path "${gitLfsPath}\git-lfs.exe" -Destination 'c:\mingit\mingw64\bin\' ; `
-    Remove-Item -Path $gitLfsPath -Recurse -Force
+    $gitLfsFolder = 'c:\mingit\mingw64\bin\git-lfs-{0}' -f $env:GIT_LFS_VERSION) ; `
+    Move-Item -Path "${gitLfsFolder}\git-lfs.exe" -Destination 'c:\mingit\mingw64\bin\' ; `
+    Remove-Item -Path $gitLfsFolder -Recurse -Force
     Remove-Item GitLfs.zip -Force ; `
     & c:\mingit\mingw64\bin\git-lfs.exe install
 
