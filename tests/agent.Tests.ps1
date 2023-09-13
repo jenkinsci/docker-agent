@@ -74,8 +74,8 @@ Describe "[$global:AGENT_IMAGE] image has correct applications in the PATH" {
 
     It 'has git-lfs (and thus git) installed' {
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
-        $exitCode | Should -Be 0
         $stdout.Trim() | Should -Match "git-lfs/${global:GITLFSVERSION}"
+        $exitCode | Should -Be 0
     }
 
     AfterAll {
