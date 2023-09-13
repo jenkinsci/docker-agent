@@ -67,7 +67,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Invoke-WebRequest $url -OutFile 'GitLfs.zip' -UseBasicParsing ; `
     Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ; `
     Remove-Item GitLfs.zip -Force ; `
-    & c:\mingit\mingw64\bin\git-lfs.exe install
+    & c:\mingit\mingw64\bin\git-lfs-3.4.0\git-lfs.exe install
 
 ARG user=jenkins
 
