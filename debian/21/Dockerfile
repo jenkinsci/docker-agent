@@ -13,19 +13,24 @@ RUN set -x; apt-get update \
   && BUILD_NUMBER=$(echo $JAVA_VERSION | cut -d'+' -f2) \
   && JAVA_MAJOR_VERSION=$(echo $JAVA_VERSION | cut -d'+' -f1) \
   && JAVA_VERSION_ENCODED=$(echo "$JAVA_VERSION" | jq "@uri" -jRr) \
-  && CONVERTED_ARCH=$(arch | sed 's/x86_64/x64/') \
+  && CONVERTED_ARCH=$(arch | sed -e 's/x86_64/x64/' -e 's/armv7l/arm/') \
   && wget --quiet https://github.com/adoptium/temurin"${JAVA_MAJOR_VERSION}"-binaries/releases/download/jdk-"${JAVA_VERSION_ENCODED}"-ea-beta/OpenJDK"${JAVA_MAJOR_VERSION}"U-jdk_"${CONVERTED_ARCH}"_linux_hotspot_ea_"${JAVA_MAJOR_VERSION}"-0-"${BUILD_NUMBER}".tar.gz -O /tmp/jdk.tar.gz \
   && tar -xzf /tmp/jdk.tar.gz -C /opt/ \
   && rm -f /tmp/jdk.tar.gz
 
 ENV PATH=/opt/jdk-${JAVA_VERSION}/bin:$PATH
 
-RUN jlink \
-  --add-modules ALL-MODULE-PATH \
-  --no-man-pages \
-  --compress=zip-6 \
-  --output /javaruntime
-
+RUN if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
+      jlink \
+        --add-modules ALL-MODULE-PATH \
+        --no-man-pages \
+        --compress=zip-6 \
+        --output /javaruntime; \
+    # It is acceptable to have a larger image in arm/v7 (arm 32 bits) environment.
+    # Because jlink fails with the error "jmods: Value too large for defined data type" error.
+    else  \
+      cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
+    fi
 
 FROM debian:"${DEBIAN_RELEASE}" AS build
 
