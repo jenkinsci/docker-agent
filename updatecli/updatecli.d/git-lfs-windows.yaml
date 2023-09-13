@@ -46,7 +46,7 @@ targets:
         matcher: GIT_LFS_VERSION
     scmid: default
   setGitLfsVersionTests:
-    name: Update the `git-lfs` Windows version for Windows Core Server
+    name: Update the `git-lfs` Windows version in tests
     kind: file
     spec:
       file: tests/agent.Tests.ps1
