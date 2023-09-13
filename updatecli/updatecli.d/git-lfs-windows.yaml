@@ -55,7 +55,6 @@ targets:
       replacepattern: >
         global:GIT_LFS_VERSION = '{{ source "lastVersion" }}'
     scmid: default
-    
 
 actions:
   default:
