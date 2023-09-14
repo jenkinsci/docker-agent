@@ -45,6 +45,16 @@ targets:
         keyword: ARG
         matcher: GIT_LFS_VERSION
     scmid: default
+  setGitLfsVersionTests:
+    name: Update the `git-lfs` Windows version in tests
+    kind: file
+    spec:
+      file: tests/agent.Tests.ps1
+      matchpattern: >
+        global:GIT_LFS_VERSION = '(.*)'$
+      replacepattern: >
+        global:GIT_LFS_VERSION = '{{ source "lastVersion" }}'
+    scmid: default
 
 actions:
   default:
