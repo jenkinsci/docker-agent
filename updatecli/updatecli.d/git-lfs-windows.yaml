@@ -51,9 +51,9 @@ targets:
     spec:
       file: tests/agent.Tests.ps1
       matchpattern: >
-        global:GIT_LFS_VERSION = '(.*)'$
+        global:GITLFSVERSION =(.*)
       replacepattern: >
-        global:GIT_LFS_VERSION = '{{ source "lastVersion" }}'
+        global:GITLFSVERSION = '{{ source "lastVersion" }}'
     scmid: default
 
 actions:
