@@ -57,6 +57,15 @@ targets:
         keyword: "ARG"
         matcher: "ALPINE_TAG"
     scmid: default
+  updateDockerfileJdk21:
+    name: "Update the value of the base image (ARG ALPINE_TAG) in the Dockerfile"
+    kind: dockerfile
+    spec:
+      file: alpine/21/Dockerfile
+      instruction:
+        keyword: "ARG"
+        matcher: "ALPINE_TAG"
+    scmid: default
   updateDockerBake:
     name: "Update the value of the base image (ARG ALPINE_TAG) in the docker-bake.hcl"
     kind: hcl
