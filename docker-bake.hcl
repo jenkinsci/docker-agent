@@ -184,10 +184,10 @@ target "debian_jdk11" {
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}" : "",
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk11" : "",
-    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk11",
+    "${REGISTRY}/${JENKINS_REPO}:bookworm-jdk11",
     "${REGISTRY}/${JENKINS_REPO}:jdk11",
     "${REGISTRY}/${JENKINS_REPO}:latest",
-    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk11",
+    "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk11",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk11",
   ]
   platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/s390x", "linux/ppc64le"]
@@ -203,9 +203,9 @@ target "debian_jdk17" {
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk17" : "",
-    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:bookworm-jdk17",
     "${REGISTRY}/${JENKINS_REPO}:jdk17",
-    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk17",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk17",
   ]
   platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le"]
@@ -222,9 +222,9 @@ target "debian_jdk21" {
   }
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk21-preview" : "",
-    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk21-preview",
+    "${REGISTRY}/${JENKINS_REPO}:bookworm-jdk21-preview",
     "${REGISTRY}/${JENKINS_REPO}:jdk21-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk21-preview",
+    "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk21-preview",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk21-preview",
   ]
   platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x", "linux/arm/v7"]
