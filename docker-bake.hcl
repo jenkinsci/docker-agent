@@ -149,7 +149,7 @@ target "alpine_jdk17" {
 }
 
 target "alpine_jdk21" {
-  dockerfile = "alpine/21/Dockerfile"
+  dockerfile = "alpine/Dockerfile"
   context    = "."
   args = {
     ALPINE_TAG   = ALPINE_FULL_TAG
@@ -157,12 +157,12 @@ target "alpine_jdk21" {
     VERSION      = REMOTING_VERSION
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk21-preview" : "",
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk21-preview" : "",
-    "${REGISTRY}/${JENKINS_REPO}:alpine-jdk21-preview",
-    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk21-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk21-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk21-preview",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk21" : "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk21" : "",
+    "${REGISTRY}/${JENKINS_REPO}:alpine-jdk21",
+    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk21",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk21",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk21",
   ]
   platforms = ["linux/amd64", "linux/arm64"]
 }
@@ -208,7 +208,7 @@ target "debian_jdk17" {
 
 
 target "debian_jdk21" {
-  dockerfile = "debian/21/Dockerfile"
+  dockerfile = "debian/Dockerfile"
   context    = "."
   args = {
     JAVA_VERSION   = JAVA21_VERSION
@@ -216,11 +216,11 @@ target "debian_jdk21" {
     DEBIAN_RELEASE = DEBIAN_RELEASE
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk21-preview" : "",
-    "${REGISTRY}/${JENKINS_REPO}:bookworm-jdk21-preview",
-    "${REGISTRY}/${JENKINS_REPO}:jdk21-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk21-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-jdk21-preview",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk21" : "",
+    "${REGISTRY}/${JENKINS_REPO}:bookworm-jdk21",
+    "${REGISTRY}/${JENKINS_REPO}:jdk21",
+    "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk21",
+    "${REGISTRY}/${JENKINS_REPO}:latest-jdk21",
   ]
   platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x", "linux/arm/v7"]
 }
