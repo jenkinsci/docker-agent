@@ -28,7 +28,7 @@ services:
       dockerfile: ./windows/${WINDOWS_FLAVOR}/Dockerfile
       args:
         JAVA_HOME: "C:/openjdk-21"
-        JAVA_VERSION: 21_35
+        JAVA_VERSION: "21_35"
         VERSION: ${REMOTING_VERSION}
         WINDOWS_VERSION_TAG: ${WINDOWS_VERSION_TAG}
         TOOLS_WINDOWS_VERSION: ${TOOLS_WINDOWS_VERSION}
