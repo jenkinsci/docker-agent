@@ -62,10 +62,10 @@ docker run -i --rm --name agent1 --init -v agent1-workdir:C:/Users/jenkins/Work 
 The image has several supported configurations, which can be accessed via the following tags:
 
 * Linux Images:
-  * `latest` (`jdk11`, `bullseye-jdk11`, `latest-bullseye-jdk11`, `latest-jdk11`): Latest version with the newest remoting and Java 11 (based on `debian:bullseye-${builddate}`)
+  * `latest` (`jdk11`, `bookworm-jdk11`, `latest-bookworm-jdk11`, `latest-jdk11`): Latest version with the newest remoting and Java 11 (based on `debian:bookworm-${builddate}`)
   * `alpine` (`alpine-jdk11`, `latest-alpine`, `latest-alpine-jdk11`): Small image based on Alpine Linux (based on `alpine:${version}`)
   * `archlinux` (`latest-archlinux`, `archlinux-jdk11`, `latest-archlinux-jdk11`): Image based on Arch Linux with JDK11 (based on `archlinux:latest`)
-  * `bullseye-jdk17` (`jdk17`, `latest-bullseye-jdk17`, `latest-jdk17`): JDK17 version with the newest remoting (based on `debian:bullseye-${builddate}`)
+  * `bookworm-jdk17` (`jdk17`, `latest-bookworm-jdk17`, `latest-jdk17`): JDK17 version with the newest remoting (based on `debian:bookworm-${builddate}`)
 
 From version 4.11.2, the alpine images are tagged using the alpine OS version as well (i.e. `alpine` ==> `alpine3.16`, `alpine-jdk11` ==> `alpine3.16-jdk11`).
 
