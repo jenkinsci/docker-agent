@@ -63,8 +63,8 @@ Function Test-CommandExists {
     }
 }
 
-# this is the jdk version that will be used for the 'bare tag' images, e.g., jdk8-windowsservercore-1809 -> windowsserver-1809
-$defaultJdk = '11'
+# this is the jdk version that will be used for the 'bare tag' images, e.g., jdk17-windowsservercore-1809 -> windowsserver-1809
+$defaultJdk = '17'
 $builds = @{}
 $env:REMOTING_VERSION = "$RemotingVersion"
 
@@ -87,7 +87,7 @@ $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
-    $image = '{0}-{1}-{2}' -f $_, $env:WINDOWS_FLAVOR, $env:WINDOWS_VERSION_TAG # Ex: "jdk11-nanoserver-1809"
+    $image = '{0}-{1}-{2}' -f $_, $env:WINDOWS_FLAVOR, $env:WINDOWS_VERSION_TAG # Ex: "jdk17-nanoserver-1809"
 
     # Remove the 'jdk' prefix
     $jdkMajorVersion = $_.Remove(0,3)
