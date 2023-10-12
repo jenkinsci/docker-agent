@@ -30,7 +30,6 @@ group "linux-arm32" {
 group "linux-s390x" {
   targets = [
     "debian_jdk11",
-    "debian_jdk21"
   ]
 }
 
@@ -222,5 +221,5 @@ target "debian_jdk21" {
     "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk21",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk21",
   ]
-  platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x", "linux/arm/v7"]
+  platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7"]
 }
