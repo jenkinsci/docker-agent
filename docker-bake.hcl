@@ -5,6 +5,7 @@ group "linux" {
     "alpine_jdk21",
     "archlinux_jdk11",
     "debian_jdk11",
+    "debian_jdk11_fix_bullseyes_jdk11",
     "debian_jdk17",
     "debian_jdk21",
   ]
@@ -13,6 +14,7 @@ group "linux" {
 group "linux-arm64" {
   targets = [
     "debian_jdk11",
+    "debian_jdk11_fix_bullseyes_jdk11",
     "debian_jdk17",
     "debian_jdk21",
     "alpine_jdk21",
@@ -22,6 +24,7 @@ group "linux-arm64" {
 group "linux-arm32" {
   targets = [
     "debian_jdk11",
+    "debian_jdk11_fix_bullseyes_jdk11",
     "debian_jdk17",
     "debian_jdk21"
   ]
@@ -30,6 +33,7 @@ group "linux-arm32" {
 group "linux-s390x" {
   targets = [
     "debian_jdk11",
+    "debian_jdk11_fix_bullseyes_jdk11",
     "debian_jdk21"
   ]
 }
@@ -37,6 +41,7 @@ group "linux-s390x" {
 group "linux-ppc64le" {
   targets = [
     "debian_jdk11",
+    "debian_jdk11_fix_bullseyes_jdk11",
     "debian_jdk17",
     "debian_jdk21"
   ]
@@ -189,6 +194,20 @@ target "debian_jdk11" {
     "${REGISTRY}/${JENKINS_REPO}:latest",
     "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk11",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk11",
+  ]
+  platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/s390x", "linux/ppc64le"]
+}
+
+target "debian_jdk11_fix_bullseyes_jdk11" {
+  dockerfile = "debian/fix-latest-bullseye-jdk11/Dockerfile"
+  context    = "."
+  args = {
+    JAVA_VERSION   = JAVA11_VERSION
+    VERSION        = REMOTING_VERSION
+  }
+  tags = [
+    "${REGISTRY}/${JENKINS_REPO}:bullseye-jdk11",
+    "${REGISTRY}/${JENKINS_REPO}:latest-bullseye-jdk11",
   ]
   platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/s390x", "linux/ppc64le"]
 }
