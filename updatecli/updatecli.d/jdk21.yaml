@@ -27,13 +27,8 @@ sources:
     name: Get the latest Adoptium JDK21 version
     kind: gittag
     scmid: temurin21-binaries
-    spec:
-      versionfilter:
-        kind: regex
-        pattern: ".*-ea-.*"
     transformers:
       - trimprefix: "jdk-"
-      - trimsuffix: "-ea-beta"
 
 conditions:
   checkIfReleaseIsAvailable:
@@ -49,7 +44,10 @@ targets:
       file: docker-bake.hcl
       path: variable.JAVA21_VERSION.default
     scmid: default
-
+    transformers:
+      - replacers:
+          - from: "+"
+            to: "_"
 actions:
   default:
     kind: github/pullrequest
