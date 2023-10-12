@@ -83,7 +83,7 @@ variable "JAVA17_VERSION" {
 }
 
 variable "JAVA21_VERSION" {
-  default = "21+35"
+  default = "21_35"
 }
 
 target "archlinux_jdk11" {
