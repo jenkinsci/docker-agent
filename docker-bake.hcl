@@ -4,7 +4,6 @@ group "linux" {
     "alpine_jdk17",
     "alpine_jdk21",
     "archlinux_jdk11",
-    "archlinux_jdk17",
     "debian_jdk11",
     "debian_jdk17",
     "debian_jdk21",
@@ -101,27 +100,12 @@ target "archlinux_jdk11" {
     VERSION      = REMOTING_VERSION
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-archlinux-jdk11" : "",
-    "${REGISTRY}/${JENKINS_REPO}:archlinux-jdk11",
-    "${REGISTRY}/${JENKINS_REPO}:latest-archlinux-jdk11",
-  ]
-  platforms = ["linux/amd64"]
-}
-
-target "archlinux_jdk17" {
-  dockerfile = "archlinux/Dockerfile"
-  context    = "."
-  args = {
-    JAVA_VERSION = JAVA17_VERSION
-    VERSION      = REMOTING_VERSION
-  }
-  tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-archlinux" : "",
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-archlinux-jdk17" : "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-archlinux-jdk11" : "",
     "${REGISTRY}/${JENKINS_REPO}:archlinux",
     "${REGISTRY}/${JENKINS_REPO}:latest-archlinux",
-    "${REGISTRY}/${JENKINS_REPO}:archlinux-jdk17",
-    "${REGISTRY}/${JENKINS_REPO}:latest-archlinux-jdk17",
+    "${REGISTRY}/${JENKINS_REPO}:archlinux-jdk11",
+    "${REGISTRY}/${JENKINS_REPO}:latest-archlinux-jdk11",
   ]
   platforms = ["linux/amd64"]
 }

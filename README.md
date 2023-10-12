@@ -64,10 +64,9 @@ The image has several supported configurations, which can be accessed via the fo
 * Linux Images:
   * `latest` (`jdk17`, `bookworm-jdk17`, `latest-bookworm`, `latest-bookworm-jdk17`, `latest-jdk17`): Latest version with the newest remoting and JDK17 (based on `debian:bookworm-${builddate}`)
   * `alpine` (`alpine-jdk17`, `latest-alpine`, `latest-alpine-jdk17`): Small image based on Alpine Linux with JDK17 (based on `alpine:${version}`)
-  * `archlinux` (`archlinux-jdk17`, `latest-archlinux`, `latest-archlinux-jdk17`): Image based on Arch Linux with JDK17 (based on `archlinux:latest`)
+  * `archlinux` (`archlinux-jdk11`, `latest-archlinux`, `latest-archlinux-jdk11`): Image based on Arch Linux with JDK11 (based on `archlinux:latest`)
   * `bookworm-jdk11` (`latest-bookworm-jdk11`, `latest-jdk11`): JDK11 version with the newest remoting (based on `debian:bookworm-${builddate}`)
   * `alpine-jdk11` (`latest-alpine-jdk11`): Small image based on Alpine Linux with JDK11 (based on `alpine:${version}`)
-  * `archlinux-jdk11` (`latest-archlinux-jdk11`): Image based on Arch Linux with JDK11 (based on `archlinux:latest`)
 
 From version 4.11.2, the alpine images are tagged using the alpine OS version as well (i.e. `alpine` ==> `alpine3.16`, `alpine-jdk11` ==> `alpine3.16-jdk11`).
 
