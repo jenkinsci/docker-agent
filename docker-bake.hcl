@@ -29,7 +29,6 @@ group "linux-arm32" {
 group "linux-s390x" {
   targets = [
     "debian_jdk11",
-    "debian_jdk21"
   ]
 }
 
