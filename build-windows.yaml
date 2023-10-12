@@ -6,7 +6,7 @@ services:
       dockerfile: ./windows/${WINDOWS_FLAVOR}/Dockerfile
       args:
         JAVA_HOME: "C:/openjdk-11"
-        JAVA_VERSION: 11.0.20.1_1
+        JAVA_VERSION: "11.0.20.1_1"
         VERSION: ${REMOTING_VERSION}
         WINDOWS_VERSION_TAG: ${WINDOWS_VERSION_TAG}
         TOOLS_WINDOWS_VERSION: ${TOOLS_WINDOWS_VERSION}
@@ -17,7 +17,18 @@ services:
       dockerfile: ./windows/${WINDOWS_FLAVOR}/Dockerfile
       args:
         JAVA_HOME: "C:/openjdk-17"
-        JAVA_VERSION: 17.0.8.1_1
+        JAVA_VERSION: "17.0.8.1_1"
+        VERSION: ${REMOTING_VERSION}
+        WINDOWS_VERSION_TAG: ${WINDOWS_VERSION_TAG}
+        TOOLS_WINDOWS_VERSION: ${TOOLS_WINDOWS_VERSION}
+  jdk21:
+    image: jdk21-${WINDOWS_FLAVOR}-${WINDOWS_VERSION_TAG}
+    build:
+      context: ./
+      dockerfile: ./windows/${WINDOWS_FLAVOR}/Dockerfile
+      args:
+        JAVA_HOME: "C:/openjdk-21"
+        JAVA_VERSION: "21_35"
         VERSION: ${REMOTING_VERSION}
         WINDOWS_VERSION_TAG: ${WINDOWS_VERSION_TAG}
         TOOLS_WINDOWS_VERSION: ${TOOLS_WINDOWS_VERSION}
