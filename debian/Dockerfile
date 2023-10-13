@@ -79,7 +79,7 @@ RUN apt-get update \
     patch \
     tzdata \
   && apt-get clean \
-  && rm -rf /tmp/* /var/cache/* /usr/share/doc/* /usr/share/man/* /var/lib/apt/lists/*
+  && rm -rf /tmp/* /var/cache/* /var/lib/apt/lists/*
 
 ARG VERSION=3160.vd76b_9ddd10cc
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
