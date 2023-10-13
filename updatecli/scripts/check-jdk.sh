@@ -31,8 +31,7 @@ function get_jdk_download_url() {
       return 0;;
     21*)
       ## JDK21 URLs have an underscore ('_') instead of a plus ('+') in their archive names, and "-debugimage" instead of "-jdk"
-      # TODO: replace "-debugimage" by "-jdk" in link when those binaries will be published
-      echo  "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-${jdk_version}/OpenJDK21U-debugimage_${platform}_hotspot_${jdk_version//+/_}";
+      echo  "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-${jdk_version//+/_}/OpenJDK21U-jdk_${platform}_hotspot_${jdk_version//+/_}";
       return 0;;
     *)
       echo "ERROR: unsupported JDK version (${jdk_version}).";
