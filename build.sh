@@ -56,6 +56,7 @@ ORGANIZATION=${DOCKERHUB_ORGANISATION:-jenkins}
 remoting_version=${REMOTING_VERSION:-${remoting_version}}
 
 if [[ "${target}" = "build" ]] ; then
+  make show
   make build
   exit_result=$?
   exit_if_error
@@ -77,6 +78,7 @@ if [[ "${target}" = "publish" ]] ; then
     export ON_TAG=true
     export BUILD_NUMBER=$build_number
   fi
+  make show
   docker buildx bake --push --file docker-bake.hcl linux
   exit_result=$?
 fi
