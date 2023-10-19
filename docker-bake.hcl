@@ -49,7 +49,7 @@ group "windows" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "3160.vd76b_9ddd10cc"
+  default = "3174.v2c9e67f8f9df"
 }
 
 variable "REGISTRY" {
