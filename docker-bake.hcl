@@ -42,12 +42,6 @@ group "linux-ppc64le" {
   ]
 }
 
-group "windows" {
-  targets = [
-    "windows_2019_jdk11",
-  ]
-}
-
 variable "REMOTING_VERSION" {
   default = "3174.v2c9e67f8f9df"
 }
