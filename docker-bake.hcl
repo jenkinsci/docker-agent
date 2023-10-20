@@ -23,13 +23,14 @@ group "linux-arm32" {
   targets = [
     "debian_jdk11",
     "debian_jdk17",
-    "debian_jdk21"
+    "debian_jdk21_preview"
   ]
 }
 
 group "linux-s390x" {
   targets = [
     "debian_jdk11",
+    "debian_jdk21_preview"
   ]
 }
 
@@ -37,7 +38,7 @@ group "linux-ppc64le" {
   targets = [
     "debian_jdk11",
     "debian_jdk17",
-    "debian_jdk21"
+    "debian_jdk21_preview"
   ]
 }
 
@@ -205,7 +206,6 @@ target "debian_jdk17" {
   platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le"]
 }
 
-
 target "debian_jdk21" {
   dockerfile = "debian/Dockerfile"
   context    = "."
@@ -221,5 +221,23 @@ target "debian_jdk21" {
     "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk21",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk21",
   ]
-  platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7"]
+  platforms = ["linux/amd64", "linux/arm64"]
+}
+
+target "debian_jdk21_preview" {
+  dockerfile = "debian/21/Dockerfile"
+  context    = "."
+  args = {
+    JAVA_VERSION   = JAVA21_VERSION
+    VERSION        = REMOTING_VERSION
+    DEBIAN_RELEASE = DEBIAN_RELEASE
+  }
+  tags = [
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk21-preview" : "",
+    "${REGISTRY}/${JENKINS_REPO}:bookworm-jdk21-preview",
+    "${REGISTRY}/${JENKINS_REPO}:jdk21-preview",
+    "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk21-preview",
+    "${REGISTRY}/${JENKINS_REPO}:latest-jdk21-preview",
+  ]
+  platforms = ["linux/ppc64le", "linux/s390x", "linux/arm/v7"]
 }
