@@ -3,7 +3,7 @@ Param(
     [Parameter(Position=1)]
     [String] $Target = "build",
     [String] $Build = '',
-    [String] $RemotingVersion = '3174.v2c9e67f8f9df',
+    [String] $RemotingVersion = '3176.v207ec082a_8c0',
     [String] $BuildNumber = '1',
     [switch] $PushVersions = $false,
     [switch] $DisableEnvProps = $false
