@@ -84,7 +84,7 @@ ARCH=${ARCH:-x86_64}
 }
 
 @test "[${SUT_IMAGE}] Another user 'root' or 'jenkins' is able to start an agent process" {
-  run docker run --rm --user=2222:2222 --entrypoint='' "${SUT_IMAGE}" java -cp /usr/share/jenkins/agent.jar hudson.remoting.jnlp.Main -version
+  run docker run --rm --user=2222:2222 --entrypoint='' "${SUT_IMAGE}" java -jar /usr/share/jenkins/agent.jar -version
   assert_success
 }
 
@@ -118,7 +118,7 @@ docker buildx bake \
 
   is_agent_container_running "${cid}"
 
-  run docker exec "${cid}" sh -c "java -cp /usr/share/jenkins/agent.jar hudson.remoting.jnlp.Main -version"
+  run docker exec "${cid}" sh -c "java -jar /usr/share/jenkins/agent.jar -version"
   assert_line --index 0 "${TEST_VERSION}"
 
   run docker exec "${cid}" sh -c "id -u -n ${TEST_USER}"
