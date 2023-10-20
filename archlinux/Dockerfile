@@ -49,7 +49,7 @@ ENV TZ=Etc/UTC
 
 RUN pacman -Syu curl git git-lfs openssh tzdata --noconfirm
 
-ARG VERSION=3174.v2c9e67f8f9df
+ARG VERSION=3176.v207ec082a_8c0
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
