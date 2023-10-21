@@ -43,7 +43,7 @@ group "linux-ppc64le" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "3176.v207ec082a_8c0"
+  default = "3180.v3dd999d24861"
 }
 
 variable "REGISTRY" {

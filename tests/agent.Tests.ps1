@@ -146,7 +146,7 @@ Describe "[$global:AGENT_IMAGE] can be built with custom build arguments" {
     }
 
     It 'has the correct version of remoting' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$global:VERSION = java -cp C:/ProgramData/Jenkins/agent.jar hudson.remoting.jnlp.Main -version ; Write-Host `$global:VERSION`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$global:VERSION = java -jar C:/ProgramData/Jenkins/agent.jar -version ; Write-Host `$global:VERSION`""
         $exitCode | Should -Be 0
         $stdout.Trim() | Should -Match $TEST_VERSION
     }
