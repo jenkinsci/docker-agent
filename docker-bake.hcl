@@ -7,6 +7,7 @@ group "linux" {
     "debian_jdk11",
     "debian_jdk17",
     "debian_jdk21",
+    "debian_jdk21_preview"
   ]
 }
 
@@ -23,14 +24,14 @@ group "linux-arm32" {
   targets = [
     "debian_jdk11",
     "debian_jdk17",
-    "debian_jdk21"
+    "debian_jdk21_preview"
   ]
 }
 
 group "linux-s390x" {
   targets = [
     "debian_jdk11",
-    "debian_jdk21"
+    "debian_jdk21_preview"
   ]
 }
 
@@ -38,7 +39,7 @@ group "linux-ppc64le" {
   targets = [
     "debian_jdk11",
     "debian_jdk17",
-    "debian_jdk21"
+    "debian_jdk21_preview"
   ]
 }
 
@@ -83,6 +84,10 @@ variable "JAVA17_VERSION" {
 }
 
 variable "JAVA21_VERSION" {
+  default = "21_35"
+}
+
+variable "JAVA21_PREVIEW_VERSION" {
   default = "21+35"
 }
 
@@ -149,7 +154,7 @@ target "alpine_jdk17" {
 }
 
 target "alpine_jdk21" {
-  dockerfile = "alpine/21/Dockerfile"
+  dockerfile = "alpine/Dockerfile"
   context    = "."
   args = {
     ALPINE_TAG   = ALPINE_FULL_TAG
@@ -157,12 +162,12 @@ target "alpine_jdk21" {
     VERSION      = REMOTING_VERSION
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk21-preview" : "",
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk21-preview" : "",
-    "${REGISTRY}/${JENKINS_REPO}:alpine-jdk21-preview",
-    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk21-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk21-preview",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk21-preview",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk21" : "",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk21" : "",
+    "${REGISTRY}/${JENKINS_REPO}:alpine-jdk21",
+    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk21",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk21",
+    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk21",
   ]
   platforms = ["linux/amd64", "linux/arm64"]
 }
@@ -206,12 +211,29 @@ target "debian_jdk17" {
   platforms = ["linux/amd64", "linux/arm64", "linux/arm/v7", "linux/ppc64le"]
 }
 
-
 target "debian_jdk21" {
-  dockerfile = "debian/21/Dockerfile"
+  dockerfile = "debian/Dockerfile"
   context    = "."
   args = {
     JAVA_VERSION   = JAVA21_VERSION
+    VERSION        = REMOTING_VERSION
+    DEBIAN_RELEASE = DEBIAN_RELEASE
+  }
+  tags = [
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk21" : "",
+    "${REGISTRY}/${JENKINS_REPO}:bookworm-jdk21",
+    "${REGISTRY}/${JENKINS_REPO}:jdk21",
+    "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk21",
+    "${REGISTRY}/${JENKINS_REPO}:latest-jdk21",
+  ]
+  platforms = ["linux/amd64", "linux/arm64"]
+}
+
+target "debian_jdk21_preview" {
+  dockerfile = "debian/preview/Dockerfile"
+  context    = "."
+  args = {
+    JAVA_VERSION   = JAVA21_PREVIEW_VERSION
     VERSION        = REMOTING_VERSION
     DEBIAN_RELEASE = DEBIAN_RELEASE
   }
@@ -222,5 +244,5 @@ target "debian_jdk21" {
     "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk21-preview",
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk21-preview",
   ]
-  platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x", "linux/arm/v7"]
+  platforms = ["linux/ppc64le", "linux/s390x", "linux/arm/v7"]
 }
