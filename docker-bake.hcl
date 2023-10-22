@@ -229,7 +229,7 @@ target "debian_jdk21" {
 }
 
 target "debian_jdk21_preview" {
-  dockerfile = "debian/21/Dockerfile"
+  dockerfile = "debian/preview/Dockerfile"
   context    = "."
   args = {
     JAVA_VERSION   = JAVA21_PREVIEW_VERSION
