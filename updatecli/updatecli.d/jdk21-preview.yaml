@@ -1,5 +1,5 @@
 ---
-name: Bump JDK21 version for all Linux images
+name: Bump JDK21 preview version (EA) for all Linux images
 
 scms:
   default:
@@ -40,14 +40,16 @@ conditions:
     kind: shell
     spec:
       command: bash ./updatecli/scripts/check-jdk.sh # source input value passed as argument
+    transformers:
+      - addsuffix: "-ea-beta"
 
 targets:
-  setJDK21Version:
+  setJDK21PreviewVersionDockerBake:
     name: "Bump JDK21 version for Linux images in the docker-bake.hcl file"
     kind: hcl
     spec:
       file: docker-bake.hcl
-      path: variable.JAVA21_VERSION.default
+      path: variable.JAVA21_PREVIEW_VERSION.default
     scmid: default
 
 actions:
@@ -58,4 +60,4 @@ actions:
     spec:
       labels:
         - dependencies
-        - jdk21
+        - jdk21-preview
