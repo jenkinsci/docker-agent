@@ -23,23 +23,29 @@ scms:
       branch: "main"
 
 sources:
-  getLatestJDK21EAVersion:
+  getLatestJDK21Version:
     name: Get the latest Adoptium JDK21 version
     kind: gittag
     scmid: temurin21-binaries
     spec:
       versionfilter:
         kind: regex
-        pattern: ".*-ea-.*"
+        pattern: "\\d$"
     transformers:
       - trimprefix: "jdk-"
-      - trimsuffix: "-ea-beta"
+      - replacer:
+          from: "+"
+          to: "_"
 
 conditions:
   checkIfReleaseIsAvailable:
     kind: shell
     spec:
       command: bash ./updatecli/scripts/check-jdk.sh # source input value passed as argument
+    transformers:
+      - replacer:
+          from: "_"
+          to: "+"
 
 targets:
   setJDK21Version:
@@ -54,7 +60,7 @@ actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump JDK21 version to {{ source "getLatestJDK21EAVersion" }}
+    title: Bump JDK21 version to {{ source "getLatestJDK21Version" }}
     spec:
       labels:
         - dependencies

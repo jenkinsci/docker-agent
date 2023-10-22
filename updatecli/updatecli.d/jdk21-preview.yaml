@@ -23,8 +23,8 @@ scms:
       branch: "main"
 
 sources:
-  getLatestJDK21EAVersion:
-    name: Get the latest Adoptium JDK21 version
+  getLatestJDK21PreviewVersion:
+    name: Get the latest Adoptium preview (EA) JDK21 version
     kind: gittag
     scmid: temurin21-binaries
     spec:
@@ -45,7 +45,7 @@ conditions:
 
 targets:
   setJDK21PreviewVersionDockerBake:
-    name: "Bump JDK21 version for Linux images in the docker-bake.hcl file"
+    name: "Bump preview (EA) JDK21 version for Linux images in the docker-bake.hcl file"
     kind: hcl
     spec:
       file: docker-bake.hcl
@@ -56,7 +56,7 @@ actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump JDK21 version to {{ source "getLatestJDK21EAVersion" }}
+    title: Bump preview (EA) JDK21 version to {{ source "getLatestJDK21PreviewVersion" }}
     spec:
       labels:
         - dependencies
