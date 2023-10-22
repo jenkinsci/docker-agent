@@ -11,7 +11,7 @@ RUN set -x; apt-get update \
     ca-certificates \
     jq \
     wget \
-  && JAVA_VERSION_DASHED=$(echo "ea_${JAVA_VERSION}" | sed -e 's/\./-/g' -e 's/+/-/' -e 's/ea_21_35/21_35/') \
+  && JAVA_VERSION_DASHED=$(echo "ea_${JAVA_VERSION}" | sed -e 's/\./-/g' -e 's/+/-/' -e 's/ea_21-35/21_35/') \
   && JAVA_MAJOR_VERSION=$(echo $JAVA_VERSION | cut -d'+' -f1) \
   && JAVA_VERSION_ENCODED=$(echo "$JAVA_VERSION" | jq "@uri" -jRr) \
   && CONVERTED_ARCH=$(arch | sed -e 's/x86_64/x64/' -e 's/armv7l/arm/') \
