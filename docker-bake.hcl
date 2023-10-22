@@ -86,6 +86,10 @@ variable "JAVA21_VERSION" {
   default = "21_35"
 }
 
+variable "JAVA21_PREVIEW_VERSION" {
+  default = "21+35"
+}
+
 target "archlinux_jdk11" {
   dockerfile = "archlinux/Dockerfile"
   context    = "."
@@ -228,7 +232,7 @@ target "debian_jdk21_preview" {
   dockerfile = "debian/21/Dockerfile"
   context    = "."
   args = {
-    JAVA_VERSION   = JAVA21_VERSION
+    JAVA_VERSION   = JAVA21_PREVIEW_VERSION
     VERSION        = REMOTING_VERSION
     DEBIAN_RELEASE = DEBIAN_RELEASE
   }
