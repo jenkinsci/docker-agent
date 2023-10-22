@@ -10,11 +10,11 @@ RUN set -x; apt-get update \
     ca-certificates \
     jq \
     wget \
-  && JAVA_VERSION_DASHED=$(echo $JAVA_VERSION | sed -e 's/\./-/g' -e 's/+/-/') \
+  && JAVA_VERSION_DASHED=$(echo "ea_${JAVA_VERSION}" | sed -e 's/\./-/g' -e 's/+/-/' -e 's/ea_21_35/21_35/') \
   && JAVA_MAJOR_VERSION=$(echo $JAVA_VERSION | cut -d'+' -f1) \
   && JAVA_VERSION_ENCODED=$(echo "$JAVA_VERSION" | jq "@uri" -jRr) \
   && CONVERTED_ARCH=$(arch | sed -e 's/x86_64/x64/' -e 's/armv7l/arm/') \
-  && wget --quiet https://github.com/adoptium/temurin"${JAVA_MAJOR_VERSION}"-binaries/releases/download/jdk-"${JAVA_VERSION_ENCODED}"-ea-beta/OpenJDK"${JAVA_MAJOR_VERSION}"U-jdk_"${CONVERTED_ARCH}"_linux_hotspot_ea_"${JAVA_VERSION_DASHED}".tar.gz -O /tmp/jdk.tar.gz \
+  && wget --quiet https://github.com/adoptium/temurin"${JAVA_MAJOR_VERSION}"-binaries/releases/download/jdk-"${JAVA_VERSION_ENCODED}"-ea-beta/OpenJDK"${JAVA_MAJOR_VERSION}"U-jdk_"${CONVERTED_ARCH}"_linux_hotspot_"${JAVA_VERSION_DASHED}".tar.gz -O /tmp/jdk.tar.gz \
   && tar -xzf /tmp/jdk.tar.gz -C /opt/ \
   && rm -f /tmp/jdk.tar.gz
 
