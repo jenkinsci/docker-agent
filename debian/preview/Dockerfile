@@ -22,7 +22,7 @@ RUN set -x; apt-get update \
   && JAVA_MAJOR_VERSION=$(echo $JAVA_VERSION | cut -d'+' -f1) \
   && ENCODED_JAVA_VERSION=$(echo "$JAVA_VERSION" | jq "@uri" -jRr) \
   && CONVERTED_ARCH=$(arch | sed -e 's/x86_64/x64/' -e 's/armv7l/arm/') \
-  && wget --quiet https://github.com/adoptium/temurin"${JAVA_MAJOR_VERSION}"-binaries/releases/download/jdk-"${ENCODED_JAVA_VERSION}"-ea-beta/OpenJDK"${JAVA_MAJOR_VERSION}"U-jdk_"${CONVERTED_ARCH}"_linux_hotspot_ea_"${DASHED_JAVA_VERSION}".tar.gz -O /tmp/jdk.tar.gz \
+  && wget --quiet https://github.com/adoptium/temurin21-binaries/releases/download/jdk-"${ENCODED_JAVA_VERSION}"-ea-beta/OpenJDK"${JAVA_MAJOR_VERSION}"U-jdk_"${CONVERTED_ARCH}"_linux_hotspot_ea_"${DASHED_JAVA_VERSION}".tar.gz -O /tmp/jdk.tar.gz \
   && tar -xzf /tmp/jdk.tar.gz -C /opt/ \
   && rm -f /tmp/jdk.tar.gz
 
