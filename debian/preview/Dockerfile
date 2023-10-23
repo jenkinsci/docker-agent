@@ -19,7 +19,7 @@ RUN set -x; apt-get update \
     jq \
     wget \
   && DASHED_JAVA_VERSION=$(echo "$JAVA_VERSION" | sed -e 's/\./-/g' -e 's/+/-/' -e 's/21-35/21-0-35/') \
-  && JAVA_MAJOR_VERSION=$(echo $JAVA_VERSION | cut -d'+' -f1 | cut -d'.' -f1) \
+  && JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d'+' -f1 | cut -d'.' -f1) \
   && ENCODED_JAVA_VERSION=$(echo "$JAVA_VERSION" | jq "@uri" -jRr) \
   && CONVERTED_ARCH=$(arch | sed -e 's/x86_64/x64/' -e 's/armv7l/arm/') \
   && wget --quiet https://github.com/adoptium/temurin"${JAVA_MAJOR_VERSION}"-binaries/releases/download/jdk-"${ENCODED_JAVA_VERSION}"-ea-beta/OpenJDK"${JAVA_MAJOR_VERSION}"U-jdk_"${CONVERTED_ARCH}"_linux_hotspot_ea_"${DASHED_JAVA_VERSION}".tar.gz -O /tmp/jdk.tar.gz \
