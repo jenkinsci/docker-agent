@@ -6,7 +6,7 @@ ARG TARGETPLATFORM
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ## Example of preview (EA) jdk21 JAVA_VERSION values:
-# 21+35 (special case as only one number before the "+")
+# 21+35 (note: only one number before the "+")
 # 21.0.1+12
 ## Example of preview (EA) release download link:
 # https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21%2B35-ea-beta/OpenJDK21U-jdk_x64_linux_hotspot_ea_21-0-35.tar.gz
