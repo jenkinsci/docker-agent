@@ -6,7 +6,8 @@ Param(
     [String] $RemotingVersion = '3180.v3dd999d24861',
     [String] $BuildNumber = '1',
     [switch] $PushVersions = $false,
-    [switch] $DisableEnvProps = $false
+    [switch] $DisableEnvProps = $false,
+    [switch] $DryRun = $false
 )
 
 $ErrorActionPreference = 'Stop'
@@ -108,16 +109,19 @@ Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
 Write-Host "= PREPARE: List of $Organization/$Repository images and tags to be processed:"
 ConvertTo-Json $builds
 
+$dockerBuildCmd = $baseDockerBuildCmd
+$current = 'all images'
 if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-    Write-Host "= BUILD: Building image ${Build}..."
+    $current = "$Build image"
     $dockerBuildCmd = '{0} {1}' -f $baseDockerBuildCmd, $Build
-    Invoke-Expression $dockerBuildCmd
-    Write-Host "= BUILD: Finished building image ${Build}"
-} else {
-    Write-Host "= BUILD: Building all images..."
-    Invoke-Expression $baseDockerBuildCmd
-    Write-Host "= BUILD: Finished building all image"
 }
+Write-Host "= BUILD: Building ${current}..."
+if ($DryRun) {
+    Write-Host "(dry-run) $dockerBuildCmd"
+} else {
+    Invoke-Expression $dockerBuildCmd
+}
+Write-Host "= BUILD: Finished building ${current}"
 
 if($lastExitCode -ne 0) {
     exit $lastExitCode
@@ -153,49 +157,53 @@ function Test-Image {
 }
 
 if($target -eq "test") {
-    Write-Host "= TEST: Starting test harness"
-
-    # Only fail the run afterwards in case of any test failures
-    $testFailed = $false
-    $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.3.0 -MaximumVersion 5.3.3 -ErrorAction SilentlyContinue
-    if($null -eq $mod) {
-        Write-Host "= TEST: Pester 5.3.x not found: installing..."
-        $module = "c:\Program Files\WindowsPowerShell\Modules\Pester"
-        if(Test-Path $module) {
-            takeown /F $module /A /R
-            icacls $module /reset
-            icacls $module /grant Administrators:'F' /inheritance:d /T
-            Remove-Item -Path $module -Recurse -Force -Confirm:$false
-        }
-        Install-Module -Force -Name Pester -MaximumVersion 5.3.3
-    }
-
-    Import-Module Pester
-    Write-Host "= TEST: Setting up Pester environment..."
-    $configuration = [PesterConfiguration]::Default
-    $configuration.Run.PassThru = $true
-    $configuration.Run.Path = '.\tests'
-    $configuration.Run.Exit = $true
-    $configuration.TestResult.Enabled = $true
-    $configuration.TestResult.OutputFormat = 'JUnitXml'
-    $configuration.Output.Verbosity = 'Diagnostic'
-    $configuration.CodeCoverage.Enabled = $false
-
-    if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-        Test-Image $Build
+    if ($DryRun) {
+        Write-Host "= TEST: (dry-run) test harness"
     } else {
-        Write-Host "= TEST: Testing all images..."
-        foreach($image in $builds.Keys) {
-            Test-Image $image
-        }
-    }
+        Write-Host "= TEST: Starting test harness"
 
-    # Fail if any test failures
-    if($testFailed -ne $false) {
-        Write-Error "Test stage failed!"
-        exit 1
-    } else {
-        Write-Host "Test stage passed!"
+        # Only fail the run afterwards in case of any test failures
+        $testFailed = $false
+        $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.3.0 -MaximumVersion 5.3.3 -ErrorAction SilentlyContinue
+        if($null -eq $mod) {
+            Write-Host "= TEST: Pester 5.3.x not found: installing..."
+            $module = "c:\Program Files\WindowsPowerShell\Modules\Pester"
+            if(Test-Path $module) {
+                takeown /F $module /A /R
+                icacls $module /reset
+                icacls $module /grant Administrators:'F' /inheritance:d /T
+                Remove-Item -Path $module -Recurse -Force -Confirm:$false
+            }
+            Install-Module -Force -Name Pester -MaximumVersion 5.3.3
+        }
+
+        Import-Module Pester
+        Write-Host "= TEST: Setting up Pester environment..."
+        $configuration = [PesterConfiguration]::Default
+        $configuration.Run.PassThru = $true
+        $configuration.Run.Path = '.\tests'
+        $configuration.Run.Exit = $true
+        $configuration.TestResult.Enabled = $true
+        $configuration.TestResult.OutputFormat = 'JUnitXml'
+        $configuration.Output.Verbosity = 'Diagnostic'
+        $configuration.CodeCoverage.Enabled = $false
+
+        if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
+            Test-Image $Build
+        } else {
+            Write-Host "= TEST: Testing all images..."
+            foreach($image in $builds.Keys) {
+                Test-Image $image
+            }
+        }
+
+        # Fail if any test failures
+        if($testFailed -ne $false) {
+            Write-Error "Test stage failed!"
+            exit 1
+        } else {
+            Write-Host "Test stage passed!"
+        }
     }
 }
 
@@ -204,14 +212,18 @@ function Publish-Image {
         [String] $Build,
         [String] $ImageName
     )
-    # foreach($tag in $builds[$ImageName]['Tags']) {
-    #     $fullImageName = '{0}/{1}:{2}' -f $Organization, $Repository, $tag
-    #     $cmd = "docker tag {0} {1}" -f $ImageName, $tag
-    Write-Host "= PUBLISH: Tagging $Build => full name = $ImageName"
-    docker tag "$Build" "$ImageName"
+    if ($DryRun) {
+        Write-Host "= PUBLISH: (dry-run) docker tag then publish '$Build $ImageName'"
+    } else {
+        # foreach($tag in $builds[$ImageName]['Tags']) {
+        #     $fullImageName = '{0}/{1}:{2}' -f $Organization, $Repository, $tag
+        #     $cmd = "docker tag {0} {1}" -f $ImageName, $tag
+        Write-Host "= PUBLISH: Tagging $Build => full name = $ImageName"
+        docker tag "$Build" "$ImageName"
 
-    Write-Host "= PUBLISH: Publishing $ImageName..."
-    docker push "$ImageName"
+        Write-Host "= PUBLISH: Publishing $ImageName..."
+        docker push "$ImageName"
+    }
 }
 
 
