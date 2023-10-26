@@ -2,7 +2,6 @@
 Param(
     [Parameter(Position=1)]
     [String] $Target = "build",
-    [String] $Build = '',
     [String] $RemotingVersion = '3180.v3dd999d24861',
     [String] $BuildNumber = '1',
     [switch] $DisableEnvProps = $false,
@@ -110,19 +109,13 @@ Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
 Write-Host "= PREPARE: List of $Organization/$Repository images and tags to be processed:"
 ConvertTo-Json $builds
 
-$dockerBuildCmd = $baseDockerBuildCmd
-$current = 'all images'
-if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-    $current = "$Build image"
-    $dockerBuildCmd = '{0} {1}' -f $baseDockerBuildCmd, $Build
-}
-Write-Host "= BUILD: Building ${current}..."
+Write-Host "= BUILD: Building all images..."
 if ($DryRun) {
-    Write-Host "(dry-run) $dockerBuildCmd"
+    Write-Host "(dry-run) $baseDockerBuildCmd"
 } else {
-    Invoke-Expression $dockerBuildCmd
+    Invoke-Expression $baseDockerBuildCmd
 }
-Write-Host "= BUILD: Finished building ${current}"
+Write-Host "= BUILD: Finished building all images."
 
 if($lastExitCode -ne 0) {
     exit $lastExitCode
@@ -189,13 +182,9 @@ if($target -eq "test") {
         $configuration.Output.Verbosity = 'Diagnostic'
         $configuration.CodeCoverage.Enabled = $false
 
-        if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-            Test-Image $Build
-        } else {
-            Write-Host "= TEST: Testing all images..."
-            foreach($image in $builds.Keys) {
-                Test-Image $image
-            }
+        Write-Host "= TEST: Testing all images..."
+        foreach($image in $builds.Keys) {
+            Test-Image $image
         }
 
         # Fail if any test failures
@@ -228,20 +217,11 @@ function Publish-Image {
 if($target -eq "publish") {
     # Only fail the run afterwards in case of any issues when publishing the docker images
     $publishFailed = 0
-    if(![System.String]::IsNullOrWhiteSpace($Build) -and $builds.ContainsKey($Build)) {
-        foreach($tag in $Builds[$Build]['Tags']) {
-            Publish-Image  "$Build" "${Organization}/${Repository}:${tag}"
+    foreach($b in $builds.Keys) {
+        foreach($tag in $Builds[$b]['Tags']) {
+            Publish-Image "$b" "${Organization}/${Repository}:${tag}"
             if($lastExitCode -ne 0) {
                 $publishFailed = 1
-            }
-        }
-    } else {
-        foreach($b in $builds.Keys) {
-            foreach($tag in $Builds[$b]['Tags']) {
-                Publish-Image "$b" "${Organization}/${Repository}:${tag}"
-                if($lastExitCode -ne 0) {
-                    $publishFailed = 1
-                }
             }
         }
     }
