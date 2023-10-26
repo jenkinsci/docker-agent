@@ -93,7 +93,7 @@ pipeline {
                                                     ./build.sh -r ${remotingVersion} -b ${buildNumber} -d publish
                                                     """
                                                 } else {
-                                                    powershell "& ./build.ps1 -PushVersions -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
+                                                    powershell "& ./build.ps1 -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
                                                 }
                                             }
                                         }

@@ -5,7 +5,6 @@ Param(
     [String] $Build = '',
     [String] $RemotingVersion = '3180.v3dd999d24861',
     [String] $BuildNumber = '1',
-    [switch] $PushVersions = $false,
     [switch] $DisableEnvProps = $false,
     [switch] $DryRun = $false
 )
@@ -235,16 +234,6 @@ if($target -eq "publish") {
             if($lastExitCode -ne 0) {
                 $publishFailed = 1
             }
-
-            if($PushVersions) {
-                if($tag -eq 'latest') {
-                    $buildTag = "$RemotingVersion-$BuildNumber"
-                    Publish-Image "$Build" "${Organization}/${Repository}:${buildTag}"
-                    if($lastExitCode -ne 0) {
-                        $publishFailed = 1
-                    }
-                }
-            }
         }
     } else {
         foreach($b in $builds.Keys) {
@@ -252,16 +241,6 @@ if($target -eq "publish") {
                 Publish-Image "$b" "${Organization}/${Repository}:${tag}"
                 if($lastExitCode -ne 0) {
                     $publishFailed = 1
-                }
-
-                if($PushVersions) {
-                    if($tag -eq 'latest') {
-                        $buildTag = "$RemotingVersion-$BuildNumber"
-                        Publish-Image "$b" "${Organization}/${Repository}:${buildTag}"
-                        if($lastExitCode -ne 0) {
-                            $publishFailed = 1
-                        }
-                    }
                 }
             }
         }
