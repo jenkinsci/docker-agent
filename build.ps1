@@ -93,12 +93,14 @@ Invoke-Expression "$baseDockerCmd config --services" 2>$null | ForEach-Object {
     # Remove the 'jdk' prefix
     $jdkMajorVersion = $_.Remove(0,3)
 
-    $baseImage = "${env:WINDOWS_FLAVOR}-${env:WINDOWS_VERSION_TAG}"
     $versionTag = "${RemotingVersion}-${BuildNumber}-${image}"
     $tags = @( $image, $versionTag )
+
     # Additional image tag without any 'jdk' prefix for the default JDK
+    $baseImage = "${env:WINDOWS_FLAVOR}-${env:WINDOWS_VERSION_TAG}"
     if($jdkMajorVersion -eq "$defaultJdk") {
         $tags += $baseImage
+        $tags += "${RemotingVersion}-${BuildNumber}-${baseImage}"
     }
 
     $builds[$image] = @{
@@ -202,7 +204,7 @@ if($target -eq "test") {
             Write-Error "Test stage failed!"
             exit 1
         } else {
-            Write-Host "Test stage passed!"
+            Write-Host "= TEST: stage passed!"
         }
     }
 }
@@ -215,9 +217,6 @@ function Publish-Image {
     if ($DryRun) {
         Write-Host "= PUBLISH: (dry-run) docker tag then publish '$Build $ImageName'"
     } else {
-        # foreach($tag in $builds[$ImageName]['Tags']) {
-        #     $fullImageName = '{0}/{1}:{2}' -f $Organization, $Repository, $tag
-        #     $cmd = "docker tag {0} {1}" -f $ImageName, $tag
         Write-Host "= PUBLISH: Tagging $Build => full name = $ImageName"
         docker tag "$Build" "$ImageName"
 
@@ -238,13 +237,12 @@ if($target -eq "publish") {
             }
 
             if($PushVersions) {
-                $buildTag = "$RemotingVersion-$BuildNumber-$tag"
                 if($tag -eq 'latest') {
                     $buildTag = "$RemotingVersion-$BuildNumber"
-                }
-                Publish-Image "$Build" "${Organization}/${Repository}:${buildTag}"
-                if($lastExitCode -ne 0) {
-                    $publishFailed = 1
+                    Publish-Image "$Build" "${Organization}/${Repository}:${buildTag}"
+                    if($lastExitCode -ne 0) {
+                        $publishFailed = 1
+                    }
                 }
             }
         }
@@ -257,13 +255,12 @@ if($target -eq "publish") {
                 }
 
                 if($PushVersions) {
-                    $buildTag = "$RemotingVersion-$BuildNumber-$tag"
                     if($tag -eq 'latest') {
                         $buildTag = "$RemotingVersion-$BuildNumber"
-                    }
-                    Publish-Image "$b" "${Organization}/${Repository}:${buildTag}"
-                    if($lastExitCode -ne 0) {
-                        $publishFailed = 1
+                        Publish-Image "$b" "${Organization}/${Repository}:${buildTag}"
+                        if($lastExitCode -ne 0) {
+                            $publishFailed = 1
+                        }
                     }
                 }
             }
