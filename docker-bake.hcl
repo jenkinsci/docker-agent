@@ -44,7 +44,7 @@ group "linux-ppc64le" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "3180.v3dd999d24861"
+  default = "3186.vc3b_7249b_87eb_"
 }
 
 variable "REGISTRY" {
@@ -88,7 +88,7 @@ variable "JAVA21_VERSION" {
 }
 
 variable "JAVA21_PREVIEW_VERSION" {
-  default = "21+35"
+  default = "21.0.1+12"
 }
 
 target "archlinux_jdk11" {

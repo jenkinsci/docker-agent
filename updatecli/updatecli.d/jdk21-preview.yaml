@@ -1,5 +1,5 @@
 ---
-name: Bump JDK21 version for all Linux images
+name: Bump JDK21 preview version (EA) for all Linux images
 
 scms:
   default:
@@ -23,19 +23,17 @@ scms:
       branch: "main"
 
 sources:
-  getLatestJDK21Version:
-    name: Get the latest Adoptium JDK21 version
+  getLatestJDK21PreviewVersion:
+    name: Get the latest Adoptium preview (EA) JDK21 version
     kind: gittag
     scmid: temurin21-binaries
     spec:
       versionfilter:
         kind: regex
-        pattern: "\\d$"
+        pattern: ".*-ea-.*"
     transformers:
       - trimprefix: "jdk-"
-      - replacer:
-          from: "+"
-          to: "_"
+      - trimsuffix: "-ea-beta"
 
 conditions:
   checkIfReleaseIsAvailable:
@@ -43,25 +41,23 @@ conditions:
     spec:
       command: bash ./updatecli/scripts/check-jdk.sh # source input value passed as argument
     transformers:
-      - replacer:
-          from: "_"
-          to: "+"
+      - addsuffix: "-ea-beta"
 
 targets:
-  setJDK21Version:
-    name: "Bump JDK21 version for Linux images in the docker-bake.hcl file"
+  setJDK21PreviewVersionDockerBake:
+    name: "Bump preview (EA) JDK21 version for Linux images in the docker-bake.hcl file"
     kind: hcl
     spec:
       file: docker-bake.hcl
-      path: variable.JAVA21_VERSION.default
+      path: variable.JAVA21_PREVIEW_VERSION.default
     scmid: default
 
 actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump JDK21 version to {{ source "getLatestJDK21Version" }}
+    title: Bump preview (EA) JDK21 version to {{ source "getLatestJDK21PreviewVersion" }}
     spec:
       labels:
         - dependencies
-        - jdk21
+        - jdk21-preview
