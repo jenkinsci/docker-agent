@@ -96,6 +96,8 @@ pipeline {
                                                     powershell "& ./build.ps1 -PushVersions -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
                                                 }
                                             }
+                                        } else {
+                                            error("The deployment to Docker Hub failed because the tag doesn't contain any '-'.")
                                         }
                                     }
                                 }
