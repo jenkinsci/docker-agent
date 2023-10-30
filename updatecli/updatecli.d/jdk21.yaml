@@ -43,7 +43,7 @@ conditions:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-alpine" is available
     disablesourceinput: true
-      spec:
+    spec:
       architectures:
         - amd64
         - arm64
