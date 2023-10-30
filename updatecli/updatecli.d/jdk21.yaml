@@ -48,7 +48,7 @@ conditions:
         - amd64
         - arm64
       image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-alpine'
+      tag: '{{ source "getLatestJDK21Version" }}-jdk-alpine'
   checkTemurinDebianDockerImages:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-focal" is available
@@ -58,7 +58,7 @@ conditions:
         - amd64
         - arm64
       image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-focal'
+      tag: '{{ source "getLatestJDK21Version" }}-jdk-focal'
   checkTemurinNanoserver2019DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-nanoserver-1809" is available
@@ -66,7 +66,7 @@ conditions:
     spec:
       architecture: amd64
       image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-nanoserver-1809'
+      tag: '{{ source "getLatestJDK21Version" }}-jdk-nanoserver-1809'
   checkTemurinWindowsCore2019DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-1809" is available
@@ -74,7 +74,7 @@ conditions:
     spec:
       architecture: amd64
       image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-windowsservercore-1809'
+      tag: '{{ source "getLatestJDK21Version" }}-jdk-windowsservercore-1809'
   checkTemurinNanoserver2022DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-nanoserver-ltsc2022" is available
@@ -82,7 +82,7 @@ conditions:
     spec:
       architecture: amd64
       image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-nanoserver-ltsc2022'
+      tag: '{{ source "getLatestJDK21Version" }}-jdk-nanoserver-ltsc2022'
   checkTemurinWindowsCore2022DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-ltsc2022" is available
@@ -90,7 +90,7 @@ conditions:
     spec:
       architecture: amd64
       image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-windowsservercore-ltsc2022'
+      tag: '{{ source "getLatestJDK21Version" }}-jdk-windowsservercore-ltsc2022'
 
 targets:
   setJDK21Version:
