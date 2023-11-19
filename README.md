@@ -24,7 +24,7 @@ Jenkins remoting changelogs are available [here](https://github.com/jenkinsci/re
 This image is used as the basis for the [Docker Inbound Agent](https://github.com/jenkinsci/docker-inbound-agent/) image.
 In that image, the container is launched externally and attaches to Jenkins.
 
-This image may instead be used to launch an agent using the **Launch method** of **Launch agent via execution of command on the master**. For example on Linux you can try
+This image may instead be used to launch an agent using the **Launch method** of **Launch agent via execution of command on the controller**. For example on Linux you can try
 
 ```sh
 docker run -i --rm --name agent --init jenkins/agent java -jar /usr/share/jenkins/agent.jar
