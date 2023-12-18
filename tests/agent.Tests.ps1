@@ -23,7 +23,7 @@ if($global:WINDOWSFLAVOR -eq 'nanoserver') {
     $global:CONTAINERSHELL = "pwsh.exe"
 }
 
-$global:GITLFSVERSION = '3.4.0'
+$global:GITLFSVERSION = '3.4.1'
 
 Cleanup($global:CONTAINERNAME)
 
