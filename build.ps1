@@ -2,7 +2,7 @@
 Param(
     [Parameter(Position=1)]
     [String] $Target = "build",
-    [String] $RemotingVersion = '3198.v03a_401881f3e',
+    [String] $RemotingVersion = '3203.v94ce994fdb_31',
     [String] $BuildNumber = '1',
     [switch] $DisableEnvProps = $false,
     [switch] $DryRun = $false
