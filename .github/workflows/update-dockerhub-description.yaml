@@ -9,11 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Update Docker Hub description
+      - name: Update Docker Hub description for agent
         uses: peter-evans/dockerhub-description@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           enable-url-completion: true
-          short-description: ${{ github.event.repository.description }}
+          short-description: This is a base image, which provides the Jenkins agent executable (agent.jar)
+          repository: jenkins/agent
+          readme-filepath: ./README_agent.md
+      - name: Update Docker Hub description for inbound-agent
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          enable-url-completion: true
+          short-description: This is an image for Jenkins agents using TCP or WebSockets to establish inbound connection to the Jenkins controller
           repository: jenkins/inbound-agent
+          readme-filepath: ./README_inbound-agent.md

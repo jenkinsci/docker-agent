@@ -45,23 +45,19 @@ SUT_IMAGE="$(get_sut_image)"
 @test "[${SUT_IMAGE}] use build args correctly" {
   cd "${BATS_TEST_DIRNAME}"/.. || false
 
-  local TEST_VERSION PARENT_IMAGE_VERSION_SUFFIX ARG_TEST_VERSION TEST_USER sut_image sut_cid
+  local TEST_VERSION TEST_USER sut_image sut_cid
 
   # Old version used to test overriding the build arguments.
-  # This old version must have the same tag suffixes as the ones defined in the docker-bake file (`-jdk17`, `jdk11`, etc.)
   TEST_VERSION="3180.v3dd999d24861"
-  PARENT_IMAGE_VERSION_SUFFIX="2"
-
-  ARG_TEST_VERSION="${TEST_VERSION}-${PARENT_IMAGE_VERSION_SUFFIX}"
   TEST_USER="root"
 
   sut_image="${SUT_IMAGE}-tests-${BATS_TEST_NUMBER}"
 
   docker buildx bake \
-    --set "${IMAGE}".args.version="${ARG_TEST_VERSION}" \
-    --set "${IMAGE}".args.user="${TEST_USER}" \
-    --set "${IMAGE}".platform=linux/"${ARCH}" \
-    --set "${IMAGE}".tags="${sut_image}" \
+    --set "${IMAGE}.args.VERSION=${TEST_VERSION}" \
+    --set "${IMAGE}.args.user=${TEST_USER}" \
+    --set "${IMAGE}.platform=linux/${ARCH}" \
+    --set "${IMAGE}.tags=${sut_image}" \
     --load \
       "${IMAGE}"
 
@@ -69,7 +65,7 @@ SUT_IMAGE="$(get_sut_image)"
 
   is_agent_container_running "${sut_cid}"
 
-  run docker exec "${sut_cid}" sh -c "java -cp /usr/share/jenkins/agent.jar hudson.remoting.jnlp.Main -version"
+  run docker exec "${sut_cid}" sh -c "java -jar /usr/share/jenkins/agent.jar -version"
   [ "${TEST_VERSION}" = "${lines[0]}" ]
 
   run docker exec "${AGENT_CONTAINER}" sh -c "id -u -n ${TEST_USER}"
