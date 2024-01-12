@@ -69,7 +69,7 @@ pipeline {
                                 }
                                 post {
                                     always {
-                                        junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results.xml')
+                                        junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results*.xml')
                                     }
                                 }
                             }

@@ -40,7 +40,8 @@ RUN if [ "$TARGETPLATFORM" != 'linux/arm/v7' ]; then \
     cp -r /opt/java/openjdk /javaruntime; \
   fi
 
-FROM alpine:"${ALPINE_TAG}" AS build
+## Agent image target
+FROM alpine:"${ALPINE_TAG}" AS agent
 
 ARG user=jenkins
 ARG group=jenkins
@@ -48,7 +49,7 @@ ARG uid=1000
 ARG gid=1000
 
 RUN addgroup -g "${gid}" "${group}" \
-  && adduser -h /home/"${user}" -u "${uid}" -G "${group}" -D "${user}"
+  && adduser -h /home/"${user}" -u "${uid}" -G "${group}" -D "${user}" || echo "user ${user} already exists."
 
 ARG AGENT_WORKDIR=/home/"${user}"/agent
 
@@ -82,7 +83,7 @@ ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 USER "${user}"
 ENV AGENT_WORKDIR="${AGENT_WORKDIR}"
-RUN mkdir /home/"${user}"/.jenkins && mkdir -p "${AGENT_WORKDIR}"
+RUN mkdir -p /home/"${user}"/.jenkins && mkdir -p "${AGENT_WORKDIR}"
 
 VOLUME /home/"${user}"/.jenkins
 VOLUME "${AGENT_WORKDIR}"
@@ -96,3 +97,25 @@ LABEL \
     org.opencontainers.image.url="https://www.jenkins.io/" \
     org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
     org.opencontainers.image.licenses="MIT"
+
+## Inbound Agent image target
+FROM agent AS inbound-agent
+
+ARG user=jenkins
+
+USER root
+COPY ../../jenkins-agent /usr/local/bin/jenkins-agent
+RUN chmod +x /usr/local/bin/jenkins-agent &&\
+    ln -s /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-slave
+USER ${user}
+
+LABEL \
+    org.opencontainers.image.vendor="Jenkins project" \
+    org.opencontainers.image.title="Official Jenkins Agent Base Docker image" \
+    org.opencontainers.image.description="This is an image for Jenkins agents using TCP or WebSockets to establish inbound connection to the Jenkins controller" \
+    org.opencontainers.image.version="${VERSION}" \
+    org.opencontainers.image.url="https://www.jenkins.io/" \
+    org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
+    org.opencontainers.image.licenses="MIT"
+
+ENTRYPOINT ["/usr/local/bin/jenkins-agent"]

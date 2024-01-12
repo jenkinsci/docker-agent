@@ -4,7 +4,7 @@ load test_helpers
 load 'test_helper/bats-support/load' # this is required by bats-assert!
 load 'test_helper/bats-assert/load'
 
-IMAGE=${IMAGE:-debian_jdk11}
+IMAGE=${IMAGE:-debian_jdk17}
 SUT_IMAGE=$(get_sut_image)
 
 ARCH=${ARCH:-x86_64}
@@ -99,19 +99,19 @@ ARCH=${ARCH:-x86_64}
   local TEST_AGENT_WORKDIR="/home/test-user/something"
   local sut_image="${SUT_IMAGE}-tests-${BATS_TEST_NUMBER}"
 
-# false positive detecting platform
-# shellcheck disable=SC2140
-docker buildx bake \
-  --set "${IMAGE}".args.VERSION="${TEST_VERSION}" \
-  --set "${IMAGE}".args.user="${TEST_USER}" \
-  --set "${IMAGE}".args.group="${TEST_GROUP}" \
-  --set "${IMAGE}".args.uid="${TEST_UID}" \
-  --set "${IMAGE}".args.gid="${TEST_GID}" \
-  --set "${IMAGE}".args.AGENT_WORKDIR="${TEST_AGENT_WORKDIR}" \
-  --set "${IMAGE}".platform="linux/${ARCH}" \
-  --set "${IMAGE}".tags="${sut_image}" \
-    --load `# Image should be loaded on the Docker engine`\
-    "${IMAGE}"
+  # false positive detecting platform
+  # shellcheck disable=SC2140
+  docker buildx bake \
+    --set "${IMAGE}".args.VERSION="${TEST_VERSION}" \
+    --set "${IMAGE}".args.user="${TEST_USER}" \
+    --set "${IMAGE}".args.group="${TEST_GROUP}" \
+    --set "${IMAGE}".args.uid="${TEST_UID}" \
+    --set "${IMAGE}".args.gid="${TEST_GID}" \
+    --set "${IMAGE}".args.AGENT_WORKDIR="${TEST_AGENT_WORKDIR}" \
+    --set "${IMAGE}".platform="linux/${ARCH}" \
+    --set "${IMAGE}".tags="${sut_image}" \
+      --load `# Image should be loaded on the Docker engine`\
+      "${IMAGE}"
 
   local cid
   cid="$(docker run -d -it -P "${sut_image}" /bin/sh)"

@@ -51,8 +51,9 @@ if [[ "${disable_env_props}" = "0" ]] ; then
   export "$(cut -d= -f1 env.props)"
 fi
 
-REPOSITORY=${DOCKERHUB_REPO:-agent}
-ORGANIZATION=${DOCKERHUB_ORGANISATION:-jenkins}
+export REGISTRY_ORG=${DOCKERHUB_ORGANISATION:-jenkins4eval}
+export REGISTRY_REPO_AGENT=${DOCKERHUB_REPO_AGENT:-agent}
+export REGISTRY_REPO_INBOUND_AGENT=${DOCKERHUB_REPO_INBOUND_AGENT:-inbound-agent}
 remoting_version=${REMOTING_VERSION:-${remoting_version}}
 
 if [[ "${target}" = "build" ]] ; then
@@ -72,7 +73,6 @@ fi
 
 if [[ "${target}" = "publish" ]] ; then
   set -x
-  export JENKINS_REPO="${ORGANIZATION}/${REPOSITORY}"
   export REMOTING_VERSION="${remoting_version}"
   if [[ -n "${build_number}" ]] ; then
     export ON_TAG=true
