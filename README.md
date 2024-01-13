@@ -4,7 +4,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/jenkinsci/docker-agent?label=GitHub%20stars)](https://github.com/jenkinsci/docker-agent)
 [![GitHub release](https://img.shields.io/github/release/jenkinsci/docker-agent.svg?label=changelog)](https://github.com/jenkinsci/docker-agent/releases/latest)
 
-This repository contains the definition of two images:
+This repository contains the definition of Jenkins agent and inbound agent Docker images.
 
 ## agent
 [![Docker Pulls](https://img.shields.io/docker/pulls/jenkins/agent.svg)](https://hub.docker.com/r/jenkins/agent/)
@@ -16,6 +16,6 @@ See [the `agent` README](./README_agent.md)
 ## inbound-agent
 [![Docker Pulls](https://img.shields.io/docker/pulls/jenkins/inbound-agent.svg)](https://hub.docker.com/r/jenkins/inbound-agent/)
 
-This is an image based on `agent` for [Jenkins](https://jenkins.io) agents using TCP or WebSockets to establish inbound connection to the Jenkins master.
+This is an image based on `agent` for [Jenkins](https://jenkins.io) agents using TCP or WebSockets to establish inbound connection to the Jenkins controller.
 
 See [the `inbound-agent` README](./README_inbound-agent.md)
