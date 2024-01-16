@@ -120,7 +120,7 @@ LABEL `
     org.opencontainers.image.description="This is an image for Jenkins agents using TCP or WebSockets to establish inbound connection to the Jenkins controller" `
     org.opencontainers.image.version="${VERSION}" `
     org.opencontainers.image.url="https://www.jenkins.io/" `
-    org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent-inbound" `
+    org.opencontainers.image.source="https://github.com/jenkinsci/docker-inbound-agent" `
     org.opencontainers.image.licenses="MIT"
 
 ENTRYPOINT ["powershell.exe", "-f", "C:/ProgramData/Jenkins/jenkins-agent.ps1"]
