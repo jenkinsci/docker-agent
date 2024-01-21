@@ -105,19 +105,19 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20230904"
+  default = "bookworm-20240110"
 }
 
 variable "JAVA11_VERSION" {
-  default = "11.0.20.1_1"
+  default = "11.0.21_9"
 }
 
 variable "JAVA17_VERSION" {
-  default = "17.0.8.1_1"
+  default = "17.0.9_9"
 }
 
 variable "JAVA21_VERSION" {
-  default = "21_35"
+  default = "21.0.1_12"
 }
 
 variable "JAVA21_PREVIEW_VERSION" {
