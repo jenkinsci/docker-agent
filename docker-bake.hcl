@@ -64,7 +64,7 @@ group "linux-ppc64le" {
   targets = [
     "debian_jdk11",
     "debian_jdk17",
-    "debian_jdk21_preview"
+    "debian_jdk21"
   ]
 }
 
@@ -294,7 +294,7 @@ target "debian_jdk21" {
     "${REGISTRY}/${orgrepo(type)}:latest-bookworm-jdk21",
     "${REGISTRY}/${orgrepo(type)}:latest-jdk21",
   ]
-  platforms = ["linux/amd64", "linux/arm64"]
+  platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
 }
 
 target "debian_jdk21_preview" {
@@ -317,5 +317,5 @@ target "debian_jdk21_preview" {
     "${REGISTRY}/${orgrepo(type)}:latest-bookworm-jdk21-preview",
     "${REGISTRY}/${orgrepo(type)}:latest-jdk21-preview",
   ]
-  platforms = ["linux/ppc64le", "linux/s390x", "linux/arm/v7"]
+  platforms = ["linux/s390x", "linux/arm/v7"]
 }
