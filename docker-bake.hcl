@@ -97,7 +97,7 @@ variable "ON_TAG" {
 }
 
 variable "ALPINE_FULL_TAG" {
-  default = "3.19.0"
+  default = "3.19.1"
 }
 
 variable "ALPINE_SHORT_TAG" {
@@ -151,8 +151,8 @@ target "alpine_jdk11" {
   matrix = {
     type = ["agent", "inbound-agent"]
   }
-  name = "${type}_alpine_jdk11"
-  target = type
+  name       = "${type}_alpine_jdk11"
+  target     = type
   dockerfile = "alpine/Dockerfile"
   context    = "."
   args = {
@@ -175,8 +175,8 @@ target "alpine_jdk17" {
   matrix = {
     type = ["agent", "inbound-agent"]
   }
-  name = "${type}_alpine_jdk17"
-  target = type
+  name       = "${type}_alpine_jdk17"
+  target     = type
   dockerfile = "alpine/Dockerfile"
   context    = "."
   args = {
@@ -205,8 +205,8 @@ target "alpine_jdk21" {
   matrix = {
     type = ["agent", "inbound-agent"]
   }
-  name = "${type}_alpine_jdk21"
-  target = type
+  name       = "${type}_alpine_jdk21"
+  target     = type
   dockerfile = "alpine/Dockerfile"
   context    = "."
   args = {
@@ -229,8 +229,8 @@ target "debian_jdk11" {
   matrix = {
     type = ["agent", "inbound-agent"]
   }
-  name = "${type}_debian_jdk11"
-  target = type
+  name       = "${type}_debian_jdk11"
+  target     = type
   dockerfile = "debian/Dockerfile"
   context    = "."
   args = {
@@ -252,8 +252,8 @@ target "debian_jdk17" {
   matrix = {
     type = ["agent", "inbound-agent"]
   }
-  name = "${type}_debian_jdk17"
-  target = type
+  name       = "${type}_debian_jdk17"
+  target     = type
   dockerfile = "debian/Dockerfile"
   context    = "."
   args = {
@@ -278,8 +278,8 @@ target "debian_jdk21" {
   matrix = {
     type = ["agent", "inbound-agent"]
   }
-  name = "${type}_debian_jdk21"
-  target = type
+  name       = "${type}_debian_jdk21"
+  target     = type
   dockerfile = "debian/Dockerfile"
   context    = "."
   args = {
@@ -301,8 +301,8 @@ target "debian_jdk21_preview" {
   matrix = {
     type = ["agent", "inbound-agent"]
   }
-  name = "${type}_debian_jdk21_preview"
-  target = type
+  name       = "${type}_debian_jdk21_preview"
+  target     = type
   dockerfile = "debian/preview/Dockerfile"
   context    = "."
   args = {
