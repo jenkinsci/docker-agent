@@ -19,7 +19,7 @@ pipeline {
     }
 
     stages {
-        stage('docker-agent') {
+        stage('Pipeline') {
             matrix {
                 axes {
                     axis {
