@@ -1,11 +1,12 @@
 Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
 
-$global:AGENT_TYPE = Get-EnvOrDefault 'AGENT_TYPE' ''
-$global:AGENT_IMAGE = Get-EnvOrDefault 'AGENT_IMAGE' ''
+$global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' ''
 $global:VERSION = Get-EnvOrDefault 'VERSION' ''
 
-$items = $global:AGENT_IMAGE.Split("-")
+$imageItems = $global:IMAGE_NAME.Split(":")
+$GLOBAL:IMAGE_TAG = $imageItems[1]
 
+$items = $global:IMAGE_TAG.Split("-")
 # Remove the 'jdk' prefix
 $global:JAVAMAJORVERSION = $items[0].Remove(0,3)
 $global:WINDOWSFLAVOR = $items[1]
@@ -16,7 +17,7 @@ if ($items[2] -eq 'ltsc2019') {
 }
 
 # TODO: make this name unique for concurency
-$global:CONTAINERNAME = 'pester-jenkins-agent-{0}' -f $global:AGENT_IMAGE
+$global:CONTAINERNAME = 'pester-jenkins-agent-{0}' -f $global:IMAGE_TAG
 
 $global:CONTAINERSHELL="powershell.exe"
 if($global:WINDOWSFLAVOR -eq 'nanoserver') {
@@ -25,27 +26,33 @@ if($global:WINDOWSFLAVOR -eq 'nanoserver') {
 
 $global:GITLFSVERSION = '3.4.1'
 
+# # Uncomment to help debugging when working on this script
+# Write-Host "= DEBUG: global vars"
+# Get-Variable -Scope Global | ForEach-Object { Write-Host "$($_.Name) = $($_.Value)" }
+# Write-Host "= DEBUG: env vars"
+# Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name) = $($_.Value)" }
+
 Cleanup($global:CONTAINERNAME)
 
-Describe "[$global:AGENT_TYPE > $global:AGENT_IMAGE] image is present" {
-    It 'builds image' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect $global:AGENT_IMAGE"
+Describe "[$global:IMAGE_NAME] image is present" {
+    It 'inspects image' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect $global:IMAGE_NAME"
         $exitCode | Should -Be 0
     }
 }
 
-Describe "[$global:AGENT_TYPE > $global:AGENT_IMAGE] correct image metadata" {
+Describe "[$global:IMAGE_NAME] correct image metadata" {
     It 'has correct volumes' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format='{{.Config.Volumes}}' $global:AGENT_IMAGE"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format='{{.Config.Volumes}}' $global:IMAGE_NAME"
         $stdout = $stdout.Trim()
         $stdout | Should -Match 'C:/Users/jenkins/.jenkins'
         $stdout | Should -Match 'C:/Users/jenkins/Work'
     }
 }
 
-Describe "[$global:AGENT_TYPE > $global:AGENT_IMAGE] image has correct applications in the PATH" {
+Describe "[$global:IMAGE_NAME] image has correct applications in the PATH" {
     BeforeAll {
-        docker run --detach --interactive --tty --name "$global:CONTAINERNAME" "$global:AGENT_IMAGE" "$global:CONTAINERSHELL"
+        docker run --detach --interactive --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
 
@@ -88,9 +95,9 @@ Describe "[$global:AGENT_TYPE > $global:AGENT_IMAGE] image has correct applicati
     }
 }
 
-Describe "[$global:AGENT_TYPE > $global:AGENT_IMAGE] check user account" {
+Describe "[$global:IMAGE_NAME] check user account" {
     BeforeAll {
-        docker run -d -it --name "$global:CONTAINERNAME" -P "$global:AGENT_IMAGE" "$global:CONTAINERSHELL"
+        docker run -d -it --name "$global:CONTAINERNAME" -P "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
 
@@ -109,9 +116,9 @@ Describe "[$global:AGENT_TYPE > $global:AGENT_IMAGE] check user account" {
     }
 }
 
-Describe "[$global:AGENT_TYPE > $global:AGENT_IMAGE] check user access to directories" {
+Describe "[$global:IMAGE_NAME] check user access to directories" {
     BeforeAll {
-        docker run -d -it --name "$global:CONTAINERNAME" -P "$global:AGENT_IMAGE" "$global:CONTAINERSHELL"
+        docker run -d -it --name "$global:CONTAINERNAME" -P "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
 
@@ -139,14 +146,14 @@ $global:TEST_VERSION="4.0"
 $global:TEST_USER="test-user"
 $global:TEST_AGENT_WORKDIR="C:/test-user/something"
 
-Describe "[$global:AGENT_TYPE > $global:AGENT_IMAGE] can be built with custom build arguments" {
+Describe "[$global:IMAGE_NAME] can be built with custom build arguments" {
     BeforeAll {
         Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --target agent --build-arg `"VERSION=${global:TEST_VERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:WINDOWSVERSIONFALLBACKTAG}`" --build-arg `"user=${global:TEST_USER}`" --build-arg `"AGENT_WORKDIR=${global:TEST_AGENT_WORKDIR}`" --tag ${global:AGENT_IMAGE} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --target agent --build-arg `"VERSION=${global:TEST_VERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:WINDOWSVERSIONFALLBACKTAG}`" --build-arg `"user=${global:TEST_USER}`" --build-arg `"AGENT_WORKDIR=${global:TEST_AGENT_WORKDIR}`" --tag ${global:IMAGE_NAME} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
         $exitCode | Should -Be 0
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run -d -it --name $global:CONTAINERNAME -P $global:AGENT_IMAGE $global:CONTAINERSHELL"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run -d -it --name $global:CONTAINERNAME -P $global:IMAGE_NAME $global:CONTAINERSHELL"
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
 
@@ -184,7 +191,7 @@ Describe "[$global:AGENT_TYPE > $global:AGENT_IMAGE] can be built with custom bu
     }
 
     It 'version in docker metadata' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format=`"{{index .Config.Labels \`"org.opencontainers.image.version\`"}}`" $global:AGENT_IMAGE"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format=`"{{index .Config.Labels \`"org.opencontainers.image.version\`"}}`" $global:IMAGE_NAME"
         $exitCode | Should -Be 0
         $stdout.Trim() | Should -Match $global:sTEST_VERSION
     }
