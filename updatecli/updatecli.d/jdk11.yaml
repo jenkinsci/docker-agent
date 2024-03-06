@@ -80,7 +80,7 @@ conditions:
       tag: '{{source "lastVersion" }}-jdk-nanoserver-ltsc2022'
   checkTemurinWindowsCore2022DockerImage:
     kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-18ltsc202209" is available
+    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-ltsc2022" is available
     disablesourceinput: true
     spec:
       architecture: windows/amd64
