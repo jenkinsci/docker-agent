@@ -63,3 +63,4 @@ actions:
     spec:
       labels:
         - dependencies
+        - debian-bookworm
