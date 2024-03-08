@@ -1,0 +1,65 @@
+---
+name: Bump Debian Bookworm version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  bookwormLatestVersion:
+    kind: dockerimage
+    name: "Get the latest Debian Bookworm Linux version"
+    spec:
+      image: "debian"
+      tagfilter: "bookworm-*"
+      versionfilter:
+        kind: regex
+        pattern: >-
+          bookworm-\d+$
+
+targets:
+  updateDockerfile:
+    name: "Update the value of the base image (ARG DEBIAN_RELEASE) in the Dockerfile"
+    kind: dockerfile
+    sourceid: bookwormLatestVersion
+    spec:
+      file: debian/Dockerfile
+      instruction:
+        keyword: "ARG"
+        matcher: "DEBIAN_RELEASE"
+    scmid: default
+  updatePreviewDockerfile:
+    name: "Update the value of the base image (ARG DEBIAN_RELEASE) in the preview Dockerfile"
+    kind: dockerfile
+    sourceid: bookwormLatestVersion
+    spec:
+      file: debian/preview/Dockerfile
+      instruction:
+        keyword: "ARG"
+        matcher: "DEBIAN_RELEASE"
+    scmid: default
+  updateDockerBake:
+    name: "Update the default value of the variable DEBIAN_RELEASE in the docker-bake.hcl"
+    kind: hcl
+    sourceid: bookwormLatestVersion
+    spec:
+      file: docker-bake.hcl
+      path: variable.DEBIAN_RELEASE.default
+    scmid: default
+
+actions:
+  default:
+    kind: github/pullrequest
+    scmid: default
+    title: Bump Debian Bookworm Linux version to {{ source "bookwormLatestVersion" }}
+    spec:
+      labels:
+        - dependencies
