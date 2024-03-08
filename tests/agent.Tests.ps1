@@ -24,7 +24,7 @@ if($global:WINDOWSFLAVOR -eq 'nanoserver') {
     $global:CONTAINERSHELL = "pwsh.exe"
 }
 
-$global:GITLFSVERSION = '3.4.1'
+$global:GITLFSVERSION = '3.5.1'
 
 # # Uncomment to help debugging when working on this script
 # Write-Host "= DEBUG: global vars"
