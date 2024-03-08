@@ -109,7 +109,6 @@ targets:
   setJDK11VersionDockerBake:
     name: "Bump JDK11 version for Linux images in the docker-bake.hcl file"
     kind: hcl
-    sourceid: lastVersion
     spec:
       file: docker-bake.hcl
       path: variable.JAVA11_VERSION.default
@@ -117,7 +116,6 @@ targets:
   setJDK11VersionWindows:
     name: "Bump JDK11 version on Windows Nanoserver image"
     kind: yaml
-    sourceid: lastVersion
     spec:
       file: build-windows.yaml
       key: $.services.jdk11.build.args.JAVA_VERSION
