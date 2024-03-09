@@ -53,7 +53,7 @@ RUN $CurrentPath = (Get-Itemproperty -path 'hklm:\system\currentcontrolset\contr
     $NewPath = $CurrentPath + $(';{0}\bin;C:\mingit\cmd' -f $env:JAVA_HOME) ; `
     Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath
 
-ARG GIT_LFS_VERSION=3.4.1
+ARG GIT_LFS_VERSION=3.5.1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     $url = $('https://github.com/git-lfs/git-lfs/releases/download/v{0}/git-lfs-windows-amd64-v{0}.zip' -f $env:GIT_LFS_VERSION) ; `
     Write-Host "Retrieving $url..." ; `
