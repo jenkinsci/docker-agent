@@ -26,7 +26,7 @@ sources:
         kind: regex
         # jdk-11.0.12+7(https://github.com/adoptium/temurin11-binaries/releases/tag/jdk-11.0.12%2B7) is OK
         # jdk-11.0.16.1+1 (https://github.com/adoptium/temurin11-binaries/releases/tag/jdk-11.0.16.1%2B1) is OK
-        pattern: "^jdk-11.(\\d*).(\\d*).(\\d*)(.(\\d*))\\+(\\d*)(.\\d*)?$"
+        pattern: {{ .temurin.version_pattern }}
     transformers:
       - trimprefix: "jdk-"
       - replacer:
@@ -38,9 +38,6 @@ conditions:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-alpine" is available
     transformers:
-      - findsubmatch:
-          pattern: "(.*\\_\\d*)(\\.\\d*)?$"
-          captureindex: 1
       - addsuffix: "-jdk-alpine"
     spec:
       architecture: linux/amd64
@@ -49,9 +46,6 @@ conditions:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-focal" is available
     transformers:
-      - findsubmatch:
-          pattern: "(.*\\_\\d*)(\\.\\d*)?$"
-          captureindex: 1
       - addsuffix: "-jdk-focal"
     spec:
       architectures:
@@ -64,9 +58,6 @@ conditions:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-nanoserver-1809" is available
     transformers:
-      - findsubmatch:
-          pattern: "(.*\\_\\d*)(\\.\\d*)?$"
-          captureindex: 1
       - addsuffix: "-jdk-nanoserver-1809"
     spec:
       architecture: windows/amd64
@@ -75,9 +66,6 @@ conditions:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-1809" is available
     transformers:
-      - findsubmatch:
-          pattern: "(.*\\_\\d*)(\\.\\d*)?$"
-          captureindex: 1
       - addsuffix: "-jdk-windowsservercore-1809"
     spec:
       architecture: windows/amd64
@@ -86,9 +74,6 @@ conditions:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-nanoserver-ltsc2022" is available
     transformers:
-      - findsubmatch:
-          pattern: "(.*\\_\\d*)(\\.\\d*)?$"
-          captureindex: 1
       - addsuffix: "-jdk-nanoserver-ltsc2022"
     spec:
       architecture: windows/amd64
@@ -97,9 +82,6 @@ conditions:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-ltsc2022" is available
     transformers:
-      - findsubmatch:
-          pattern: "(.*\\_\\d*)(\\.\\d*)?$"
-          captureindex: 1
       - addsuffix: "-jdk-windowsservercore-ltsc2022"
     spec:
       architecture: windows/amd64
