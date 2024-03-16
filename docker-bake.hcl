@@ -113,7 +113,7 @@ variable "JAVA11_VERSION" {
 }
 
 variable "JAVA17_VERSION" {
-  default = "17.0.9_9"
+  default = "17.0.10_7"
 }
 
 variable "JAVA21_VERSION" {
