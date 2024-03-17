@@ -45,7 +45,8 @@ conditions:
   checkTemurinDebianDockerImages:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-jammy" is available
-    disablesourceinput: true
+    transformers:
+      - addsuffix: "-jdk-jammy"
     spec:
       architectures:
         - linux/amd64
@@ -53,7 +54,6 @@ conditions:
         - linux/s390x
         - linux/arm/v7
       image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-jammy'
   checkTemurinNanoserver2019DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-nanoserver-1809" is available
