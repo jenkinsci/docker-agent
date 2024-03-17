@@ -26,7 +26,7 @@ sources:
         kind: regex
         # jdk-11.0.12+7(https://github.com/adoptium/temurin11-binaries/releases/tag/jdk-11.0.12%2B7) is OK
         # jdk-11.0.16.1+1 (https://github.com/adoptium/temurin11-binaries/releases/tag/jdk-11.0.16.1%2B1) is OK
-        pattern: "^jdk-11.(\\d*).(\\d*).(\\d*)(.(\\d*))+(\\d*)$"
+        pattern: {{ .temurin.version_pattern }}
     transformers:
       - trimprefix: "jdk-"
       - replacer:
@@ -37,11 +37,11 @@ conditions:
   checkTemurinAlpineDockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-alpine" is available
-    disablesourceinput: true
+    transformers:
+      - addsuffix: "-jdk-alpine"
     spec:
       architecture: linux/amd64
       image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-alpine'
   checkTemurinDebianDockerImages:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-jammy" is available
@@ -57,35 +57,35 @@ conditions:
   checkTemurinNanoserver2019DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-nanoserver-1809" is available
-    disablesourceinput: true
+    transformers:
+      - addsuffix: "-jdk-nanoserver-1809"
     spec:
       architecture: windows/amd64
       image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-nanoserver-1809'
   checkTemurinWindowsCore2019DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-1809" is available
-    disablesourceinput: true
+    transformers:
+      - addsuffix: "-jdk-windowsservercore-1809"
     spec:
       architecture: windows/amd64
       image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-windowsservercore-1809'
   checkTemurinNanoserver2022DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-nanoserver-ltsc2022" is available
-    disablesourceinput: true
+    transformers:
+      - addsuffix: "-jdk-nanoserver-ltsc2022"
     spec:
       architecture: windows/amd64
       image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-nanoserver-ltsc2022'
   checkTemurinWindowsCore2022DockerImage:
     kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-18ltsc202209" is available
-    disablesourceinput: true
+    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-ltsc2022" is available
+    transformers:
+      - addsuffix: "-jdk-windowsservercore-ltsc2022"
     spec:
       architecture: windows/amd64
       image: eclipse-temurin
-      tag: '{{source "lastVersion" }}-jdk-windowsservercore-ltsc2022'
 
 targets:
   setJDK11VersionDockerBake:
