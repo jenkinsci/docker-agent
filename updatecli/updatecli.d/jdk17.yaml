@@ -44,9 +44,9 @@ conditions:
       image: eclipse-temurin
   checkTemurinDebianDockerImages:
     kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-focal" is available
+    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-jammy" is available
     transformers:
-      - addsuffix: "-jdk-focal"
+      - addsuffix: "-jdk-jammy"
     spec:
       architectures:
         - linux/amd64
