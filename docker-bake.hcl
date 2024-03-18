@@ -56,7 +56,7 @@ group "linux-arm32" {
 group "linux-s390x" {
   targets = [
     "debian_jdk11",
-    "debian_jdk21_preview"
+    "debian_jdk21"
   ]
 }
 
@@ -294,7 +294,7 @@ target "debian_jdk21" {
     "${REGISTRY}/${orgrepo(type)}:latest-bookworm-jdk21",
     "${REGISTRY}/${orgrepo(type)}:latest-jdk21",
   ]
-  platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
+  platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
 }
 
 target "debian_jdk21_preview" {
@@ -317,5 +317,5 @@ target "debian_jdk21_preview" {
     "${REGISTRY}/${orgrepo(type)}:latest-bookworm-jdk21-preview",
     "${REGISTRY}/${orgrepo(type)}:latest-jdk21-preview",
   ]
-  platforms = ["linux/s390x", "linux/arm/v7"]
+  platforms = ["linux/arm/v7"]
 }
