@@ -60,10 +60,8 @@ case "${1}" in
     platforms=("x64_linux" "x64_windows" "aarch64_linux" "s390x_linux");;
   19.*+*)
     platforms=("x64_linux" "x64_windows" "aarch64_linux" "s390x_linux");;
-  21*+*-ea-beta)
-    platforms=("x64_linux" "x64_windows" "aarch64_linux" "s390x_linux");;
   21*+*)
-    platforms=("x64_linux" "x64_windows" "aarch64_linux");;
+    platforms=("x64_linux" "x64_windows" "aarch64_linux" "s390x_linux");;
   *)
     echo "ERROR: unsupported JDK version (${1}).";
     exit 1;;
