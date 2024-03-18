@@ -117,7 +117,7 @@ variable "JAVA17_VERSION" {
 }
 
 variable "JAVA21_VERSION" {
-  default = "21.0.1_12"
+  default = "21.0.2_13"
 }
 
 variable "JAVA21_PREVIEW_VERSION" {
