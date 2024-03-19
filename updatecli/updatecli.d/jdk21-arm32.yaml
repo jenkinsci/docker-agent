@@ -1,0 +1,58 @@
+---
+name: Bump JDK21 Liberica version for all arm32 Linux images
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+  liberica-binaries:
+    kind: "github"
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "bell-sw"
+      repository: "Liberica"
+      token: '{{ requiredEnv .github.token }}'
+      branch: "master"
+
+sources:
+  getLatestJDK21LibericaVersion:
+    name: Get the latest Liberica JDK21 version
+    kind: gittag
+    scmid: liberica-binaries
+    spec:
+      versionfilter:
+        kind: regex
+        pattern: "21.*"
+
+conditions:
+  checkIfReleaseIsAvailable:
+    kind: shell
+    spec:
+      command: bash ./updatecli/scripts/check-liberica-jdk.sh # source input value passed as argument
+
+targets:
+  setJDK21LibericaVersionDockerBake:
+    name: "Bump Liberica JDK21 version for Linux arm32 images in the docker-bake.hcl file"
+    kind: hcl
+    spec:
+      file: docker-bake.hcl
+      path: variable.JAVA21_LIBERICA_VERSION.default
+    scmid: default
+
+actions:
+  default:
+    kind: github/pullrequest
+    scmid: default
+    title: Bump arm32 Liberica JDK21 version to {{ source "getLatestJDK21LibericaVersion" }}
+    spec:
+      labels:
+        - dependencies
+        - jdk21-liberica
