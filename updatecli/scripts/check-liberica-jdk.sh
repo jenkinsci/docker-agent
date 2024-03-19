@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 set -eu -o pipefail
 
 command -v curl >/dev/null 2>&1 || { echo "ERROR: curl command not found. Exiting."; exit 1; }
