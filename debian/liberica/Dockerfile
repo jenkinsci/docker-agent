@@ -1,6 +1,6 @@
 ARG DEBIAN_RELEASE=bookworm-20240311
 FROM debian:"${DEBIAN_RELEASE}"-slim as jre-build
-ARG JAVA_VERSION=21.0.2+14
+ARG JAVA_VERSION
 ARG TARGETPLATFORM
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
