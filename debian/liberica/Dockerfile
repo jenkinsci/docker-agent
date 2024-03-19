@@ -1,16 +1,12 @@
 ARG DEBIAN_RELEASE=bookworm-20240311
 FROM debian:"${DEBIAN_RELEASE}"-slim as jre-build
-ARG JAVA_VERSION
+ARG JAVA_VERSION=21.0.2+14
 ARG TARGETPLATFORM
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-## Example of preview (EA) jdk21 JAVA_VERSION values:
-# 21+35 (note: only one number before the "+")
-# 21.0.1+12
-## Example of preview (EA) release download link:
-# https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21%2B35-ea-beta/OpenJDK21U-jdk_x64_linux_hotspot_ea_21-0-35.tar.gz
-# https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.1%2B12-ea-beta/OpenJDK21U-jdk_x64_alpine-linux_hotspot_ea_21-0-1-12.tar.gz
+## Example of Liberica JDK21 download URL
+# https://github.com/bell-sw/Liberica/releases/download/21.0.2%2B14/bellsoft-jdk21.0.2+14-linux-arm32-vfp-hflt.tar.gz
 
 # hadolint ignore=DL3008
 RUN set -x; apt-get update \
@@ -21,23 +17,23 @@ RUN set -x; apt-get update \
   && DASHED_JAVA_VERSION=$(echo "$JAVA_VERSION" | sed -e 's/\./-/g' -e 's/+/-/' -e 's/21-35/21-0-35/') \
   && JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d'+' -f1 | cut -d'.' -f1) \
   && ENCODED_JAVA_VERSION=$(echo "$JAVA_VERSION" | jq "@uri" -jRr) \
-  && CONVERTED_ARCH=$(arch | sed -e 's/x86_64/x64/' -e 's/armv7l/arm/') \
-  && wget --quiet https://github.com/adoptium/temurin"${JAVA_MAJOR_VERSION}"-binaries/releases/download/jdk-"${ENCODED_JAVA_VERSION}"-ea-beta/OpenJDK"${JAVA_MAJOR_VERSION}"U-jdk_"${CONVERTED_ARCH}"_linux_hotspot_ea_"${DASHED_JAVA_VERSION}".tar.gz -O /tmp/jdk.tar.gz \
+  && TRIMMED_JAVA_VERSION=$(echo "$JAVA_VERSION" | cut -d'+' -f1) \
+  && echo "TRIMMED_JAVA_VERSION=$TRIMMED_JAVA_VERSION" > /tmp/env_var \
+  # Load the environment variable from the file we just created
+  && echo 'source /tmp/env_var' >> ~/.bashrc \
+  && CONVERTED_ARCH=$(arch | sed -e 's/x86_64/x64/' -e 's/armv7l/arm32/') \
+  && wget --quiet https://github.com/bell-sw/Liberica/releases/download/"${ENCODED_JAVA_VERSION}"/bellsoft-jdk"${JAVA_VERSION}"-linux-"${CONVERTED_ARCH}"-vfp-hflt.tar.gz -O /tmp/jdk.tar.gz \
   && tar -xzf /tmp/jdk.tar.gz -C /opt/ \
-  && rm -f /tmp/jdk.tar.gz
-
-ENV PATH=/opt/jdk-${JAVA_VERSION}/bin:$PATH
-
-RUN if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
-      jlink \
-        --add-modules ALL-MODULE-PATH \
-        --no-man-pages \
-        --compress=zip-6 \
-        --output /javaruntime; \
-    # It is acceptable to have a larger image in arm/v7 (arm 32 bits) environment.
-    # Because jlink fails with the error "jmods: Value too large for defined data type" error.
+  && rm -f /tmp/jdk.tar.gz \
+  && source /tmp/env_var \
+  && if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
+       jlink \
+         --add-modules ALL-MODULE-PATH \
+         --no-man-pages \
+         --compress=zip-6 \
+         --output /javaruntime; \
     else  \
-      cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
+      cp -r "/opt/jdk-${TRIMMED_JAVA_VERSION}" /javaruntime; \
     fi
 
 ## Agent image target
@@ -99,12 +95,13 @@ LABEL \
   org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
   org.opencontainers.image.licenses="MIT"
 
-## Inbound Agent image target
+# Inbound Agent image target
 FROM agent AS inbound-agent
 
 ARG user=jenkins
 
 USER root
+RUN find / -name jenkins-agent
 COPY ../../jenkins-agent /usr/local/bin/jenkins-agent
 RUN chmod +x /usr/local/bin/jenkins-agent &&\
     ln -s /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-slave
