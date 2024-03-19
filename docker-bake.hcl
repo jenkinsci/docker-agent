@@ -317,5 +317,5 @@ target "debian_jdk21_liberica" {
     "${REGISTRY}/${orgrepo(type)}:latest-bookworm-jdk21-liberica",
     "${REGISTRY}/${orgrepo(type)}:latest-jdk21-liberica",
   ]
-  platforms = [ "linux/arm/v7"]
+  platforms = ["linux/arm/v7"]
 }
