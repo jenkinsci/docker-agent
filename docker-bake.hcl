@@ -121,7 +121,7 @@ variable "JAVA21_VERSION" {
 }
 
 variable "JAVA21_LIBERICA_VERSION" {
-  default = "21.0.2+12"
+  default = "21.0.2+14"
 }
 
 function "orgrepo" {
