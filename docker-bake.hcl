@@ -7,7 +7,7 @@ group "linux" {
     "debian_jdk11",
     "debian_jdk17",
     "debian_jdk21",
-    "debian_jdk21_preview"
+    "debian_jdk21_liberica"
   ]
 }
 
@@ -20,7 +20,7 @@ group "linux-agent-only" {
     "agent_debian_jdk11",
     "agent_debian_jdk17",
     "agent_debian_jdk21",
-    "agent_debian_jdk21_preview"
+    "agent_debian_jdk21_liberica"
   ]
 }
 
@@ -32,7 +32,7 @@ group "linux-inbound-agent-only" {
     "inbound-agent_debian_jdk11",
     "inbound-agent_debian_jdk17",
     "inbound-agent_debian_jdk21",
-    "inbound-agent_debian_jdk21_preview"
+    "inbound-agent_debian_jdk21_liberica"
   ]
 }
 
@@ -49,14 +49,14 @@ group "linux-arm32" {
   targets = [
     "debian_jdk11",
     "debian_jdk17",
-    "debian_jdk21_preview"
+    "debian_jdk21_liberica"
   ]
 }
 
 group "linux-s390x" {
   targets = [
     "debian_jdk11",
-    "debian_jdk21_preview"
+    "debian_jdk21"
   ]
 }
 
@@ -120,8 +120,8 @@ variable "JAVA21_VERSION" {
   default = "21.0.2_13"
 }
 
-variable "JAVA21_PREVIEW_VERSION" {
-  default = "21.0.1+12"
+variable "JAVA21_LIBERICA_VERSION" {
+  default = "21.0.2+12"
 }
 
 function "orgrepo" {
@@ -294,28 +294,28 @@ target "debian_jdk21" {
     "${REGISTRY}/${orgrepo(type)}:latest-bookworm-jdk21",
     "${REGISTRY}/${orgrepo(type)}:latest-jdk21",
   ]
-  platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
+  platforms = ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
 }
 
-target "debian_jdk21_preview" {
+target "debian_jdk21_liberica" {
   matrix = {
     type = ["agent", "inbound-agent"]
   }
-  name       = "${type}_debian_jdk21_preview"
+  name       = "${type}_debian_jdk21_liberica"
   target     = type
-  dockerfile = "debian/preview/Dockerfile"
+  dockerfile = "debian/liberica/Dockerfile"
   context    = "."
   args = {
-    JAVA_VERSION   = JAVA21_PREVIEW_VERSION
+    JAVA_VERSION   = JAVA21_LIBERICA_VERSION
     VERSION        = REMOTING_VERSION
     DEBIAN_RELEASE = DEBIAN_RELEASE
   }
   tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk21-preview" : "",
-    "${REGISTRY}/${orgrepo(type)}:bookworm-jdk21-preview",
-    "${REGISTRY}/${orgrepo(type)}:jdk21-preview",
-    "${REGISTRY}/${orgrepo(type)}:latest-bookworm-jdk21-preview",
-    "${REGISTRY}/${orgrepo(type)}:latest-jdk21-preview",
+    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk21-liberica" : "",
+    "${REGISTRY}/${orgrepo(type)}:bookworm-jdk21-liberica",
+    "${REGISTRY}/${orgrepo(type)}:jdk21-liberica",
+    "${REGISTRY}/${orgrepo(type)}:latest-bookworm-jdk21-liberica",
+    "${REGISTRY}/${orgrepo(type)}:latest-jdk21-liberica",
   ]
-  platforms = ["linux/s390x", "linux/arm/v7"]
+  platforms = [ "linux/arm/v7"]
 }
