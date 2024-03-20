@@ -1,0 +1,63 @@
+---
+name: "Update DEBIAN_RELEASE ARG in Dockerfile with latest Debian release codename"
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  getLatestDebianCodeName:
+    name: Get the latest Debian release codename
+    kind: shell
+    spec:
+      command: bash ./updatecli/scripts/debian-latest-codename.sh
+  debianLatestVersion:
+    kind: dockerimage
+    name: "Get the latest Debian Bookworm Linux version"
+    dependson:
+      - getLatestDebianCodeName
+    spec:
+      image: "debian"
+      tagfilter: >-
+        {{ source "getLatestDebianCodeName" }}-*
+      versionfilter:
+        kind: regex
+        pattern: >-
+          {{ source "getLatestDebianCodeName" }}-\d+$
+targets:
+  updateDebianReleaseArg:
+    name: "Update DEBIAN_RELEASE ARG in Dockerfile"
+    kind: dockerfile
+    sourceid: debianLatestVersion
+    spec:
+      file: "debian/Dockerfile"
+      instruction:
+        keyword: "ARG"
+        matcher: "DEBIAN_RELEASE"
+  updateDockerBake:
+    name: "Update the default value of debian code name in the docker-bake.hcl for debian_jdk11"
+    kind: file
+    sourceid: debianLatestVersion
+    spec:
+      file: "docker-bake.hcl"
+      matchpattern: "(\\\"\\$\\{REGISTRY\\}/\\$\\{orgrepo\\(type\\)\\}:)bookworm-(jdk.*)"
+      replacepattern: >-
+        ${1}{{ source "getLatestDebianCodeName" }}-${2}"
+
+actions:
+  default:
+    kind: github/pullrequest
+    scmid: default
+    title: Bump Debian {{ source "getLatestDebianCodeName" }} Linux version to {{ source "debianLatestVersion" }}
+    spec:
+      labels:
+        - dependencies
+        - debian-{{ source "getLatestDebianCodeName" }}
