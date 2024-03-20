@@ -32,11 +32,17 @@ sources:
       - replacer:
           from: +
           to: _
+  getLatestUbuntuCodeName:
+    name: Get the latest Ubuntu code name
+    kind: shell
+    spec:
+      command: bash ./updatecli/scripts/ubuntu-latest-codename.sh
 
 conditions:
   checkTemurinAlpineDockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-alpine" is available
+    sourceid: lastVersion
     transformers:
       - addsuffix: "-jdk-alpine"
     spec:
@@ -44,9 +50,8 @@ conditions:
       image: eclipse-temurin
   checkTemurinDebianDockerImages:
     kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-jammy" is available
-    transformers:
-      - addsuffix: "-jdk-jammy"
+    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-<ubuntu-code-name>" is available
+    disablesourceinput: true
     spec:
       architectures:
         - linux/amd64
@@ -54,9 +59,12 @@ conditions:
         - linux/s390x
         - linux/arm/v7
       image: eclipse-temurin
+      tag: >-
+        {{ source "lastVersion" }}{{ source "getLatestUbuntuCodeName" }}
   checkTemurinNanoserver2019DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-nanoserver-1809" is available
+    sourceid: lastVersion
     transformers:
       - addsuffix: "-jdk-nanoserver-1809"
     spec:
@@ -65,6 +73,7 @@ conditions:
   checkTemurinWindowsCore2019DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-1809" is available
+    sourceid: lastVersion
     transformers:
       - addsuffix: "-jdk-windowsservercore-1809"
     spec:
@@ -73,6 +82,7 @@ conditions:
   checkTemurinNanoserver2022DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-nanoserver-ltsc2022" is available
+    sourceid: lastVersion
     transformers:
       - addsuffix: "-jdk-nanoserver-ltsc2022"
     spec:
@@ -81,6 +91,7 @@ conditions:
   checkTemurinWindowsCore2022DockerImage:
     kind: dockerimage
     name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-ltsc2022" is available
+    sourceid: lastVersion
     transformers:
       - addsuffix: "-jdk-windowsservercore-ltsc2022"
     spec:
@@ -90,6 +101,7 @@ conditions:
 targets:
   setJDK11VersionDockerBake:
     name: "Bump JDK11 version for Linux images in the docker-bake.hcl file"
+    sourceid: lastVersion
     kind: hcl
     spec:
       file: docker-bake.hcl
@@ -97,6 +109,7 @@ targets:
     scmid: default
   setJDK11VersionWindows:
     name: "Bump JDK11 version on Windows Nanoserver image"
+    sourceid: lastVersion
     kind: yaml
     spec:
       file: build-windows.yaml
