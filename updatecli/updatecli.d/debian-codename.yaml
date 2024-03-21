@@ -47,26 +47,6 @@ targets:
       instruction:
         keyword: "ARG"
         matcher: "DEBIAN_RELEASE"
-  updateDockerBake:
-    name: "Update the default value of debian code name in the docker-bake.hcl for debian_jdk11"
-    kind: file
-    sourceid: debianLatestVersion
-    spec:
-      file: "docker-bake.hcl"
-      matchpattern: >-
-        (.*orgrepo.*}:){{ source "getOldStableDebianCodeName" }}(.*)
-      replacepattern: >-
-        ${1}{{ source "getLatestDebianCodeName" }}${2}"
-  updateDockerBakeLatest:
-    name: "Update the default value of debian code name in the docker-bake.hcl for debian_jdk11"
-    kind: file
-    sourceid: debianLatestVersion
-    spec:
-      file: "docker-bake.hcl"
-      matchpattern: >-
-        (.*orgrepo.*}:latest-){{ source "getOldStableDebianCodeName" }}(.*)
-      replacepattern: >-
-        ${1}{{ source "getLatestDebianCodeName" }}${2}"
 
 actions:
   default:
