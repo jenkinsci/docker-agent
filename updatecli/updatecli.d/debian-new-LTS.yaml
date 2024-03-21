@@ -1,0 +1,101 @@
+---
+name: "Update DEBIAN_RELEASE ARG in Dockerfile with latest Debian release codename"
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  getLatestDebianCodeName:
+    name: Get the latest Debian release codename
+    kind: shell
+    spec:
+      command: bash ./updatecli/scripts/debian-latest-codename.sh
+  getOldStableDebianCodeName:
+    name: Get the old stable Debian release codename
+    kind: shell
+    spec:
+      command: bash ./updatecli/scripts/debian-latest-codename.sh 1
+  debianLatestVersion:
+    kind: dockerimage
+    name: "Get the latest Debian Bookworm Linux version"
+    dependson:
+      - getLatestDebianCodeName
+    spec:
+      image: "debian"
+      tagfilter: >-
+        {{ source "getLatestDebianCodeName" }}-*
+      versionfilter:
+        kind: regex
+        pattern: >-
+          {{ source "getLatestDebianCodeName" }}-\d+$
+conditions:
+  checkOldStableDebianCodeName:
+    name: Check if the old stable Debian release codename exists in the file
+    kind: file
+    disablesourceinput: true
+    spec:
+      file: docker-bake.hcl
+      matchpattern: >-
+        (.*orgrepo.*}:){{ source "getOldStableDebianCodeName" }}(.*)
+  checkOldStableDebianCodeNameLatest:
+    name: Check if the old stable Debian release codename exists in the file
+    kind: file
+    disablesourceinput: true
+    spec:
+      file: docker-bake.hcl
+      matchpattern: >-
+        (.*orgrepo.*}:latest-){{ source "getOldStableDebianCodeName" }}(.*)
+
+targets:
+  updateDockerBake:
+    name: "Update the default value of debian code name in the docker-bake.hcl"
+    kind: file
+    sourceid: debianLatestVersion
+    continueIfError: true
+    spec:
+      file: "docker-bake.hcl"
+      matchpattern: >-
+        (.*orgrepo.*}:){{ source "getOldStableDebianCodeName" }}(.*)
+      replacepattern: >-
+        ${1}{{ source "getLatestDebianCodeName" }}${2}"
+  updateDockerBakeLatest:
+    name: "Update the default value of debian code name in the docker-bake.hcl for latest"
+    kind: file
+    sourceid: debianLatestVersion
+    continueIfError: true
+    spec:
+      file: "docker-bake.hcl"
+      matchpattern: >-
+        (.*orgrepo.*}:latest-){{ source "getOldStableDebianCodeName" }}(.*)
+      replacepattern: >-
+        ${1}{{ source "getLatestDebianCodeName" }}${2}"
+  updateREADME_agent:
+    name: "Update the default value of debian code name in the README_agent.md"
+    kind: file
+    sourceid: getLatestDebianCodeName
+    continueIfError: true
+    spec:
+      file: "README_agent.md"
+      matchpattern: >-
+        (.*){{ source "getOldStableDebianCodeName" }}(.*)
+      replacepattern: >-
+        ${1}toto{{ source "getLatestDebianCodeName" }}${2}"
+
+actions:
+  default:
+    kind: github/pullrequest
+    scmid: default
+    title: Bump Debian {{ source "getLatestDebianCodeName" }} Linux version to {{ source "debianLatestVersion" }}
+    spec:
+      labels:
+        - dependencies
+        - debian-{{ source "getLatestDebianCodeName" }}
