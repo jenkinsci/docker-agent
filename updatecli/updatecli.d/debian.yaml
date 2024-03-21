@@ -19,16 +19,7 @@ sources:
     kind: shell
     spec:
       command: bash ./updatecli/scripts/debian-latest-codename.sh
-  
-  actions:
-    default:
-      kind: github/pullrequest
-      scmid: default
-      title: Bump Debian {{ source "latestDebianCodeName" }} Linux version to {{ source "debianLatestVersion" }}
-      spec:
-        labels:
-          - dependencies
-          - debian-{{ source "latestDebianCodeName" }}:
+  debianLatestVersion:
     kind: dockerimage
     name: Get the latest Debian {{ source "latestDebianCodeName" }} Linux version
     depends_on:
@@ -76,7 +67,7 @@ actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump Debian {{ source "latestDebianCodeName" }} Linux version to {{ source "debianLatestversion" }}
+    title: Bump Debian {{ source "latestDebianCodeName" }} Linux version to {{ source "debianLatestVersion" }}
     spec:
       labels:
         - dependencies
