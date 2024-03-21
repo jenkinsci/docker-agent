@@ -37,9 +37,10 @@ sources:
         kind: regex
         pattern: >-
           {{ source "getLatestDebianCodeName" }}-\d+$
+
 conditions:
   checkOldStableDebianCodeName:
-    name: Check if the old stable Debian release codename exists in the file
+    name: Check if the old stable Debian release codename exists in the docker bake file
     kind: file
     disablesourceinput: true
     spec:
@@ -47,13 +48,21 @@ conditions:
       matchpattern: >-
         (.*orgrepo.*}:){{ source "getOldStableDebianCodeName" }}(.*)
   checkOldStableDebianCodeNameLatest:
-    name: Check if the old stable Debian release codename exists in the file
+    name: Check if the old stable Debian release codename exists in the docker bake file
     kind: file
     disablesourceinput: true
     spec:
       file: docker-bake.hcl
       matchpattern: >-
         (.*orgrepo.*}:latest-){{ source "getOldStableDebianCodeName" }}(.*)
+  checkOldStableDebianCodeNameReadme:
+    name: Check if the old stable Debian release codename exists in the readme agent file
+    kind: file
+    disablesourceinput: true
+    spec:
+      file: README_agent.md
+      matchpattern: >-
+        (.*?)({{ source "getOldStableDebianCodeName" }})(.*?)
 
 targets:
   updateDockerBake:
@@ -86,9 +95,9 @@ targets:
     spec:
       file: "README_agent.md"
       matchpattern: >-
-        (.*){{ source "getOldStableDebianCodeName" }}(.*)
+        (.*?)({{ source "getOldStableDebianCodeName" }})(.*?)
       replacepattern: >-
-        ${1}toto{{ source "getLatestDebianCodeName" }}${2}"
+        ${1}{{ source "getLatestDebianCodeName" }}${3}
 
 actions:
   default:
