@@ -19,6 +19,11 @@ sources:
     kind: shell
     spec:
       command: bash ./updatecli/scripts/debian-latest-codename.sh
+  getOldStableDebianCodeName:
+    name: Get the old stable Debian release codename
+    kind: shell
+    spec:
+      command: bash ./updatecli/scripts/debian-latest-codename.sh 1
   debianLatestVersion:
     kind: dockerimage
     name: "Get the latest Debian Bookworm Linux version"
@@ -48,9 +53,20 @@ targets:
     sourceid: debianLatestVersion
     spec:
       file: "docker-bake.hcl"
-      matchpattern: "(\\\"\\$\\{REGISTRY\\}/\\$\\{orgrepo\\(type\\)\\}:)bookworm-(jdk.*)"
+      matchpattern: >-
+        (.*orgrepo.*}:){{ source "getOldStableDebianCodeName" }}(.*)
       replacepattern: >-
-        ${1}{{ source "getLatestDebianCodeName" }}-${2}"
+        ${1}{{ source "getLatestDebianCodeName" }}${2}"
+  updateDockerBakeLatest:
+    name: "Update the default value of debian code name in the docker-bake.hcl for debian_jdk11"
+    kind: file
+    sourceid: debianLatestVersion
+    spec:
+      file: "docker-bake.hcl"
+      matchpattern: >-
+        (.*orgrepo.*}:latest-){{ source "getOldStableDebianCodeName" }}(.*)
+      replacepattern: >-
+        ${1}{{ source "getLatestDebianCodeName" }}${2}"
 
 actions:
   default:
