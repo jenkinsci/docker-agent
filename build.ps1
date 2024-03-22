@@ -149,13 +149,6 @@ foreach($agentType in $AgentTypes) {
         yq '.services.[].build.target = \"agent\"' $originalDockerComposeFile | Out-File -FilePath $finalDockerComposeFile
     }
 
-    $builds = @()
-
-    $compose = Invoke-Expression "$baseDockerCmd config --format=json" 2>$null | ConvertFrom-Json
-    foreach ($service in $compose.services.PSObject.Properties) {
-        $builds += $service.Value.image
-    }
-
     Write-Host "= PREPARE: List of $Organisation/$env:DOCKERHUB_REPO images and tags to be processed:"
     Invoke-Expression "$baseDockerCmd config"
 
@@ -203,8 +196,8 @@ foreach($agentType in $AgentTypes) {
             Write-Host "= TEST: Testing all ${agentType} images..."
             # Only fail the run afterwards in case of any test failures
             $testFailed = $false
-            foreach($image in $builds) {
-                $testFailed = $testFailed -or (Test-Image ('{0}|{1}' -f $agentType, $image))
+            Invoke-Expression "$baseDockerCmd config" | yq '.services[].image' | ForEach-Object {
+                $testFailed = $testFailed -or (Test-Image ('{0}|{1}' -f $agentType, $_))
             }
 
             # Fail if any test failures
