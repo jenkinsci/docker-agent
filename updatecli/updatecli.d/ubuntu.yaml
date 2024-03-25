@@ -1,0 +1,25 @@
+---
+name: "Update DOCKER_IMAGE ARG in Dockerfile with latest Ubuntu LTS version"
+sources:
+  getLatestUbuntuCodeName:
+    name: Get the latest Ubuntu code name
+    kind: shell
+    spec:
+      command: bash ./updatecli/scripts/ubuntu-latest-codename.sh
+  fromSource:
+    name: Get the latest eclipse:temurin Ubuntu image name
+    kind: shell
+    depends_on:
+      - getLatestUbuntuCodeName
+    spec:
+      command: echo \"\${JAVA_VERSION}\"{{ source "getLatestUbuntuCodeName" }}
+targets:
+  updateDockerImageFrom:
+    name: "Update DOCKER_IMAGE ARG in Dockerfile"
+    kind: dockerfile
+    sourceid: fromSource
+    spec:
+      file: "debian/Dockerfile"
+      instruction:
+        keyword: "FROM"
+        matcher: "eclipse-temurin"
