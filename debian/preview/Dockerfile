@@ -1,9 +1,11 @@
 ARG DEBIAN_RELEASE=bookworm-20240423
 FROM debian:"${DEBIAN_RELEASE}"-slim as jre-build
-ARG JAVA_VERSION
-ARG TARGETPLATFORM
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# This Build ARG is populated by Docker
+# Ref. https://docs.docker.com/engine/reference/builder/#automatic-platform-args-in-the-global-scope
+ARG TARGETPLATFORM
 
 ## Example of preview (EA) jdk21 JAVA_VERSION values:
 # 21+35 (note: only one number before the "+")
@@ -12,6 +14,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21%2B35-ea-beta/OpenJDK21U-jdk_x64_linux_hotspot_ea_21-0-35.tar.gz
 # https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.1%2B12-ea-beta/OpenJDK21U-jdk_x64_alpine-linux_hotspot_ea_21-0-1-12.tar.gz
 
+ARG JAVA_VERSION
 # hadolint ignore=DL3008
 RUN set -x; apt-get update \
   && apt-get install --no-install-recommends -y \
@@ -26,19 +29,27 @@ RUN set -x; apt-get update \
   && tar -xzf /tmp/jdk.tar.gz -C /opt/ \
   && rm -f /tmp/jdk.tar.gz
 
-ENV PATH=/opt/jdk-${JAVA_VERSION}/bin:$PATH
+ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 
-RUN if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
-      jlink \
-        --add-modules ALL-MODULE-PATH \
-        --no-man-pages \
-        --compress=zip-6 \
-        --output /javaruntime; \
-    # It is acceptable to have a larger image in arm/v7 (arm 32 bits) environment.
-    # Because jlink fails with the error "jmods: Value too large for defined data type" error.
-    else  \
-      cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
-    fi
+RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
+    case "$(jlink --version 2>&1)" in \
+      # jlink version 11 has less features than JDK17+
+      "11."*) set -- "--strip-debug" "--compress=2" ;; \
+      "17."*) set -- "--strip-java-debug-attributes" "--compress=2" ;; \
+      # the compression argument is different for JDK21
+      "21."*) set -- "--strip-java-debug-attributes" "--compress=zip-6" ;; \
+      *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
+    esac; \
+    jlink \
+      "$1" \
+      "$2" \
+      --add-modules ALL-MODULE-PATH \
+      --no-man-pages \
+      --no-header-files \
+      --output /javaruntime; \
+  else \
+    cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
+  fi
 
 ## Agent image target
 FROM debian:"${DEBIAN_RELEASE}" AS agent

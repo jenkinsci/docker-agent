@@ -19,26 +19,43 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-ARG JAVA_VERSION=17.0.10_7
 ARG ALPINE_TAG=3.19.1
-FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-alpine AS jre-build
+FROM alpine:"${ALPINE_TAG}" AS jre-build
 
-RUN if [ "$TARGETPLATFORM" != 'linux/arm/v7' ]; then \
-    case "$(jlink --version 2>&1)" in \
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+
+# This Build ARG is populated by Docker
+# Ref. https://docs.docker.com/engine/reference/builder/#automatic-platform-args-in-the-global-scope
+ARG TARGETPLATFORM
+
+COPY jdk-download-url.sh /usr/bin/local/jdk-download-url.sh
+COPY jdk-download.sh /usr/bin/local/jdk-download.sh
+
+ARG JAVA_VERSION=17.0.10_7
+# hadolint ignore=DL3018
+RUN apk add --no-cache \
+    ca-certificates \
+    jq \
+    curl \
+  && /usr/bin/local/jdk-download.sh alpine
+
+ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
+
+RUN case "$(jlink --version 2>&1)" in \
       # jlink version 11 has less features than JDK17+
-      "11."*) strip_java_debug_flags="--strip-debug" ;; \
-      *) strip_java_debug_flags="--strip-java-debug-attributes" ;; \
+      "11."*) set -- "--strip-debug" "--compress=2" ;; \
+      "17."*) set -- "--strip-java-debug-attributes" "--compress=2" ;; \
+      # the compression argument is different for JDK21
+      "21."*) set -- "--strip-java-debug-attributes" "--compress=zip-6" ;; \
+      *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
+      "$1" \
+      "$2" \
       --add-modules ALL-MODULE-PATH \
-      "$strip_java_debug_flags" \
       --no-man-pages \
       --no-header-files \
-      --compress=2 \
-      --output /javaruntime; \
-  else \
-    cp -r /opt/java/openjdk /javaruntime; \
-  fi
+      --output /javaruntime
 
 ## Agent image target
 FROM alpine:"${ALPINE_TAG}" AS agent

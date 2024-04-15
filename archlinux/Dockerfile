@@ -20,19 +20,45 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-ARG JAVA_VERSION=11.0.19_7
-FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-focal AS jre-build
+FROM archlinux:base-20240101.0.204074 AS jre-build
+
+# This Build ARG is populated by Docker
+# Ref. https://docs.docker.com/engine/reference/builder/#automatic-platform-args-in-the-global-scope
+ARG TARGETPLATFORM
+
+SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
+
+COPY jdk-download-url.sh /usr/bin/local/jdk-download-url.sh
+COPY jdk-download.sh /usr/bin/local/jdk-download.sh
+
+ARG JAVA_VERSION=17.0.10_7
+# hadolint ignore=DL3008
+RUN pacman -Syu --noconfirm \
+    ca-certificates \
+    jq \
+    curl \
+  && /usr/bin/local/jdk-download.sh
+
+ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
-RUN jlink \
-  --add-modules ALL-MODULE-PATH \
-  --strip-debug \
-  --no-man-pages \
-  --no-header-files \
-  --compress=2 \
-  --output /javaruntime
+RUN case "$(jlink --version 2>&1)" in \
+      # jlink version 11 has less features than JDK17+
+      "11."*) set -- "--strip-debug" "--compress=2" ;; \
+      "17."*) set -- "--strip-java-debug-attributes" "--compress=2" ;; \
+      # the compression argument is different for JDK21
+      "21."*) set -- "--strip-java-debug-attributes" "--compress=zip-6" ;; \
+      *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
+    esac; \
+    jlink \
+      "$1" \
+      "$2" \
+      --add-modules ALL-MODULE-PATH \
+      --no-man-pages \
+      --no-header-files \
+      --output /javaruntime
 
 FROM archlinux:base-20240101.0.204074
 
