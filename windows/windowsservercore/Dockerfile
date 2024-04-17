@@ -41,27 +41,13 @@ RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
 RUN Write-Host 'javac --version' ; javac --version ; `
     Write-Host 'java --version' ; java --version
 
-RUN $version = (jlink --version) ; `
-    $stripJavaDebugFlags = '--strip-java-debug-attributes' ; `
-    # jlink version 11 has less features than JDK17+
-    if ($version.StartsWith('11')) { `
-        $stripJavaDebugFlags = '--strip-debug' ; `
-    } `
-    & jlink `
-    --add-modules ALL-MODULE-PATH `
-    $stripJavaDebugFlags `
-    --no-man-pages `
-    --no-header-files `
-    --compress=2 `
-    --output /javaruntime
-
 ## Agent image target
 FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS agent
 
 ARG JAVA_HOME="C:\openjdk-17"
 ENV JAVA_HOME=${JAVA_HOME}
 
-COPY --from=jdk-core /javaruntime $JAVA_HOME
+COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
