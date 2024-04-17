@@ -38,9 +38,6 @@ RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
     $proc.WaitForExit() ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
 
-RUN Write-Host 'javac --version' ; javac --version ; `
-    Write-Host 'java --version' ; java --version
-
 FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-source
 
 ## Agent image target
