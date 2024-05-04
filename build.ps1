@@ -10,6 +10,12 @@ Param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+$originalDockerComposeFile = 'build-windows.yaml'
+$finalDockerComposeFile = 'build-windows-current.yaml'
+$baseDockerCmd = 'docker-compose --file={0}' -f $finalDockerComposeFile
+$baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
+
 $AgentTypes = @('agent', 'inbound-agent')
 if ($AgentType -ne '' -and $AgentType -in $AgentTypes) {
     $AgentTypes = @($AgentType)
@@ -102,6 +108,7 @@ function Test-Image {
     $items = $AgentTypeAndImageName.Split("|")
     $agentType = $items[0]
     $imageName = $items[1]
+    $javaVersion = $items[2]
     $imageNameItems = $imageName.Split(":")
     $imageTag = $imageNameItems[1]
 
@@ -109,6 +116,7 @@ function Test-Image {
 
     $env:IMAGE_NAME = $imageName
     $env:VERSION = "$RemotingVersion"
+    $env:JAVA_VERSION = "$javaVersion"
 
     $targetPath = '.\target\{0}\{1}' -f $agentType, $imageTag
     if(Test-Path $targetPath) {
@@ -128,14 +136,10 @@ function Test-Image {
 
     Remove-Item env:\IMAGE_NAME
     Remove-Item env:\VERSION
+    Remove-Item env:\JAVA_VERSION
 
     return $failed
 }
-
-$originalDockerComposeFile = 'build-windows.yaml'
-$finalDockerComposeFile = 'build-windows-current.yaml'
-$baseDockerCmd = 'docker-compose --file={0}' -f $finalDockerComposeFile
-$baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 foreach($agentType in $AgentTypes) {
     # Ensure remaining env vars used in the docker compose file are defined
@@ -196,8 +200,9 @@ foreach($agentType in $AgentTypes) {
             Write-Host "= TEST: Testing all ${agentType} images..."
             # Only fail the run afterwards in case of any test failures
             $testFailed = $false
-            Invoke-Expression "$baseDockerCmd config" | yq '.services[].image' | ForEach-Object {
-                $testFailed = $testFailed -or (Test-Image ('{0}|{1}' -f $agentType, $_))
+            $jdks = Invoke-Expression "$baseDockerCmd config" | yq -r --output-format json '.services' | ConvertFrom-Json
+            foreach ($jdk in $jdks.PSObject.Properties) {
+                $testFailed = $testFailed -or (Test-Image ('{0}|{1}|{2}' -f $agentType, $jdk.Value.image, $jdk.Value.build.args.JAVA_VERSION))
             }
 
             # Fail if any test failures
