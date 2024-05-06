@@ -41,21 +41,22 @@ RUN apk add --no-cache \
 
 ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 
-RUN case "$(jlink --version 2>&1)" in \
+RUN if [ "$TARGETPLATFORM" != 'linux/arm/v7' ]; then \
+    case "$(jlink --version 2>&1)" in \
       # jlink version 11 has less features than JDK17+
-      "11."*) set -- "--strip-debug" "--compress=2" ;; \
-      "17."*) set -- "--strip-java-debug-attributes" "--compress=2" ;; \
-      # the compression argument is different for JDK21
-      "21."*) set -- "--strip-java-debug-attributes" "--compress=zip-6" ;; \
-      *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
+      "11."*) strip_java_debug_flags="--strip-debug" ;; \
+      *) strip_java_debug_flags="--strip-java-debug-attributes" ;; \
     esac; \
     jlink \
-      "$1" \
-      "$2" \
       --add-modules ALL-MODULE-PATH \
+      "$strip_java_debug_flags" \
       --no-man-pages \
       --no-header-files \
-      --output /javaruntime
+      --compress=2 \
+      --output /javaruntime; \
+  else \
+    cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
+  fi
 
 ## Agent image target
 FROM alpine:"${ALPINE_TAG}" AS agent

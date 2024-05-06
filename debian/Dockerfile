@@ -45,24 +45,22 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
-RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
-    case "$(jlink --version 2>&1)" in \
-      # jlink version 11 has less features than JDK17+
-      "11."*) set -- "--strip-debug" "--compress=2" ;; \
-      "17."*) set -- "--strip-java-debug-attributes" "--compress=2" ;; \
-      # the compression argument is different for JDK21
-      "21."*) set -- "--strip-java-debug-attributes" "--compress=zip-6" ;; \
-      *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
-    esac; \
-    jlink \
-      "$1" \
-      "$2" \
-      --add-modules ALL-MODULE-PATH \
-      --no-man-pages \
-      --no-header-files \
-      --output /javaruntime; \
-  else \
-    cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
+RUN if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
+  case "$(jlink --version 2>&1)" in \
+    # jlink version 11 has less features than JDK17+
+    "11."*) strip_java_debug_flags=("--strip-debug") ;; \
+    *) strip_java_debug_flags=("--strip-java-debug-attributes") ;; \
+  esac; \
+  jlink \
+    --add-modules ALL-MODULE-PATH \
+    "${strip_java_debug_flags[@]}" \
+    --no-man-pages \
+    --no-header-files \
+    --compress=2 \
+    --output /javaruntime; \
+  # It is acceptable to have a larger image in arm/v7 (arm 32 bits) environment.
+  # Because jlink fails with the error "jmods: Value too large for defined data type" error.
+  else cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
   fi
 
 ## Agent image target
