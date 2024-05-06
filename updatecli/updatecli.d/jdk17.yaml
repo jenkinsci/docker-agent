@@ -88,6 +88,7 @@ conditions:
       image: eclipse-temurin
 
 targets:
+  ## Global config files
   setJDK17VersionDockerBake:
     name: "Bump JDK17 version for Linux images in the docker-bake.hcl file"
     kind: hcl
@@ -95,6 +96,18 @@ targets:
       file: docker-bake.hcl
       path: variable.JAVA17_VERSION.default
     scmid: default
+  setJDK17VersionDockerCompose:
+    name: "Bump JDK17 version for Windows images in the build-windows.yaml file"
+    kind: yaml
+    spec:
+      file: build-windows.yaml
+      key: $.services.jdk17.build.args.JAVA_VERSION
+    scmid: default
+    transformers:
+      - replacer:
+          from: _
+          to: +
+  ## Dockerfiles
   setJDK17VersionAlpine:
     name: "Bump JDK17 default ARG version on Alpine Dockerfile"
     kind: dockerfile
@@ -112,13 +125,6 @@ targets:
       instruction:
         keyword: ARG
         matcher: JAVA_VERSION
-    scmid: default
-  setJDK17VersionWindows:
-    name: "Bump JDK17 version on Windows Nanoserver image"
-    kind: yaml
-    spec:
-      file: build-windows.yaml
-      key: $.services.jdk17.build.args.JAVA_VERSION
     scmid: default
 
 actions:
