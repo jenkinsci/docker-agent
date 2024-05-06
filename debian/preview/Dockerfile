@@ -26,9 +26,9 @@ RUN set -x; apt-get update \
   && tar -xzf /tmp/jdk.tar.gz -C /opt/ \
   && rm -f /tmp/jdk.tar.gz
 
-ENV PATH=/opt/jdk-${JAVA_VERSION}/bin:$PATH
+ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 
-RUN if test "${TARGETPLATFORM}" != 'linux/arm/v7'; then \
+RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
       jlink \
         --add-modules ALL-MODULE-PATH \
         --no-man-pages \
