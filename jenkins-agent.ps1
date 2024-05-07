@@ -34,7 +34,8 @@ Param(
     $Protocols = '',
     $JenkinsJavaBin = '',
     $JavaHome = $env:JAVA_HOME,
-    $JenkinsJavaOpts = ''
+    $JenkinsJavaOpts = '',
+    $NoReconnectAfter = ''
 )
 
 # Usage jenkins-agent.ps1 [options] -Url http://jenkins -Secret [SECRET] -Name [AGENT_NAME]
@@ -52,6 +53,7 @@ Param(
 # * JENKINS_INSTANCE_IDENTITY: The base64 encoded InstanceIdentity byte array of the Jenkins controller. When this is set,
 #                              the agent skips connecting to an HTTP(S) port for connection info.
 # * JENKINS_PROTOCOLS:         Specify the remoting protocols to attempt when instanceIdentity is provided.
+# * JENKINS_NO_RECONNECT_AFTER: Do not attempt to reconnect to the Jenkins controller after the given timeout.
 
 if(![System.String]::IsNullOrWhiteSpace($Cmd)) {
 	Invoke-Expression "$Cmd"
@@ -70,6 +72,7 @@ if(![System.String]::IsNullOrWhiteSpace($Cmd)) {
         'DirectConnection' = 'JENKINS_DIRECT_CONNECTION';
         'InstanceIdentity' = 'JENKINS_INSTANCE_IDENTITY';
         'Protocols' = 'JENKINS_PROTOCOLS';
+        'NoReconnectAfter' = 'JENKINS_NO_RECONNECT_AFTER';
     }
 
     # this does some trickery to update the variable from the CmdletBinding
@@ -136,6 +139,10 @@ if(![System.String]::IsNullOrWhiteSpace($Cmd)) {
 
     if(![System.String]::IsNullOrWhiteSpace($Protocols)) {
         $AgentArguments += @('-protocols', $Protocols)
+    }
+
+    if(![System.String]::IsNullOrWhiteSpace($NoReconnectAfter)) {
+        $AgentArguments += @('-noReconnectAfter', $NoReconnectAfter)
     }
 
     if(![System.String]::IsNullOrWhiteSpace($JenkinsJavaBin)) {
