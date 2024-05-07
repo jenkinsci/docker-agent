@@ -20,14 +20,27 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 ARG DEBIAN_RELEASE=bookworm-20240423
-ARG JAVA_VERSION=17.0.11_9
-FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-jammy AS jre-build
+FROM debian:"${DEBIAN_RELEASE}"-slim as jre-build
+
+SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
 
 # This Build ARG is populated by Docker
 # Ref. https://docs.docker.com/engine/reference/builder/#automatic-platform-args-in-the-global-scope
 ARG TARGETPLATFORM
 
-SHELL ["/bin/bash","-e", "-u", "-o", "pipefail", "-c"]
+COPY jdk-download-url.sh /usr/bin/local/jdk-download-url.sh
+COPY jdk-download.sh /usr/bin/local/jdk-download.sh
+
+ARG JAVA_VERSION=17.0.11_9
+# hadolint ignore=DL3008
+RUN set -x; apt-get update \
+  && apt-get install --no-install-recommends -y \
+    ca-certificates \
+    jq \
+    curl \
+  && /usr/bin/local/jdk-download.sh
+
+ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
@@ -51,7 +64,7 @@ RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
   else \
     # It is acceptable to have a larger image in arm/v7 (arm 32 bits) environment.
     # Because jlink fails with the error "jmods: Value too large for defined data type" error.
-    cp -r /opt/java/openjdk /javaruntime; \
+    cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
   fi
 
 ## Agent image target
