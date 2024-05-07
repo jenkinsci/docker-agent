@@ -92,8 +92,6 @@ The image has several supported configurations, which can be accessed via the fo
       * `jenkins/agent:latest-archlinux`
       * `jenkins/agent:latest-archlinux-jdk11`
 
-* From version 4.11.2, the alpine images are tagged using the alpine OS version as well (i.e. `alpine` ==> `alpine3.16`, `alpine-jdk21` ==> `alpine3.16-jdk11`).
-
 * Windows Images:
   * Java 17 (default):
     * Latest Jenkins agent version on Windows Nano Server and Java 17:
