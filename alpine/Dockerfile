@@ -56,9 +56,6 @@ RUN case "$(jlink --version 2>&1)" in \
       --no-man-pages \
       --no-header-files \
       --output /javaruntime; \
-  else \
-    cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
-  fi
 
 ## Agent image target
 FROM alpine:"${ALPINE_TAG}" AS agent
