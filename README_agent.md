@@ -126,7 +126,7 @@ The image has several supported configurations, which can be accessed via the fo
 The file [docker-bake.hcl](https://github.com/jenkinsci/docker-agent/blob/master/docker-bake.hcl) defines all the configuration for Linux images and their associated tags.
 
 There are also versioned tags in DockerHub, and they are recommended for production use.
-See the full list at [https://hub.docker.com/r/jenkins/agent/tags)](https://hub.docker.com/r/jenkins/agent/tags)
+See the full list at [https://hub.docker.com/r/jenkins/agent/tags](https://hub.docker.com/r/jenkins/agent/tags)
 
 ## Timezones
 
