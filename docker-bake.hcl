@@ -264,6 +264,7 @@ target "debian_jdk17" {
   tags = [
     equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}" : "",
     equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk17" : "",
+    "${REGISTRY}/${orgrepo(type)}:bookworm",
     "${REGISTRY}/${orgrepo(type)}:bookworm-jdk17",
     "${REGISTRY}/${orgrepo(type)}:jdk17",
     "${REGISTRY}/${orgrepo(type)}:latest",
