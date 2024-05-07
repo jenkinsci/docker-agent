@@ -8,13 +8,6 @@ This is a base image for Docker, which includes Java and the Jenkins agent execu
 This executable is an instance of the [Jenkins Remoting library](https://github.com/jenkinsci/remoting).
 Java version depends on the image and the platform, see the _Configurations_ section below.
 
-## Changelog
-
-See [GitHub releases](https://github.com/jenkinsci/docker-agent/releases) for versions `3.35-1` and above.
-There is no changelog for previous versions, see the commit history.
-
-Jenkins remoting changelogs are available at [https://github.com/jenkinsci/remoting/releases](https://github.com/jenkinsci/remoting/releases).
-
 ## Usage
 
 This image is used as the basis for the [Docker Inbound Agent](https://github.com/jenkinsci/docker-agent/README_inbound-agent.md) image.
@@ -167,3 +160,11 @@ RUN ln -snf /usr/share/zoneinfo/"${TZ}" /etc/localtime && echo "${TZ}" > /etc/ti
     && dpkg-reconfigure -f noninteractive tzdata \
  [...] 
 ```
+
+## Changelog
+
+See [GitHub releases](https://github.com/jenkinsci/docker-agent/releases) for versions `3.35-1` and above.
+There is no changelog for previous versions, see the commit history.
+
+Jenkins remoting changelogs are available at [https://github.com/jenkinsci/remoting/releases](https://github.com/jenkinsci/remoting/releases).
+
