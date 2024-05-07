@@ -31,7 +31,7 @@ ARG TARGETPLATFORM
 COPY jdk-download-url.sh /usr/bin/local/jdk-download-url.sh
 COPY jdk-download.sh /usr/bin/local/jdk-download.sh
 
-ARG JAVA_VERSION=17.0.10_7
+ARG JAVA_VERSION=17.0.11_9
 # hadolint ignore=DL3018
 RUN apk add --no-cache \
     ca-certificates \
