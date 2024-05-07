@@ -1,23 +1,12 @@
 # Jenkins Agent Docker image
 
 [![Join the chat at https://gitter.im/jenkinsci/docker](https://badges.gitter.im/jenkinsci/docker.svg)](https://gitter.im/jenkinsci/docker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![GitHub stars](https://img.shields.io/github/stars/jenkinsci/docker-agent?label=GitHub%20stars)](https://github.com/jenkinsci/docker-agent)
 [![Docker Pulls](https://img.shields.io/docker/pulls/jenkins/agent.svg)](https://hub.docker.com/r/jenkins/agent/)
 [![GitHub release](https://img.shields.io/github/release/jenkinsci/docker-agent.svg?label=changelog)](https://github.com/jenkinsci/docker-agent/releases/latest)
 
-This is a base image for Docker, which includes JDK and the Jenkins agent executable (agent.jar).
+This is a base image for Docker, which includes Java and the Jenkins agent executable (agent.jar).
 This executable is an instance of the [Jenkins Remoting library](https://github.com/jenkinsci/remoting).
-JDK version depends on the image and the platform, see the _Configurations_ section below.
-
-:exclamation: **Warning!** This image used to be published as [jenkinsci/slave](https://hub.docker.com/r/jenkinsci/slave/) and [jenkins/slave](https://hub.docker.com/r/jenkins/slave/).
-These images are now deprecated, use [jenkins/agent](https://hub.docker.com/r/jenkins/agent/).
-
-## Changelog
-
-See [GitHub releases](https://github.com/jenkinsci/docker-agent/releases) for versions `3.35-1` and above.
-There is no changelog for previous versions, see the commit history.
-
-Jenkins remoting changelogs are available [here](https://github.com/jenkinsci/remoting/releases).
+Java version depends on the image and the platform, see the _Configurations_ section below.
 
 ## Usage
 
@@ -62,49 +51,85 @@ docker run -i --rm --name agent1 --init -v agent1-workdir:C:/Users/jenkins/Work 
 The image has several supported configurations, which can be accessed via the following tags:
 
 * Linux Images:
-  * `latest` (`jdk17`, `bookworm-jdk17`, `latest-bookworm`, `latest-bookworm-jdk17`, `latest-jdk17`): Latest version with the newest remoting and JDK17 (based on `debian:bookworm-${builddate}`)
-  * `alpine` (`alpine-jdk17`, `latest-alpine`, `latest-alpine-jdk17`): Small image based on Alpine Linux with JDK17 (based on `alpine:${version}`)
-  * `archlinux` (`archlinux-jdk11`, `latest-archlinux`, `latest-archlinux-jdk11`): Image based on Arch Linux with JDK11 (based on `archlinux:latest`)
-  * `bookworm-jdk11` (`latest-bookworm-jdk11`, `latest-jdk11`): JDK11 version with the newest remoting (based on `debian:bookworm-${builddate}`)
-  * `alpine-jdk11` (`latest-alpine-jdk11`): Small image based on Alpine Linux with JDK11 (based on `alpine:${version}`)
-
-From version 4.11.2, the alpine images are tagged using the alpine OS version as well (i.e. `alpine` ==> `alpine3.16`, `alpine-jdk11` ==> `alpine3.16-jdk11`).
+  * Java 17 (default):
+    * `jenkins/agent:latest`: Based on `debian:bookworm-${builddate}`
+      * Also tagged as: 
+        * `jenkins/agent:jdk17`
+        * `jenkins/agent:bookworm-jdk17`
+        * `jenkins/agent:latest-bookworm`
+        * `jenkins/agent:latest-bookworm-jdk17`
+        * `jenkins/agent:latest-jdk17`
+    * alpine (Small image based on Alpine Linux, based on `alpine:${version}`):
+      * `jenkins/agent:jenkins/agent:alpine` 
+      * `jenkins/agent:alpine-jdk17`
+      * `jenkins/agent:latest-alpine`
+      * `jenkins/agent:latest-alpine-jdk17`
+  * Java 21:
+    * bookworm (Based on `debian:bookworm-${builddate}`):
+      * `jenkins/agent:bookworm`
+      * `jenkins/agent:bookworm-jdk21`
+      * `jenkins/agent:jdk21`
+      * `jenkins/agent:latest-bookworm-jdk21`
+    * alpine (Small image based on Alpine Linux, based on `alpine:${version}`):
+      * `jenkins/agent:alpine` 
+      * `jenkins/agent:alpine-jdk21`
+      * `jenkins/agent:latest-alpine`
+      * `jenkins/agent:latest-alpine-jdk21`
+  * Java 11:
+    * bookworm (Based on `debian:bookworm-${builddate}`):
+      * `jenkins/agent:bookworm`
+      * `jenkins/agent:bookworm-jdk11`
+      * `jenkins/agent:jdk11`
+      * `jenkins/agent:latest-bookworm-jdk11`
+    * alpine (Small image based on Alpine Linux, based on `alpine:${version}`):
+      * `jenkins/agent:alpine` 
+      * `jenkins/agent:alpine-jdk11`
+      * `jenkins/agent:latest-alpine`
+      * `jenkins/agent:latest-alpine-jdk11`
+    * archlinux (Image based on Arch Linux, based on `archlinux:latest`):
+      * `jenkins/agent:archlinux`
+      * `jenkins/agent:archlinux-jdk11`
+      * `jenkins/agent:latest-archlinux`
+      * `jenkins/agent:latest-archlinux-jdk11`
 
 * Windows Images:
-  * JDK11:
-    * `jdk11-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 11 (based on `mcr.microsoft.com/windows/nanoserver:1809` and `eclipse-temurin:11.xxx-jdk-nanoserver-1809`)
-    * `jdk11-nanoserver-ltsc2019`: Latest version with the newest remoting with Windows Nano Server and Java 11 (based on `mcr.microsoft.com/windows/nanoserver:ltsc2019` and `eclipse-temurin:11.xxx-jdk-nanoserver-1809`)
-    * `jdk11-nanoserver-ltsc2022`: Latest version with the newest remoting with Windows Nano Server and Java 11 (based on `mcr.microsoft.com/windows/nanoserver:ltsc2022` and `eclipse-temurin:11.xxx-jdk-nanoserver-ltsc2022`)
-    * `jdk11-windowsservercore-1809`: Latest version with the newest remoting and Java 11 (based on `mcr.microsoft.com/windows/servercore:1809` and `eclipse-temurin:11.xxx-jdk-windowsservercore-1809`)
-    * `jdk11-windowsservercore-ltsc2019`: Latest version with the newest remoting and Java 11 (based on `mcr.microsoft.com/windows/servercore:ltsc2019` and `eclipse-temurin:11.xxx-jdk-windowsservercore-1809`)
-    * `jdk11-windowsservercore-ltsc2022`: Latest version with the newest remoting and Java 11 (based on `mcr.microsoft.com/windows/servercore:ltsc2022` and `eclipse-temurin:11.xxx-jdk-windowsservercore-ltsc2022`)
-  * JDK17 (default):
-    * `jdk17-nanoserver-1809` (`nanoserver-1809`): Latest version with the newest remoting with Windows Nano Server and Java 17 (based on `mcr.microsoft.com/windows/nanoserver:1809` and `eclipse-temurin:17.xxx-jdk-nanoserver-1809`)
-    * `jdk17-nanoserver-ltsc2019` (`nanoserver-ltsc2019`): Latest version with the newest remoting with Windows Nano Server and Java 17 (based on `mcr.microsoft.com/windows/nanoserver:ltsc2019` and `eclipse-temurin:17.xxx-jdk-nanoserver-1809`)
-    * `jdk17-nanoserver-ltsc2022` (`nanoserver-ltsc2022`): Latest version with the newest remoting with Windows Nano Server and Java 17 (based on `mcr.microsoft.com/windows/nanoserver:ltsc2022` and `eclipse-temurin:17.xxx-jdk-nanoserver-ltsc2022`)
-    * `jdk17-windowsservercore-1809` (`windowsservercore-1809`): Latest version with the newest remoting and Java 17 (based on `mcr.microsoft.com/windows/servercore:1809` and `eclipse-temurin:17.xxx-jdk-windowsservercore-1809`)
-    * `jdk17-windowsservercore-ltsc2019` (`windowsservercore-ltsc2019`): Latest version with the newest remoting and Java 17 (based on `mcr.microsoft.com/windows/servercore:ltsc2019` and `eclipse-temurin:17.xxx-jdk-windowsservercore-1809`)
-    * `jdk17-windowsservercore-ltsc2022` (`windowsservercore-ltsc2022`): Latest version with the newest remoting and Java 17 (based on `mcr.microsoft.com/windows/servercore:ltsc2022` and `eclipse-temurin:17.xxx-jdk-windowsservercore-ltsc2022`)
-  * JDK21:
-    * `jdk21-nanoserver-1809`: Latest version with the newest remoting with Windows Nano Server and Java 21 (based on `mcr.microsoft.com/windows/nanoserver:1809` and `eclipse-temurin:21.xxx-jdk-nanoserver-1809`)
-    * `jdk21-nanoserver-ltsc2019`: Latest version with the newest remoting with Windows Nano Server and Java 21 (based on `mcr.microsoft.com/windows/nanoserver:ltsc2019` and `eclipse-temurin:21.xxx-jdk-nanoserver-1809`)
-    * `jdk21-nanoserver-ltsc2022`: Latest version with the newest remoting with Windows Nano Server and Java 21 (based on `mcr.microsoft.com/windows/nanoserver:ltsc2022` and `eclipse-temurin:21.xxx-jdk-nanoserver-ltsc2022`)
-    * `jdk21-windowsservercore-1809`: Latest version with the newest remoting and Java 21 (based on `mcr.microsoft.com/windows/servercore:1809` and `eclipse-temurin:21.xxx-jdk-windowsservercore-1809`)
-    * `jdk21-windowsservercore-ltsc2019`: Latest version with the newest remoting and Java 21 (based on `mcr.microsoft.com/windows/servercore:ltsc2019` and `eclipse-temurin:21.xxx-jdk-windowsservercore-1809`)
-    * `jdk21-windowsservercore-ltsc2022`: Latest version with the newest remoting and Java 21 (based on `mcr.microsoft.com/windows/servercore:ltsc2022` and `eclipse-temurin:21.xxx-jdk-windowsservercore-ltsc2022`)
+  * Java 17 (default):
+    * Latest Jenkins agent version on Windows Nano Server and Java 17:
+      * `jenkins/agent:jdk17-nanoserver-1809`
+      * `jenkins/agent:jdk17-nanoserver-ltsc2019`
+      * `jenkins/agent:jdk17-nanoserver-ltsc2022`
+    * Latest Jenkins agent version on Windows Server Core with Java 11:
+      * `jenkins/agent:jdk17-windowsservercore-1809`
+      * `jenkins/agent:jdk17-windowsservercore-ltsc2019`
+      * `jenkins/agent:jdk17-windowsservercore-ltsc2022`
+  * Java 21:
+    * Latest Jenkins agent version on Windows Nano Server and Java 21:
+      * `jenkins/agent:jdk21-nanoserver-1809`
+      * `jenkins/agent:jdk21-nanoserver-ltsc2019`
+      * `jenkins/agent:jdk21-nanoserver-ltsc2022`
+    * Latest Jenkins agent version on Windows Server Core with Java 21:
+      * `jenkins/agent:jdk21-windowsservercore-1809`
+      * `jenkins/agent:jdk21-windowsservercore-ltsc2019`
+      * `jenkins/agent:jdk21-windowsservercore-ltsc2022`
+  * Java 11:
+    * Latest Jenkins agent version on Windows Nano Server and Java 11:
+      * `jenkins/agent:jdk11-nanoserver-1809`
+      * `jenkins/agent:jdk11-nanoserver-ltsc2019`
+      * `jenkins/agent:jdk11-nanoserver-ltsc2022`
+    * Latest Jenkins agent version on Windows Server Core with Java 11:
+      * `jenkins/agent:jdk11-windowsservercore-1809`
+      * `jenkins/agent:jdk11-windowsservercore-ltsc2019`
+      * `jenkins/agent:jdk11-windowsservercore-ltsc2022`
 
-The file `docker-bake.hcl` defines all the configuration for Linux images and their associated tags.
+The file [docker-bake.hcl](https://github.com/jenkinsci/docker-agent/blob/master/docker-bake.hcl) defines all the configuration for Linux images and their associated tags.
 
 There are also versioned tags in DockerHub, and they are recommended for production use.
-See the full list [here](https://hub.docker.com/r/jenkins/agent/tags)
+See the full list at [https://hub.docker.com/r/jenkins/agent/tags](https://hub.docker.com/r/jenkins/agent/tags)
 
 ## Timezones
 
-### Using directly the `jenkins/agent` image
-
 By default, the image is using the `Etc/UTC` timezone.
 If you want to use the timezone of your machine, you can mount the `/etc/localtime` file from the host (as per [this comment](https://github.com/moby/moby/issues/12084#issuecomment-89697533)) and the `/etc/timezone` from the host too.
-In this example, the machine is using the `Europe/Paris` timezone.
 
 ```bash
 docker run --rm --tty --interactive --entrypoint=date --volume=/etc/localtime:/etc/localtime:ro --volume=/etc/timezone:/etc/timezone:ro jenkins/agent
@@ -133,3 +158,11 @@ RUN ln -snf /usr/share/zoneinfo/"${TZ}" /etc/localtime && echo "${TZ}" > /etc/ti
     && dpkg-reconfigure -f noninteractive tzdata \
  [...] 
 ```
+
+## Changelog
+
+See [GitHub releases](https://github.com/jenkinsci/docker-agent/releases) for versions `3.35-1` and above.
+There is no changelog for previous versions, see the commit history.
+
+Jenkins remoting changelogs are available at [https://github.com/jenkinsci/remoting/releases](https://github.com/jenkinsci/remoting/releases).
+
