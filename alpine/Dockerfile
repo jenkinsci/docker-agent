@@ -55,7 +55,7 @@ RUN case "$(jlink --version 2>&1)" in \
       --add-modules ALL-MODULE-PATH \
       --no-man-pages \
       --no-header-files \
-      --output /javaruntime; \
+      --output /javaruntime
 
 ## Agent image target
 FROM alpine:"${ALPINE_TAG}" AS agent
