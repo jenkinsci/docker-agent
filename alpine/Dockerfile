@@ -55,7 +55,6 @@ RUN case "$(jlink --version 2>&1)" in \
       --add-modules ALL-MODULE-PATH \
       --no-man-pages \
       --no-header-files \
-      --compress=2 \
       --output /javaruntime; \
   else \
     cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
