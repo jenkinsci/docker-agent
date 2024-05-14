@@ -2,6 +2,12 @@ name: updatecli
 on:
   # Allow to be run manually
   workflow_dispatch:
+    inputs:
+      # Optional debug input
+      debug:
+        description: Set to true to pass --debug to updatecli
+        required: true
+        type: boolean
   schedule:
     # Run once per week (to avoid alert fatigue)
     - cron: '0 2 * * 1' # Every Monday at 2am UTC
@@ -18,12 +24,12 @@ jobs:
         uses: updatecli/updatecli-action@v2.58.0
 
       - name: Run Updatecli in Dry Run mode
-        run: updatecli diff --config ./updatecli/updatecli.d --values ./updatecli/values.github-action.yaml --values ./updatecli/values.temurin.yaml
+        run: updatecli diff --config ./updatecli/updatecli.d --values ./updatecli/values.github-action.yaml --values ./updatecli/values.temurin.yaml $([[ "${{ inputs.debug }}" == 'true' ]] && echo '--debug')
         env:
           UPDATECLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Updatecli in Apply mode
         if: github.ref == 'refs/heads/master'
-        run: updatecli apply --config ./updatecli/updatecli.d --values ./updatecli/values.github-action.yaml --values ./updatecli/values.temurin.yaml
+        run: updatecli apply --config ./updatecli/updatecli.d --values ./updatecli/values.github-action.yaml --values ./updatecli/values.temurin.yaml $([[ "${{ inputs.debug }}" == 'true' ]] && echo '--debug')
         env:
           UPDATECLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
