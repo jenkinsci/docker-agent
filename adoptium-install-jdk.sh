@@ -14,11 +14,11 @@ if [ $# -eq 1 ]; then
     OS=$1
 fi
 
-# Call jdk-download-url.sh with JAVA_VERSION and OS as arguments
+# Call adoptium-get-jdk-link.sh with JAVA_VERSION and OS as arguments
 # The two scripts should be in the same directory.
 # That's why we're trying to find the directory of the current script and use it to call the other script.
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
-if ! DOWNLOAD_URL=$("${SCRIPT_DIR}"/jdk-download-url.sh "${JAVA_VERSION}" "${OS}"); then
+if ! DOWNLOAD_URL=$("${SCRIPT_DIR}"/adoptium-get-jdk-link.sh "${JAVA_VERSION}" "${OS}"); then
     echo "Error: Failed to fetch the URL. Exiting with status 1." >&2
     exit 1
 fi
