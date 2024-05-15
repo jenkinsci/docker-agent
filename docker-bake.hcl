@@ -138,8 +138,7 @@ function "javaversion" {
     ? "${JAVA11_VERSION}"
     : (equal(17, jdk)
       ? "${JAVA17_VERSION}"
-      : "${JAVA21_VERSION}")
-  )
+      : "${JAVA21_VERSION}"))
 }
 
 # Return an array of Alpine platforms to use depending on the jdk passed as parameter
@@ -147,8 +146,7 @@ function "alpine_platforms" {
   params = [jdk]
   result = (equal(21, jdk)
     ? ["linux/amd64", "linux/arm64"]
-    : ["linux/amd64"]
-  )
+    : ["linux/amd64"])
 }
 
 # Return an array of Debian platforms to use depending on the jdk passed as parameter
