@@ -42,6 +42,9 @@ Param(
 # Optional environment variables :
 # * JENKINS_JAVA_BIN : Java executable to use instead of the default in PATH or obtained from JAVA_HOME
 # * JENKINS_JAVA_OPTS : Java Options to use for the remoting process, otherwise obtained from JAVA_OPTS
+# * REMOTING_OPTS : Generic way to pass additional CLI options to agent.jar (see -help)
+#
+# Deprecated environment variables (prefer setting REMOTING_OPTS)
 # * JENKINS_TUNNEL : HOST:PORT for a tunnel to route TCP traffic to jenkins host, when jenkins can't be directly accessed over network
 # * JENKINS_URL : alternate jenkins URL
 # * JENKINS_SECRET : agent secret, if not set as an argument
