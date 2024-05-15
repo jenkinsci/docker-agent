@@ -34,7 +34,8 @@ Param(
     $Protocols = '',
     $JenkinsJavaBin = '',
     $JavaHome = $env:JAVA_HOME,
-    $JenkinsJavaOpts = ''
+    $JenkinsJavaOpts = '',
+    $RemotingOpts = ''
 )
 
 # Usage jenkins-agent.ps1 [options] -Url http://jenkins -Secret [SECRET] -Name [AGENT_NAME]
@@ -70,6 +71,7 @@ if(![System.String]::IsNullOrWhiteSpace($Cmd)) {
         'DirectConnection' = 'JENKINS_DIRECT_CONNECTION';
         'InstanceIdentity' = 'JENKINS_INSTANCE_IDENTITY';
         'Protocols' = 'JENKINS_PROTOCOLS';
+        'RemotingOpts' = 'REMOTING_OPTS';
     }
 
     # this does some trickery to update the variable from the CmdletBinding
@@ -107,6 +109,10 @@ if(![System.String]::IsNullOrWhiteSpace($Cmd)) {
     $AgentArguments += @("-jar", "C:/ProgramData/Jenkins/agent.jar")
     $AgentArguments += @("-secret", $Secret)
     $AgentArguments += @("-name", $Name)
+
+    if(![System.String]::IsNullOrWhiteSpace($RemotingOpts)) {
+        $AgentArguments += Invoke-Expression "echo $RemotingOpts"
+    }
 
     if(![System.String]::IsNullOrWhiteSpace($Tunnel)) {
         $AgentArguments += @("-tunnel", "`"$Tunnel`"")
