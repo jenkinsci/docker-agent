@@ -233,6 +233,6 @@ foreach($agentType in $AgentTypes) {
 if($lastExitCode -ne 0) {
     Write-Error "Build failed!"
 } else {
-    Write-Host "Build finished successfully"
+    Write-Host "= Build finished successfully"
 }
 exit $lastExitCode

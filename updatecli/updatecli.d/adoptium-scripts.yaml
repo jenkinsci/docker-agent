@@ -1,0 +1,78 @@
+---
+name: Update `adoptium-install-jdk.sh` script content
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  lastScriptContent:
+    kind: file
+    name: Get the latest `adoptium-install-jdk.sh` script content from jenkins-infra/shared-tools
+    spec:
+      file: https://raw.githubusercontent.com/jenkins-infra/shared-tools/main/adoptium/adoptium-install-jdk.sh
+
+targets:
+  updateScriptContent:
+    name: Update script content
+    kind: file
+    spec:
+      file: adoptium-install-jdk.sh
+    scmid: default
+
+actions:
+  default:
+    kind: github/pullrequest
+    title: Update `adoptium-install-jdk.sh` script content
+    scmid: default
+    spec:
+      labels:
+        - chore
+        - adoptium-scripts
+---
+name: Update `adoptium-get-jdk-link.sh` script content
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  lastScriptContent:
+    kind: file
+    name: Get the latest `adoptium-get-jdk-link.sh` script content from jenkins-infra/shared-tools
+    spec:
+      file: https://raw.githubusercontent.com/jenkins-infra/shared-tools/main/adoptium/adoptium-get-jdk-link.sh
+
+targets:
+  updateScriptContent:
+    name: Update script content
+    kind: file
+    spec:
+      file: adoptium-get-jdk-link.sh
+    scmid: default
+
+actions:
+  default:
+    kind: github/pullrequest
+    title: Update `adoptium-get-jdk-link.sh` script content
+    scmid: default
+    spec:
+      labels:
+        - chore
+        - adoptium-scripts

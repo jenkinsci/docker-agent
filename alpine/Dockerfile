@@ -28,8 +28,8 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # Ref. https://docs.docker.com/engine/reference/builder/#automatic-platform-args-in-the-global-scope
 ARG TARGETPLATFORM
 
-COPY jdk-download-url.sh /usr/bin/local/jdk-download-url.sh
-COPY jdk-download.sh /usr/bin/local/jdk-download.sh
+COPY adoptium-get-jdk-link.sh /usr/bin/local/adoptium-get-jdk-link.sh
+COPY adoptium-install-jdk.sh /usr/bin/local/adoptium-install-jdk.sh
 
 ARG JAVA_VERSION=17.0.11_9
 # hadolint ignore=DL3018
@@ -37,7 +37,7 @@ RUN apk add --no-cache \
     ca-certificates \
     jq \
     curl \
-  && /usr/bin/local/jdk-download.sh alpine
+  && /usr/bin/local/adoptium-install-jdk.sh alpine
 
 ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 
