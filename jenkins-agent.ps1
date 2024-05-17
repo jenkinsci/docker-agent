@@ -34,13 +34,17 @@ Param(
     $Protocols = '',
     $JenkinsJavaBin = '',
     $JavaHome = $env:JAVA_HOME,
-    $JenkinsJavaOpts = ''
+    $JenkinsJavaOpts = '',
+    $RemotingOpts = ''
 )
 
 # Usage jenkins-agent.ps1 [options] -Url http://jenkins -Secret [SECRET] -Name [AGENT_NAME]
 # Optional environment variables :
 # * JENKINS_JAVA_BIN : Java executable to use instead of the default in PATH or obtained from JAVA_HOME
 # * JENKINS_JAVA_OPTS : Java Options to use for the remoting process, otherwise obtained from JAVA_OPTS
+# * REMOTING_OPTS : Generic way to pass additional CLI options to agent.jar (see -help)
+#
+# Deprecated environment variables (prefer setting REMOTING_OPTS)
 # * JENKINS_TUNNEL : HOST:PORT for a tunnel to route TCP traffic to jenkins host, when jenkins can't be directly accessed over network
 # * JENKINS_URL : alternate jenkins URL
 # * JENKINS_SECRET : agent secret, if not set as an argument
@@ -70,6 +74,7 @@ if(![System.String]::IsNullOrWhiteSpace($Cmd)) {
         'DirectConnection' = 'JENKINS_DIRECT_CONNECTION';
         'InstanceIdentity' = 'JENKINS_INSTANCE_IDENTITY';
         'Protocols' = 'JENKINS_PROTOCOLS';
+        'RemotingOpts' = 'REMOTING_OPTS';
     }
 
     # this does some trickery to update the variable from the CmdletBinding
@@ -107,6 +112,10 @@ if(![System.String]::IsNullOrWhiteSpace($Cmd)) {
     $AgentArguments += @("-jar", "C:/ProgramData/Jenkins/agent.jar")
     $AgentArguments += @("-secret", $Secret)
     $AgentArguments += @("-name", $Name)
+
+    if(![System.String]::IsNullOrWhiteSpace($RemotingOpts)) {
+        $AgentArguments += Invoke-Expression "echo $RemotingOpts"
+    }
 
     if(![System.String]::IsNullOrWhiteSpace($Tunnel)) {
         $AgentArguments += @("-tunnel", "`"$Tunnel`"")
