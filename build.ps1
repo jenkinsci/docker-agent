@@ -90,8 +90,10 @@ $env:WINDOWS_FLAVOR = $items[0]
 $env:WINDOWS_VERSION_TAG = $items[1]
 $env:TOOLS_WINDOWS_VERSION = $items[1]
 if ($items[1] -eq 'ltsc2019') {
-    # There are no eclipse-temurin:*-ltsc2019 or mcr.microsoft.com/powershell:*-ltsc2019 docker images unfortunately, only "1809" ones
+    # There are no mcr.microsoft.com/powershell:*-ltsc2019 docker images unfortunately, only "1809" ones
     $env:TOOLS_WINDOWS_VERSION = '1809'
+    # Workaround for 2019 only until https://github.com/microsoft/Windows-Containers/issues/493 is solved
+    $env:WINDOWS_VERSION_DIGEST = '@sha256:6fdf140282a2f809dae9b13fe441635867f0a27c33a438771673b8da8f3348a4'
 }
 
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
