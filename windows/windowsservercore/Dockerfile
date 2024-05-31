@@ -108,8 +108,10 @@ RUN New-Item -Type Directory $('{0}/.jenkins' -f $env:AGENT_ROOT) | Out-Null ; `
 
 RUN git config --global core.longpaths true
 
-VOLUME "${AGENT_ROOT}"/.jenkins
-VOLUME "${AGENT_WORKDIR}"
+# Volume definitions are not supported on ECS Fargate for Windows
+# VOLUME "${AGENT_ROOT}"/.jenkins
+# VOLUME "${AGENT_WORKDIR}"
+
 WORKDIR "${AGENT_ROOT}"
 ENV user=${user}
 LABEL `

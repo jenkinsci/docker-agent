@@ -1,0 +1,50 @@
+name: Release Windows Agent
+
+on:
+  workflow_dispatch:
+    inputs:
+      docker-org:
+        description: 'Organization prefix of the ECR repository'
+        required: true
+        type: string
+        default: '794835664978.dkr.ecr.eu-west-1.amazonaws.com'
+      docker-repo:
+        description: 'Repo name of the ECR repository'
+        required: true
+        type: string
+        default: 'jenkins/inbound-agent'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  release:
+    name: Release
+    runs-on: windows-latest
+    env:
+      BUILD_NUMBER: ${{ github.run_number }}
+      DOCKERHUB_ORGANISATION: ${{ inputs.docker-org }}
+      DOCKERHUB_REPO: ${{ inputs.docker-repo }}
+      WINDOWS_FLAVOR: windowsservercore
+      WINDOWS_VERSION_TAG: ltsc2022
+    steps:
+      - name: Inputs
+        run: |
+          echo "### Used Inputs" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '${{ toJSON(inputs) }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::794835664978:role/github-action-role
+          aws-region: eu-west-1
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push container
+        run: |
+          docker-compose --env-file=env.props --file=build-windows.yaml build --pull jdk17
+          docker-compose --env-file=env.props --file=build-windows.yaml push
