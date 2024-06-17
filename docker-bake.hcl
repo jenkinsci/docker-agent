@@ -2,8 +2,7 @@ group "linux" {
   targets = [
     "agent_archlinux_jdk11",
     "alpine",
-    "debian",
-    "debian_jdk21_preview"
+    "debian"
   ]
 }
 
@@ -15,8 +14,7 @@ group "linux-agent-only" {
     "agent_alpine_jdk21",
     "agent_debian_jdk11",
     "agent_debian_jdk17",
-    "agent_debian_jdk21",
-    "agent_debian_jdk21_preview"
+    "agent_debian_jdk21"
   ]
 }
 
@@ -27,8 +25,7 @@ group "linux-inbound-agent-only" {
     "inbound-agent_alpine_jdk21",
     "inbound-agent_debian_jdk11",
     "inbound-agent_debian_jdk17",
-    "inbound-agent_debian_jdk21",
-    "inbound-agent_debian_jdk21_preview"
+    "inbound-agent_debian_jdk21"
   ]
 }
 
@@ -42,8 +39,7 @@ group "linux-arm64" {
 group "linux-arm32" {
   targets = [
     "debian_jdk11",
-    "debian_jdk17",
-    "debian_jdk21_preview"
+    "debian_jdk17"
   ]
 }
 
@@ -110,10 +106,6 @@ variable "JAVA17_VERSION" {
 
 variable "JAVA21_VERSION" {
   default = "21.0.3_9"
-}
-
-variable "JAVA21_PREVIEW_VERSION" {
-  default = "21.0.1+12"
 }
 
 function "orgrepo" {
@@ -240,27 +232,4 @@ target "agent_archlinux_jdk11" {
     "${REGISTRY}/${orgrepo("agent")}:latest-archlinux-jdk11",
   ]
   platforms = ["linux/amd64"]
-}
-
-target "debian_jdk21_preview" {
-  matrix = {
-    type = ["agent", "inbound-agent"]
-  }
-  name       = "${type}_debian_jdk21_preview"
-  target     = type
-  dockerfile = "debian/preview/Dockerfile"
-  context    = "."
-  args = {
-    JAVA_VERSION   = JAVA21_PREVIEW_VERSION
-    VERSION        = REMOTING_VERSION
-    DEBIAN_RELEASE = DEBIAN_RELEASE
-  }
-  tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk21-preview" : "",
-    "${REGISTRY}/${orgrepo(type)}:bookworm-jdk21-preview",
-    "${REGISTRY}/${orgrepo(type)}:jdk21-preview",
-    "${REGISTRY}/${orgrepo(type)}:latest-bookworm-jdk21-preview",
-    "${REGISTRY}/${orgrepo(type)}:latest-jdk21-preview",
-  ]
-  platforms = ["linux/arm/v7"]
 }
