@@ -29,17 +29,6 @@ function get_jdk_download_url() {
       ## JDK19 URLs have an underscore ('_') instead of a plus ('+') in their archive names
       echo "https://github.com/adoptium/temurin19-binaries/releases/download/jdk-${jdk_version}/OpenJDK19U-jdk_${platform}_hotspot_${jdk_version//+/_}";
       return 0;;
-    21*-ea-beta)
-      # JDK preview version (21+35-ea-beta, 21.0.1+12-ea-beta)
-      # This has been updated to support the new inferred URL pattern that started as of 21.0.3+2-ea-beta. It will not work for earlier preview versions.
-      # One could update the cases to support all preview versions, if desired.
-      jdk_version="${jdk_version//-beta}"
-      ##    https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21%2B35-ea-beta/OpenJDK21U-jdk_aarch64_linux_hotspot_ea_21-0-35.tar.gz
-      ##    https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.1%2B12-ea-beta/OpenJDK21U-jdk_x64_linux_hotspot_ea_21-0-1-12.tar.gz
-      dashJDKVersion="${jdk_version//+/_}"
-      jdk_version="${jdk_version//-ea}"
-      echo "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-${jdk_version//+/%2B}-ea-beta/OpenJDK21U-jdk_${platform}_hotspot_${dashJDKVersion}"
-      return 0;;
     21*)
       ## JDK21 URLs have an underscore ('_') instead of a plus ('+') in their archive names
       echo "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-${jdk_version}/OpenJDK21U-jdk_${platform}_hotspot_${jdk_version//+/_}";

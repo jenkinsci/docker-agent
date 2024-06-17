@@ -36,16 +36,6 @@ targets:
         keyword: "ARG"
         matcher: "DEBIAN_RELEASE"
     scmid: default
-  updatePreviewDockerfile:
-    name: "Update the value of the base image (ARG DEBIAN_RELEASE) in the preview Dockerfile"
-    kind: dockerfile
-    sourceid: bookwormLatestVersion
-    spec:
-      file: debian/preview/Dockerfile
-      instruction:
-        keyword: "ARG"
-        matcher: "DEBIAN_RELEASE"
-    scmid: default
   updateDockerBake:
     name: "Update the default value of the variable DEBIAN_RELEASE in the docker-bake.hcl"
     kind: hcl
