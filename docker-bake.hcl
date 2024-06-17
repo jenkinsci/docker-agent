@@ -113,7 +113,7 @@ variable "JAVA21_VERSION" {
 }
 
 variable "JAVA21_PREVIEW_VERSION" {
-  default = "21.0.1+12"
+  default = "21.0.4+5"
 }
 
 function "orgrepo" {
