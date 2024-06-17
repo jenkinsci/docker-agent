@@ -241,26 +241,3 @@ target "agent_archlinux_jdk11" {
   ]
   platforms = ["linux/amd64"]
 }
-
-target "debian_jdk21_preview" {
-  matrix = {
-    type = ["agent", "inbound-agent"]
-  }
-  name       = "${type}_debian_jdk21_preview"
-  target     = type
-  dockerfile = "debian/preview/Dockerfile"
-  context    = "."
-  args = {
-    JAVA_VERSION   = JAVA21_PREVIEW_VERSION
-    VERSION        = REMOTING_VERSION
-    DEBIAN_RELEASE = DEBIAN_RELEASE
-  }
-  tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk21-preview" : "",
-    "${REGISTRY}/${orgrepo(type)}:bookworm-jdk21-preview",
-    "${REGISTRY}/${orgrepo(type)}:jdk21-preview",
-    "${REGISTRY}/${orgrepo(type)}:latest-bookworm-jdk21-preview",
-    "${REGISTRY}/${orgrepo(type)}:latest-jdk21-preview",
-  ]
-  platforms = ["linux/arm/v7"]
-}
