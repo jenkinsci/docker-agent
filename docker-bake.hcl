@@ -97,7 +97,7 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20240513"
+  default = "bookworm-20240612"
 }
 
 variable "JAVA11_VERSION" {
@@ -138,7 +138,7 @@ function "javaversion" {
     ? "${JAVA11_VERSION}"
     : (equal(17, jdk)
       ? "${JAVA17_VERSION}"
-      : "${JAVA21_VERSION}"))
+  : "${JAVA21_VERSION}"))
 }
 
 # Return an array of Alpine platforms to use depending on the jdk passed as parameter
@@ -146,7 +146,7 @@ function "alpine_platforms" {
   params = [jdk]
   result = (equal(21, jdk)
     ? ["linux/amd64", "linux/arm64"]
-    : ["linux/amd64"])
+  : ["linux/amd64"])
 }
 
 # Return an array of Debian platforms to use depending on the jdk passed as parameter
@@ -156,13 +156,13 @@ function "debian_platforms" {
     ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7", "linux/s390x"]
     : (equal(17, jdk)
       ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7"]
-      : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]))
+  : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]))
 }
 
 target "alpine" {
   matrix = {
     type = ["agent", "inbound-agent"]
-    jdk = [11, 17, 21]
+    jdk  = [11, 17, 21]
   }
   name       = "${type}_alpine_jdk${jdk}"
   target     = type
@@ -196,7 +196,7 @@ target "alpine" {
 target "debian" {
   matrix = {
     type = ["agent", "inbound-agent"]
-    jdk = [11, 17, 21]
+    jdk  = [11, 17, 21]
   }
   name       = "${type}_debian_${jdk}"
   target     = type
