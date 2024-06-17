@@ -25,7 +25,7 @@ group "linux-inbound-agent-only" {
     "inbound-agent_alpine_jdk21",
     "inbound-agent_debian_jdk11",
     "inbound-agent_debian_jdk17",
-    "inbound-agent_debian_jdk21
+    "inbound-agent_debian_jdk21"
   ]
 }
 
