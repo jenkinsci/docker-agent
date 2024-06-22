@@ -64,6 +64,10 @@ if (![String]::IsNullOrWhiteSpace($env:REMOTING_VERSION)) {
     $RemotingVersion = $env:REMOTING_VERSION
 }
 
+if (![String]::IsNullOrWhiteSpace($env:BUILD_NUMBER)) {
+    $BuildNumber = $env:BUILD_NUMBER
+}
+
 if (![String]::IsNullOrWhiteSpace($env:IMAGE_TYPE)) {
     $ImageType = $env:IMAGE_TYPE
 }

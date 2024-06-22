@@ -79,14 +79,17 @@ pipeline {
                                     script {
                                         def tagItems = env.TAG_NAME.split('-')
                                         if(tagItems.length == 2) {
-                                            def remotingVersion = tagItems[0]
-                                            def buildNumber = tagItems[1]
-                                            // This function is defined in the jenkins-infra/pipeline-library
-                                            infra.withDockerCredentials {
-                                                if (isUnix()) {
-                                                    sh "./build.sh -r ${remotingVersion} -b ${buildNumber} -d publish"
-                                                } else {
-                                                    powershell "& ./build.ps1 -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
+                                            withEnv(
+                                                ["REMOTING_VERSION=${tagItems[0]}"],
+                                                ["BUILD_NUMBER=${tagItems[1]}"]
+                                            ) {
+                                                // This function is defined in the jenkins-infra/pipeline-library
+                                                infra.withDockerCredentials {
+                                                    if (isUnix()) {
+                                                        sh './build.sh -r $REMOTING_VERSION -b $BUILD_NUMBER -d publish'
+                                                    } else {
+                                                        powershell '& ./build.ps1 -DisableEnvProps publish'
+                                                    }
                                                 }
                                             }
                                         } else {
