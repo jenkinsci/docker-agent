@@ -44,10 +44,7 @@ pipeline {
                                     environment name: 'IMAGE_TYPE', value: 'linux'
                                 }
                                 steps {
-                                    sh '''
-                                    docker buildx create --use
-                                    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-                                    '''
+                                    sh 'make docker-init'
                                 }
                             }
                             stage('Build and Test') {
@@ -61,7 +58,7 @@ pipeline {
                                             sh './build.sh'
                                             sh './build.sh test'
                                             // If the tests are passing for Linux AMD64, then we can build all the CPU architectures
-                                            sh 'docker buildx bake --file docker-bake.hcl linux'
+                                            sh 'make every-build'
                                         } else {
                                             powershell '& ./build.ps1 test'
                                         }
@@ -87,11 +84,7 @@ pipeline {
                                             // This function is defined in the jenkins-infra/pipeline-library
                                             infra.withDockerCredentials {
                                                 if (isUnix()) {
-                                                    sh """
-                                                    docker buildx create --use
-                                                    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-                                                    ./build.sh -r ${remotingVersion} -b ${buildNumber} -d publish
-                                                    """
+                                                    sh "./build.sh -r ${remotingVersion} -b ${buildNumber} -d publish"
                                                 } else {
                                                     powershell "& ./build.ps1 -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
                                                 }

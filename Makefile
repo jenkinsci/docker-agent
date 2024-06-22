@@ -17,6 +17,8 @@ check_cli = type "$(1)" >/dev/null 2>&1 || { echo "Error: command '$(1)' require
 check_image = make --silent list | grep -w '$(1)' >/dev/null 2>&1 || { echo "Error: the image '$(1)' does not exist in manifest for the platform 'linux/$(ARCH)'. Please check the output of 'make list'. Exiting." ; exit 1 ; }
 ## Base "docker buildx base" command to be reused everywhere
 bake_base_cli := docker buildx bake -f docker-bake.hcl --load
+bake_base_cli := docker buildx bake --file docker-bake.hcl
+bake_cli := $(bake_base_cli) --load
 
 .PHONY: build
 .PHONY: test test-alpine test-archlinux test-debian test-jdk11 test-jdk11-alpine
@@ -31,16 +33,24 @@ check-reqs:
 	@$(call check_cli,curl)
 	@$(call check_cli,jq)
 
+## This function is specific to Jenkins infrastructure and isn't required in other contexts
+docker-init: check-reqs
+	@set -x; docker buildx create --use
+	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
 build: check-reqs
-	@set -x; $(bake_base_cli) --set '*.platform=linux/$(ARCH)' $(shell make --silent list)
+	@set -x; $(bake_cli) --set '*.platform=linux/$(ARCH)' $(shell make --silent list)
 
 build-%:
 	@$(call check_image,$*)
 	@echo "== building $*"
-	@set -x; $(bake_base_cli) --set '*.platform=linux/$(ARCH)' '$*'
+	@set -x; $(bake_cli) --set '*.platform=linux/$(ARCH)' '$*'
+
+every-build: check-reqs
+	@set -x; $(bake_base_cli) linux
 
 show:
-	@$(bake_base_cli) linux --print
+	@$(bake_cli) linux --print
 
 list: check-reqs
 	@set -x; make --silent show | jq -r '.target | path(.. | select(.platforms[] | contains("linux/$(ARCH)"))?) | add'
