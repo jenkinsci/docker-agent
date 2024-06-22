@@ -56,6 +56,14 @@ group "linux-ppc64le" {
   ]
 }
 
+variable "jdks_to_build" {
+  default = [11, 17, 21]
+}
+
+variable "default_jdk" {
+  default = 17
+}
+
 variable "REMOTING_VERSION" {
   default = "3256.v88a_f6e922152"
 }
@@ -113,10 +121,6 @@ function "orgrepo" {
   result = equal("agent", agentType) ? "${REGISTRY_ORG}/${REGISTRY_REPO_AGENT}" : "${REGISTRY_ORG}/${REGISTRY_REPO_INBOUND_AGENT}"
 }
 
-variable "default_jdk" {
-  default = 17
-}
-
 # Return "true" if the jdk passed as parameter is the same as the default jdk, "false" otherwise
 function "is_default_jdk" {
   params = [jdk]
@@ -154,7 +158,7 @@ function "debian_platforms" {
 target "alpine" {
   matrix = {
     type = ["agent", "inbound-agent"]
-    jdk  = [11, 17, 21]
+    jdk  = jdks_to_build
   }
   name       = "${type}_alpine_jdk${jdk}"
   target     = type
@@ -188,9 +192,9 @@ target "alpine" {
 target "debian" {
   matrix = {
     type = ["agent", "inbound-agent"]
-    jdk  = [11, 17, 21]
+    jdk  = jdks_to_build
   }
-  name       = "${type}_debian_${jdk}"
+  name       = "${type}_debian_jdk${jdk}"
   target     = type
   dockerfile = "debian/Dockerfile"
   context    = "."
