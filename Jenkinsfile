@@ -54,7 +54,7 @@ pipeline {
                                 }
                                 steps {
                                     script {
-                                        if(isUnix()) {
+                                        if (isUnix()) {
                                             sh './build.sh'
                                             sh './build.sh test'
                                             // If the tests are passing for Linux AMD64, then we can build all the CPU architectures
@@ -66,6 +66,7 @@ pipeline {
                                 }
                                 post {
                                     always {
+                                        archiveArtifacts artifacts: 'build-windows_*.yaml', allowEmptyArchive: true
                                         junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results*.xml')
                                     }
                                 }

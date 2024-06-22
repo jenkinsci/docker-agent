@@ -1,6 +1,6 @@
 Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
 
-$global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' ''
+$global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' '' # Ex: jenkins/agent:jdk17-nanoserver-1809
 $global:VERSION = Get-EnvOrDefault 'VERSION' ''
 $global:JAVA_VERSION = Get-EnvOrDefault 'JAVA_VERSION' ''
 
@@ -19,8 +19,9 @@ if ($items[2] -eq 'ltsc2019') {
     $global:WINDOWSVERSIONFALLBACKTAG = '1809'
 }
 
-# TODO: make this name unique for concurency
-$global:CONTAINERNAME = 'pester-jenkins-agent-{0}' -f $global:IMAGE_TAG
+$random = Get-Random
+$global:CONTAINERNAME = 'pester-jenkins-agent_{0}_{1}' -f $global:IMAGE_TAG, $random
+Write-Host "= TESTS: container name $global:CONTAINERNAME"
 
 $global:CONTAINERSHELL = 'powershell.exe'
 if ($global:WINDOWSFLAVOR -eq 'nanoserver') {

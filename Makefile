@@ -16,7 +16,6 @@ check_cli = type "$(1)" >/dev/null 2>&1 || { echo "Error: command '$(1)' require
 ## Check if a given image exists in the current manifest docker-bake.hcl
 check_image = make --silent list | grep -w '$(1)' >/dev/null 2>&1 || { echo "Error: the image '$(1)' does not exist in manifest for the platform 'linux/$(ARCH)'. Please check the output of 'make list'. Exiting." ; exit 1 ; }
 ## Base "docker buildx base" command to be reused everywhere
-bake_base_cli := docker buildx bake -f docker-bake.hcl --load
 bake_base_cli := docker buildx bake --file docker-bake.hcl
 bake_cli := $(bake_base_cli) --load
 
@@ -39,12 +38,12 @@ docker-init: check-reqs
 	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
 build: check-reqs
-	@set -x; $(bake_cli) --set '*.platform=linux/$(ARCH)' $(shell make --silent list)
+	@set -x; $(bake_cli) $(shell make --silent list) --set '*.platform=linux/$(ARCH)'
 
 build-%:
 	@$(call check_image,$*)
 	@echo "== building $*"
-	@set -x; $(bake_cli) --set '*.platform=linux/$(ARCH)' '$*'
+	@set -x; $(bake_cli) '$*' --set '*.platform=linux/$(ARCH)'
 
 every-build: check-reqs
 	@set -x; $(bake_base_cli) linux
