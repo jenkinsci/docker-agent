@@ -26,14 +26,18 @@ See [the `inbound-agent` README](./README_inbound-agent.md)
 
 #### Target images
 
-If you want to see the target images that will be built, you can issue the following command:
+If you want to see the target images (matching your current architecture) that will be built, you can issue the following command:
 
 ```bash
 $ make list
-alpine_jdk11
-alpine_jdk17
-debian_jdk11
-debian_jdk17
+agent_alpine_jdk21
+agent_debian_jdk11
+agent_debian_jdk17
+agent_debian_jdk21
+inbound-agent_alpine_jdk21
+inbound-agent_debian_jdk11
+inbound-agent_debian_jdk17
+inbound-agent_debian_jdk21
 ```
 
 #### Building a specific image
@@ -41,13 +45,13 @@ debian_jdk17
 If you want to build a specific image, you can issue the following command:
 
 ```bash
-make build-<OS>_<JDK_VERSION>
+make build-<AGENT_TYPE>_<LINUX_FLAVOR>_<JDK_VERSION>
 ```
 
-That would give for JDK 17 on Alpine Linux:
+That would give for an image of an inbound agent with JDK 17 on Debian:
 
 ```bash
-make build-alpine_jdk17
+make build-inbound-agent_debian_jdk17
 ```
 
 #### Building images supported by your current architecture
@@ -70,13 +74,13 @@ make test
 If you want to test a specific image, you can run:
 
 ```bash
-make test-<OS>_<JDK_VERSION>
+make test-<AGENT_TYPE>_<LINUX_FLAVOR>_<JDK_VERSION>
 ```
 
-That would give for JDK 17 on Alpine Linux:
+That would give for an image of an inbound agent with JDK 17 on Debian:
 
 ```bash
-make test-alpine_jdk17
+make test-inbound-agent_debian_jdk17
 ```
 
 #### Building all images
@@ -92,26 +96,58 @@ make every-build
 `show` gives us a detailed view of the images that will be built, with the tags, platforms, and Dockerfiles.
 
 ```bash
-make show
+$ make show
 {
   "group": {
+    "alpine": {
+      "targets": [
+        "agent_alpine_jdk11",
+        "agent_alpine_jdk17",
+        "agent_alpine_jdk21",
+        "inbound-agent_alpine_jdk11",
+        "inbound-agent_alpine_jdk17",
+        "inbound-agent_alpine_jdk21"
+      ]
+    },
+    "debian": {
+      "targets": [
+        "agent_debian_jdk11",
+        "agent_debian_jdk17",
+        "agent_debian_jdk21",
+        "inbound-agent_debian_jdk11",
+        "inbound-agent_debian_jdk17",
+        "inbound-agent_debian_jdk21"
+      ]
+    },
     "default": {
       "targets": [
-        "alpine_jdk17",
-        "alpine_jdk11",
-        "debian_jdk11",
-        "debian_jdk17",
+        "linux"
+      ]
+    },
+    "linux": {
+      "targets": [
+        "agent_archlinux_jdk11",
+        "alpine",
+        "debian"
       ]
     }
   },
   "target": {
-    "alpine_jdk11": {
+    "agent_alpine_jdk11": {
       "context": ".",
       "dockerfile": "alpine/Dockerfile",
+      "args": {
+        "ALPINE_TAG": "3.20.1",
+        "JAVA_VERSION": "11.0.23_9",
+        "VERSION": "3256.v88a_f6e922152"
+      },
       "tags": [
-        "docker.io/jenkins/ssh-agent:alpine-jdk11",
-        "docker.io/jenkins/ssh-agent:latest-alpine-jdk11"
+        "docker.io/jenkins/agent:alpine-jdk11",
+        "docker.io/jenkins/agent:alpine3.20-jdk11",
+        "docker.io/jenkins/agent:latest-alpine-jdk11",
+        "docker.io/jenkins/agent:latest-alpine3.20-jdk11"
       ],
+      "target": "agent",
       "platforms": [
         "linux/amd64"
       ],
@@ -139,7 +175,7 @@ make: 'bats' is up to date.
 
 Run `.\build.ps1` to launch the build of the images corresponding to the "windows" target of docker-bake.hcl.
 
-Internally, the first time you'll run this script and if there is no build-windows.yaml file in your repository, it will use a combination of `docker buildx bake` and `yq` to generate a  build-windows.yaml docker compose file containing all Windows image definitions from docker-bake.hcl. Then it will run `docker compose` on this file to build these images.
+Internally, the first time you'll run this script and if there is no build-windows_<AGENT_TYPE>_<WINDOWS_FLAVOR>_<WINDOWS_VERSION>.yaml file in your repository, it will use a combination of `docker buildx bake` and `yq` to generate a  build-windows_<AGENT_TYPE>_<WINDOWS_FLAVOR>_<WINDOWS_VERSION>.yaml docker compose file containing all Windows image definitions from docker-bake.hcl. Then it will run `docker compose` on this file to build these images.
 
 You can modify this docker compose file as you want, then rerun `.\build.ps1`.
 It won't regenerate the docker compose file from docker-bake.hcl unless you add the `-OverwriteDockerComposeFile` build.ps1 parameter:  `.\build.ps1 -OverwriteDockerComposeFile`.
@@ -153,10 +189,10 @@ Note: you can generate this docker compose file from docker-bake.hcl yourself wi
 
 $ docker buildx bake --progress=plain --file=docker-bake.hcl windows --print `
     | yq --prettyPrint '.target[] | del(.output) | {(. | key): {\"image\": .tags[0], \"build\": .}}' | yq '{\"services\": .}' `
-    | Out-File -FilePath build-windows.yaml
+    | Out-File -FilePath build-windows_mybuild.yaml
 ```
 
-Note that you don't need build.ps1 to build (or to publish) your images from this docker compose file, you can use `docker compose --file=build-windows.yaml build`.
+Note that you don't need build.ps1 to build (or to publish) your images from this docker compose file, you can use `docker compose --file=build-windows_mybuild.yaml build`.
 
 #### Testing all images
 
@@ -180,3 +216,9 @@ You can build (and test) only one image type by setting `-ImageType` to a combin
 Ex: `.\build.ps1 -ImageType 'nanoserver-ltsc2019'`
 
 Warning: trying to build `windowsservercore-1809` will fail as there is no corresponding image from Microsoft.
+
+You can also build (and test) only one agent type by setting `-AgentType` to either "agent" or "inbound-agent".
+
+Ex: `.\build.ps1 -AgentType 'agent'`
+
+Both parameters can be combined.
