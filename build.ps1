@@ -6,10 +6,17 @@ Param(
     [String] $AgentType = '',
     [String] $BuildNumber = '1',
     [switch] $DisableEnvProps = $false,
-    [switch] $DryRun = $false
+    [switch] $DryRun = $false,
+    # Output debug info for tests: 'empty' (no additional test output), 'debug' (test cmd & stderr outputed), 'verbose' (test cmd, stderr, stdout outputed)
+    [String] $TestsDebug = ''
 )
 
 $ErrorActionPreference = 'Stop'
+
+if(![String]::IsNullOrWhiteSpace($env:TESTS_DEBUG)) {
+    $TestsDebug = $env:TESTS_DEBUG
+}
+$env:TESTS_DEBUG = $TestsDebug
 
 $originalDockerComposeFile = 'build-windows.yaml'
 $finalDockerComposeFile = 'build-windows-current.yaml'
