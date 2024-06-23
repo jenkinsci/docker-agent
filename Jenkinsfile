@@ -36,7 +36,7 @@ pipeline {
                             timeout(time: 60, unit: 'MINUTES')
                         }
                         environment {
-                            DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
+                            REGISTRY_ORG = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
                         }
                         stages {
                             stage('Prepare Docker') {
@@ -87,9 +87,9 @@ pipeline {
                                                 // This function is defined in the jenkins-infra/pipeline-library
                                                 infra.withDockerCredentials {
                                                     if (isUnix()) {
-                                                        sh './build.sh -r $REMOTING_VERSION -b $BUILD_NUMBER -d publish'
+                                                        sh 'make publish'
                                                     } else {
-                                                        powershell '& ./build.ps1 -DisableEnvProps publish'
+                                                        powershell '& ./build.ps1 publish'
                                                     }
                                                 }
                                             }

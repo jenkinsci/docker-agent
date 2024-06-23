@@ -61,6 +61,9 @@ prepare-test: bats check-reqs
 	git submodule update --init --recursive
 	mkdir -p target
 
+publish:
+	@set -x; $(bake_base_cli) linux --push
+
 ## Define bats options based on environment
 # common flags for all tests
 bats_flags := ""

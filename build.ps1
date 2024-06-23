@@ -36,17 +36,6 @@ if ($AgentType -ne '' -and $AgentType -in $AgentTypes) {
     $AgentTypes = @($AgentType)
 }
 
-if (!$DisableEnvProps) {
-    Get-Content env.props | ForEach-Object {
-        $items = $_.Split('=')
-        if ($items.Length -eq 2) {
-            $name = $items[0].Trim()
-            $value = $items[1].Trim()
-            Set-Item -Path "env:$($name)" -Value $value
-        }
-    }
-}
-
 if (![String]::IsNullOrWhiteSpace($env:REMOTING_VERSION)) {
     $RemotingVersion = $env:REMOTING_VERSION
 }
@@ -59,13 +48,7 @@ if (![String]::IsNullOrWhiteSpace($env:IMAGE_TYPE)) {
     $ImageType = $env:IMAGE_TYPE
 }
 
-$Organisation = 'jenkins4eval'
-if (![String]::IsNullOrWhiteSpace($env:DOCKERHUB_ORGANISATION)) {
-    $Organisation = $env:DOCKERHUB_ORGANISATION
-}
-
 # Ensure constant env vars used in docker-bake.hcl are defined
-$env:REGISTRY_ORG = "$Organisation"
 $env:REMOTING_VERSION = "$RemotingVersion"
 $env:BUILD_NUMBER = $BuildNumber
 
