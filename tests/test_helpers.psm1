@@ -97,10 +97,7 @@ function Is-ContainerRunning($container='') {
     }
 }
 
-function Run-Program($cmd, $params, $quiet=$true) {
-    if(-not $quiet) {
-        Write-Host "cmd & params: $cmd $params"
-    }
+function Run-Program($cmd, $params) {
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.CreateNoWindow = $true
     $psi.UseShellExecute = $false
@@ -115,13 +112,15 @@ function Run-Program($cmd, $params, $quiet=$true) {
     $stdout = $proc.StandardOutput.ReadToEnd()
     $stderr = $proc.StandardError.ReadToEnd()
     $proc.WaitForExit()
-    if(($proc.ExitCode -ne 0) -and (-not $quiet)) {
-        Write-Host "[err] stdout:`n$stdout"
-        Write-Host "[err] stderr:`n$stderr"
-        Write-Host "[err] cmd:`n$cmd"
-        Write-Host "[err] params:`n$param"
+    if (($env:TESTS_DEBUG -eq 'debug') -or ($env:TESTS_DEBUG -eq 'verbose')) {
+        Write-Host -ForegroundColor DarkBlue "[cmd] $cmd $params"
+        if ($env:TESTS_DEBUG -eq 'verbose') {
+            Write-Host -ForegroundColor DarkGray "[stdout] $stdout"
+        }
+        if ($proc.ExitCode -ne 0){
+            Write-Host -ForegroundColor DarkRed "[stderr] $stderr"
+        }
     }
-
     return $proc.ExitCode, $stdout, $stderr
 }
 
