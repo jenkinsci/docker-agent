@@ -24,6 +24,7 @@
 
 ARG WINDOWS_VERSION_TAG=ltsc2019
 ARG TOOLS_WINDOWS_VERSION=1809
+# TODO: workaround, to be removed when https://github.com/microsoft/Windows-Containers/issues/493 is resolved
 ARG WINDOWS_VERSION_DIGEST # Empty by default
 FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}${WINDOWS_VERSION_DIGEST}" AS jdk-core
 

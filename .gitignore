@@ -2,4 +2,4 @@
 bats-core/
 bats/
 target/
-build-windows-current.yaml
+build-windows_*.yaml
