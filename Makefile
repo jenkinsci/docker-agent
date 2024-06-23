@@ -83,10 +83,7 @@ test-%: prepare-test
 	@echo "== testing $*"
 	set -x
 # Each type of image ("agent" or "inbound-agent") has its own tests suite
-	IMAGE=$* bats/bin/bats $(CURDIR)/tests/tests_$(shell echo $* |  cut -d "_" -f 1).bats $(bats_flags) | tee target/results-$*.tap
-# convert TAP to JUNIT
-	docker run --rm -v "$(CURDIR)":/usr/src/app -w /usr/src/app node:16-alpine \
-		sh -c "npm install tap-xunit -g && cat target/results-$*.tap | tap-xunit --package='jenkinsci.docker.$*' > target/junit-results-$*.xml"
+	IMAGE=$* bats/bin/bats $(CURDIR)/tests/tests_$(shell echo $* |  cut -d "_" -f 1).bats $(bats_flags) --formatter junit | tee target/junit-results-$*.xml
 
 test: prepare-test
 	@make --silent list | while read image; do make --silent "test-$${image}"; done
