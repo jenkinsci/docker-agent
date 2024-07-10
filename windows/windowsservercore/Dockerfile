@@ -23,9 +23,8 @@
 #  THE SOFTWARE.
 
 ARG WINDOWS_VERSION_TAG=ltsc2019
-ARG WINDOWS_VERSION_DIGEST # Empty by default
-ARG TOOLS_WINDOWS_VERSION # Empty (only used on nanoserver)
-FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}${WINDOWS_VERSION_DIGEST}" AS jdk-core
+ARG TOOLS_WINDOWS_VERSION=1809
+FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS jdk-core
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
@@ -40,7 +39,7 @@ RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
 
 ## Agent image target
-FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}${WINDOWS_VERSION_DIGEST}" AS agent
+FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS agent
 
 ARG JAVA_HOME="C:\openjdk-17"
 ENV JAVA_HOME=${JAVA_HOME}
