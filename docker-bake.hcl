@@ -211,15 +211,6 @@ function "toolsversion" {
     : version)
 }
 
-# Return the Windows version digest to use for windowsservercore ltsc2019 image
-# TODO: workaround, to be removed when https://github.com/microsoft/Windows-Containers/issues/493 is resolved
-function "windowsversiondigest" {
-  params = [version]
-  result = (equal("ltsc2019", version)
-    ? "@sha256:6fdf140282a2f809dae9b13fe441635867f0a27c33a438771673b8da8f3348a4"
-    : "")
-}
-
 target "alpine" {
   matrix = {
     type = agent_types_to_build
@@ -317,7 +308,6 @@ target "nanoserver" {
     JAVA_VERSION           = "${replace(javaversion(jdk), "_", "+")}"
     TOOLS_WINDOWS_VERSION  = "${toolsversion(windows_version)}"
     VERSION                = REMOTING_VERSION
-    WINDOWS_VERSION_DIGEST = windowsversiondigest(windows_version)
     WINDOWS_VERSION_TAG    = windows_version
   }
   target = type
@@ -346,7 +336,6 @@ target "windowsservercore" {
     JAVA_VERSION           = "${replace(javaversion(jdk), "_", "+")}"
     TOOLS_WINDOWS_VERSION  = "${toolsversion(windows_version)}"
     VERSION                = REMOTING_VERSION
-    WINDOWS_VERSION_DIGEST = windowsversiondigest(windows_version)
     WINDOWS_VERSION_TAG    = windows_version
   }
   target = type
