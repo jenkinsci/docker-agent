@@ -95,6 +95,8 @@ RUN apt-get update \
     openssh-client \
     patch \
     tzdata \
+    rsync \
+    sudo \
   && apt-get clean \
   && rm -rf /tmp/* /var/cache/* /var/lib/apt/lists/*
 
