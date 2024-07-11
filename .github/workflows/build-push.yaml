@@ -27,6 +27,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v6
         with:
+          platforms: linux/amd64
           context: .
           push: true
           tags: zqjimlove/jenkins-agent:latest
