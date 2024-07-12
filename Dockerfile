@@ -26,7 +26,7 @@ RUN apt-get -yqq update \
 # 添加 jenkins 用户到 sudoers 文件并允许无密码 sudo
 RUN chmod +w /etc/sudoers && echo 'jenkins ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && chmod -r /etc/sudoers
 
-RUN mkdir -p /home/${user}/.ssh
-
 # 切换回 jenkins 用户
 USER ${user}
+
+RUN mkdir -p /home/${user}/.ssh
