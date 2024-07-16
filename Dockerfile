@@ -44,3 +44,4 @@ RUN sudo apt-get --yes --no-install-recommends install docker-ce docker-ce-cli c
 USER ${user}
 
 RUN mkdir -p /home/${user}/.ssh
+RUN mkdir -p /home/${user}/store
