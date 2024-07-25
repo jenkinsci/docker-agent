@@ -105,7 +105,7 @@ variable "JAVA17_VERSION" {
 }
 
 variable "JAVA21_VERSION" {
-  default = "21.0.3_9"
+  default = "21.0.4_7"
 }
 
 function "orgrepo" {
