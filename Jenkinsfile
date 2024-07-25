@@ -1,7 +1,8 @@
 def agentSelector(String imageType) {
     // Image type running on a Linux agent
     if (imageType == 'linux') {
-        return 'linux'
+        // Need Docker and a LOT of memory for faster builds (due to multi archs) or fallback to linux (trusted.ci)
+        return 'docker-highmem || linux'
     }
     // Image types running on a Windows Server Core 2022 agent
     if (imageType.contains('2022')) {
