@@ -54,13 +54,15 @@ pipeline {
                                 }
                                 steps {
                                     script {
-                                        if (isUnix()) {
-                                            sh './build.sh'
-                                            sh './build.sh test'
-                                            // If the tests are passing for Linux AMD64, then we can build all the CPU architectures
-                                            sh 'make every-build'
-                                        } else {
-                                            powershell '& ./build.ps1 test'
+                                        infra.withDockerCredentials {
+                                            if (isUnix()) {
+                                                sh './build.sh'
+                                                sh './build.sh test'
+                                                // If the tests are passing for Linux AMD64, then we can build all the CPU architectures
+                                                sh 'make every-build'
+                                            } else {
+                                                powershell '& ./build.ps1 test'
+                                            }
                                         }
                                     }
                                 }
