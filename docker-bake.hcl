@@ -76,15 +76,15 @@ variable "default_jdk" {
 }
 
 variable "JAVA11_VERSION" {
-  default = "11.0.23_9"
+  default = "11.0.24_8"
 }
 
 variable "JAVA17_VERSION" {
-  default = "17.0.11_9"
+  default = "17.0.12_7"
 }
 
 variable "JAVA21_VERSION" {
-  default = "21.0.3_9"
+  default = "21.0.4_7"
 }
 
 variable "REMOTING_VERSION" {
@@ -116,7 +116,7 @@ variable "ON_TAG" {
 }
 
 variable "ALPINE_FULL_TAG" {
-  default = "3.20.1"
+  default = "3.20.2"
 }
 
 variable "ALPINE_SHORT_TAG" {
@@ -124,7 +124,7 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20240701"
+  default = "bookworm-20240722"
 }
 
 # Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function

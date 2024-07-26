@@ -19,7 +19,7 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-ARG ALPINE_TAG=3.20.1
+ARG ALPINE_TAG=3.20.2
 FROM alpine:"${ALPINE_TAG}" AS jre-build
 
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
@@ -31,7 +31,7 @@ ARG TARGETPLATFORM
 COPY adoptium-get-jdk-link.sh /usr/bin/local/adoptium-get-jdk-link.sh
 COPY adoptium-install-jdk.sh /usr/bin/local/adoptium-install-jdk.sh
 
-ARG JAVA_VERSION=17.0.11_9
+ARG JAVA_VERSION=17.0.12_7
 # hadolint ignore=DL3018
 RUN apk add --no-cache \
     ca-certificates \
