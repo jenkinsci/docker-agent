@@ -23,7 +23,7 @@
 #  THE SOFTWARE.
 
 ARG WINDOWS_VERSION_TAG=ltsc2019
-ARG TOOLS_WINDOWS_VERSION=1809
+ARG TOOLS_WINDOWS_VERSION # Empty (only used on nanoserver)
 FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS jdk-core
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
