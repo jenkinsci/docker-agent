@@ -88,7 +88,7 @@ RUN apk add --no-cache \
       tzdata-utils \
     && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ARG VERSION=3248.3250.v3277a_8e88c9b_
+ARG VERSION=3206.3208.v409508a_675ff
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
