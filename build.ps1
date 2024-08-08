@@ -2,7 +2,7 @@
 Param(
     [Parameter(Position=1)]
     [String] $Target = "build",
-    [String] $RemotingVersion = '3256.3258.v858f3c9a_f69d',
+    [String] $RemotingVersion = '3248.3250.v3277a_8e88c9b_',
     [String] $AgentType = '',
     [String] $BuildNumber = '1',
     [switch] $DisableEnvProps = $false,
