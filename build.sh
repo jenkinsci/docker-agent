@@ -7,7 +7,7 @@ OPTIND=1
 
 target="build"
 build_number="1"
-remoting_version="3256.v88a_f6e922152"
+remoting_version="3261.v9c670a_4748a_9"
 disable_env_props=0
 exit_result=0
 
