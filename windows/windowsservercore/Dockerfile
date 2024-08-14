@@ -110,7 +110,7 @@ RUN git config --global core.longpaths true
 VOLUME "${AGENT_ROOT}"/.jenkins
 VOLUME "${AGENT_WORKDIR}"
 WORKDIR "${AGENT_ROOT}"
-ENV user=${user}
+ENV USER=${user}
 LABEL `
     org.opencontainers.image.vendor="Jenkins project" `
     org.opencontainers.image.title="Official Jenkins Agent Base Docker image" `
