@@ -171,5 +171,5 @@ ARCH=${ARCH:-x86_64}
 }
 
 @test "[${SUT_IMAGE}] default user is exposed in the environment" {
-  docker inspect --format '{{ .Config.Env }}' "${SUT_IMAGE}" | grep 'user=jenkins'
+  docker inspect --format '{{ .Config.Env }}' "${SUT_IMAGE}" | grep 'USER=jenkins'
 }
