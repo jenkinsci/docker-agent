@@ -61,6 +61,7 @@ Optional environment variables:
 
 * `JENKINS_JAVA_BIN`: Path to Java executable to use instead of the default in PATH or obtained from JAVA_HOME
 * `JENKINS_JAVA_OPTS` : Java Options to use for the remoting process, otherwise obtained from JAVA_OPTS, **Warning** :exclamation: For more information on Windows usage, please see the **Windows Jenkins Java Opts** [section below](#windows-jenkins-java-opts).
+* `JENKINS_AGENT_FILE` : Jenkins agent jar file location, `/usr/share/jenkins/agent.jar` will be used if this is not set
 * `JENKINS_URL`: url for the Jenkins server, can be used as a replacement to `-url` option, or to set alternate jenkins URL
 * `JENKINS_TUNNEL`: (`HOST:PORT`) connect to this agent host and port instead of Jenkins server, assuming this one do route TCP traffic to Jenkins controller. Useful when when Jenkins runs behind a load balancer, reverse proxy, etc.
 * `JENKINS_SECRET`: (use only if not set as an argument) the secret as shown on the controller after creating the agent
