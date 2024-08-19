@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM archlinux:base-20240804.0.251467 AS jre-build
+FROM archlinux:base-20240811.0.253648 AS jre-build
 
 # This Build ARG is populated by Docker
 # Ref. https://docs.docker.com/engine/reference/builder/#automatic-platform-args-in-the-global-scope
@@ -52,7 +52,7 @@ RUN jlink \
   --compress=2 \
   --output /javaruntime
 
-FROM archlinux:base-20240804.0.251467
+FROM archlinux:base-20240811.0.253648
 
 ARG user=jenkins
 ARG group=jenkins
