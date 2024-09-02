@@ -73,7 +73,7 @@ for ARCH in ${ARCHS}; do
     # Fetch the download URL from the Adoptium API
     URL="https://api.adoptium.net/v3/binary/version/jdk-${ENCODED_ARCHIVE_DIRECTORY}/${OS_TYPE}/${ARCH}/jdk/hotspot/normal/eclipse?project=jdk"
 
-    if ! RESPONSE=$(curl --fail --silent --show-error --retry 5 --retry-connrefused --head "${URL}"); then
+    if ! RESPONSE=$(curl -fsI "${URL}"); then
         echo "Error: Failed to fetch the URL for architecture ${ARCH}. Exiting with status 1." >&2
         echo "Response: ${RESPONSE}" >&2
         exit 1
@@ -91,7 +91,7 @@ for ARCH in ${ARCHS}; do
 
     # Use curl to check if the URL is reachable
     # If the URL is not reachable, print an error message and exit the script with status 1
-    if ! curl --fail --silent --show-error --retry 5 --retry-connrefused "${REDIRECTED_URL}" >/dev/null 2>&1; then
+    if ! curl -v -fs "${REDIRECTED_URL}" >/dev/null 2>&1; then
         echo "${REDIRECTED_URL}" is not reachable for architecture "${ARCH}". >&2
         exit 1
     fi
