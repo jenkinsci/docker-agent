@@ -28,7 +28,7 @@ if ! DOWNLOAD_URL=$("${SCRIPT_DIR}"/adoptium-get-jdk-link.sh "${JAVA_VERSION}" "
 fi
 
 # Use curl to download the JDK archive from the URL
-if ! curl --silent --location --output /tmp/jdk.tar.gz "${DOWNLOAD_URL}"; then
+if ! curl --silent --show-error --location --retry 5 --retry-connrefused --output /tmp/jdk.tar.gz "${DOWNLOAD_URL}"; then
     echo "Error: Failed to download the JDK archive. Exiting with status 1." >&2
     exit 1
 fi
