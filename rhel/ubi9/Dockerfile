@@ -1,4 +1,5 @@
-FROM registry.access.redhat.com/ubi9/ubi:9.4-1214 as jre-build
+ARG UBI9_TAG="9.4-1214.1726694543"
+FROM registry.access.redhat.com/ubi9/ubi:"${UBI9_TAG}" AS jre-build
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
 
 # This Build ARG is populated by Docker
@@ -38,7 +39,7 @@ RUN case "$(jlink --version 2>&1)" in \
       --no-header-files \
       --output /javaruntime
 
-FROM registry.access.redhat.com/ubi9/ubi:9.4-1214 AS agent
+FROM registry.access.redhat.com/ubi9/ubi:"${UBI9_TAG}" AS agent
 
 ARG user=jenkins
 ARG group=jenkins
@@ -52,7 +53,7 @@ ARG AGENT_WORKDIR=/home/"${user}"/agent
 ENV TZ=Etc/UTC
 
 RUN dnf install --disableplugin=subscription-manager --setopt=install_weak_deps=0 --setopt=tsflags=nodocs -y \
-      ca-certificates \   
+      ca-certificates \
       fontconfig \
       git \
       git-lfs \
@@ -65,17 +66,17 @@ ARG VERSION=3261.v9c670a_4748a_9
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
     && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
-    
+
 ENV LANG C.UTF-8
-    
+
 ENV JAVA_HOME=/opt/java/openjdk
 COPY --from=jre-build /javaruntime "$JAVA_HOME"
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
-    
+
 USER "${user}"
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 RUN mkdir -p /home/"${user}"/.jenkins && mkdir -p "${AGENT_WORKDIR}"
-    
+
 VOLUME /home/"${user}"/.jenkins
 VOLUME "${AGENT_WORKDIR}"
 WORKDIR /home/"${user}"
@@ -88,7 +89,7 @@ LABEL \
   org.opencontainers.image.url="https://www.jenkins.io/" \
   org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
   org.opencontainers.image.licenses="MIT"
-    
+
 ## Inbound Agent image target
 FROM agent AS inbound-agent
 
