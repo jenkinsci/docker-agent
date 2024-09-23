@@ -96,6 +96,10 @@ variable "DEBIAN_RELEASE" {
   default = "bookworm-20240904"
 }
 
+variable "UBI9_TAG" {
+  default = "9.4-1214.1726694543"
+}
+
 variable "JAVA11_VERSION" {
   default = "11.0.24_8"
 }
@@ -151,15 +155,8 @@ function "debian_platforms" {
   : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]))
 }
 
-# Return an array of RHEL UBI 8 platforms to use depending on the jdk passed as parameter
-# Note: Jenkins Docker controller only supports jdk-11 for ubi8
-function "rhel_ubi8_platforms" {
-  params = [jdk]
-  result = ["linux/amd64", "linux/arm64"]
-}
-
-# Return an array of RHEL UBI 8 platforms to use depending on the jdk passed as parameter
-# Note: Jenkins Docker controller only supports jdk-17 and jdk-21 for ubi9
+# Return an array of RHEL UBI 9 platforms to use depending on the jdk passed as parameter
+# Note: Jenkins controller container image only supports jdk17 and jdk21 for ubi9
 function "rhel_ubi9_platforms" {
   params = [jdk]
   result = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
@@ -248,33 +245,6 @@ target "agent_archlinux_jdk11" {
   platforms = ["linux/amd64"]
 }
 
-target "rhel_ubi8" {
-  matrix = {
-    type = ["agent", "inbound-agent"]
-    jdk  = [11]
-  }
-  name       = "${type}_rhel_ubi8_jdk${jdk}"
-  target     = type
-  dockerfile = "rhel/ubi8/Dockerfile"
-  context    = "."
-  args = {
-    VERSION        = REMOTING_VERSION
-    JAVA_VERSION   = "${javaversion(jdk)}"
-  }
-  tags = [
-    # If there is a tag, add versioned tag suffixed by the jdk
-    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-rhel-ubi8-jdk${jdk}" : "",
-    # If there is a tag and if the jdk is the default one, add versioned short tag
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-rhel-ubi8" : "") : "",
-    # If the jdk is the default one, add rhel and latest short tags
-    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:rhel-ubi8" : "",
-    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-rhel-ubi8" : "",
-    "${REGISTRY}/${orgrepo(type)}:rhel-ubi8-jdk${jdk}",
-    "${REGISTRY}/${orgrepo(type)}:latest-rhel-ubi8-jdk${jdk}",
-  ]
-  platforms = rhel_ubi8_platforms(jdk)
-}
-
 target "rhel_ubi9" {
   matrix = {
     type = ["agent", "inbound-agent"]
@@ -285,6 +255,7 @@ target "rhel_ubi9" {
   dockerfile = "rhel/ubi9/Dockerfile"
   context    = "."
   args = {
+    UBI9_TAG       = UBI9_TAG
     VERSION        = REMOTING_VERSION
     JAVA_VERSION   = "${javaversion(jdk)}"
   }
