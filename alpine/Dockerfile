@@ -19,7 +19,7 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-ARG ALPINE_TAG=3.20.2
+ARG ALPINE_TAG=3.20.3
 FROM alpine:"${ALPINE_TAG}" AS jre-build
 
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
@@ -105,7 +105,7 @@ RUN mkdir -p /home/"${user}"/.jenkins && mkdir -p "${AGENT_WORKDIR}"
 VOLUME /home/"${user}"/.jenkins
 VOLUME "${AGENT_WORKDIR}"
 WORKDIR /home/"${user}"
-ENV user=${user}
+ENV USER=${user}
 LABEL \
     org.opencontainers.image.vendor="Jenkins project" \
     org.opencontainers.image.title="Official Jenkins Agent Base Docker image" \

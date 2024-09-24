@@ -64,6 +64,11 @@ The image has several supported configurations, which can be accessed via the fo
       * `jenkins/agent:alpine-jdk17`
       * `jenkins/agent:latest-alpine`
       * `jenkins/agent:latest-alpine-jdk17`
+    * rhel-ubi9 (Based on Red Hat Universal Base Image 9)
+      * `jenkins/agent:rhel-ubi9`
+      * `jenkins/agent:rhel-ubi9-jdk17`
+      * `jenkins/agent:latest-rhel-ubi9`
+      * `jenkins/agent:latest-rhel-ubi9-jdk17`
   * Java 21:
     * bookworm (Based on `debian:bookworm-${builddate}`):
       * `jenkins/agent:bookworm`
@@ -75,6 +80,9 @@ The image has several supported configurations, which can be accessed via the fo
       * `jenkins/agent:alpine-jdk21`
       * `jenkins/agent:latest-alpine`
       * `jenkins/agent:latest-alpine-jdk21`
+    * rhel-ubi9 (Based on Red Hat Universal Base Image 9)
+      * `jenkins/agent:rhel-ubi9-jdk21`
+      * `jenkins/agent:latest-rhel-ubi9-jdk21`
   * Java 11:
     * bookworm (Based on `debian:bookworm-${builddate}`):
       * `jenkins/agent:bookworm`

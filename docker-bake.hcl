@@ -116,7 +116,7 @@ variable "ON_TAG" {
 }
 
 variable "ALPINE_FULL_TAG" {
-  default = "3.20.2"
+  default = "3.20.3"
 }
 
 variable "ALPINE_SHORT_TAG" {
@@ -124,7 +124,11 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20240722"
+  default = "bookworm-20240904"
+}
+
+variable "UBI9_TAG" {
+  default = "9.4-1214.1726694543"
 }
 
 # Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function
@@ -179,7 +183,6 @@ function "debian_platforms" {
   : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]))
 }
 
-
 # Return array of Windows version(s) to build
 # There is no mcr.microsoft.com/windows/servercore:1809 image
 # Can be overriden by setting WINDOWS_VERSION_OVERRIDE to a specific Windows version
@@ -209,6 +212,13 @@ function "toolsversion" {
   result = (equal("ltsc2019", version)
     ? "1809"
     : version)
+}
+
+# Return an array of RHEL UBI 9 platforms to use depending on the jdk passed as parameter
+# Note: Jenkins controller container image only supports jdk17 and jdk21 for ubi9
+function "rhel_ubi9_platforms" {
+  params = [jdk]
+  result = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
 }
 
 target "alpine" {
@@ -292,6 +302,34 @@ target "agent_archlinux_jdk11" {
     "${REGISTRY}/${orgrepo("agent")}:latest-archlinux-jdk11",
   ]
   platforms = ["linux/amd64"]
+}
+
+target "rhel_ubi9" {
+  matrix = {
+    type = ["agent", "inbound-agent"]
+    jdk  = [17, 21]
+  }
+  name       = "${type}_rhel_ubi9_jdk${jdk}"
+  target     = type
+  dockerfile = "rhel/ubi9/Dockerfile"
+  context    = "."
+  args = {
+    UBI9_TAG       = UBI9_TAG
+    VERSION        = REMOTING_VERSION
+    JAVA_VERSION   = "${javaversion(jdk)}"
+  }
+  tags = [
+    # If there is a tag, add versioned tag suffixed by the jdk
+    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-rhel-ubi9-jdk${jdk}" : "",
+    # If there is a tag and if the jdk is the default one, add versioned short tag
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-rhel-ubi9" : "") : "",
+    # If the jdk is the default one, add rhel and latest short tags
+    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:rhel-ubi9" : "",
+    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-rhel-ubi9" : "",
+    "${REGISTRY}/${orgrepo(type)}:rhel-ubi9-jdk${jdk}",
+    "${REGISTRY}/${orgrepo(type)}:latest-rhel-ubi9-jdk${jdk}",
+  ]
+  platforms = rhel_ubi9_platforms(jdk)
 }
 
 target "nanoserver" {

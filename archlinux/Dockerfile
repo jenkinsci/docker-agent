@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM archlinux:base-20240804.0.251467 AS jre-build
+FROM archlinux:base-20240922.0.264758 AS jre-build
 
 # This Build ARG is populated by Docker
 # Ref. https://docs.docker.com/engine/reference/builder/#automatic-platform-args-in-the-global-scope
@@ -52,7 +52,7 @@ RUN jlink \
   --compress=2 \
   --output /javaruntime
 
-FROM archlinux:base-20240804.0.251467
+FROM archlinux:base-20240922.0.264758
 
 ARG user=jenkins
 ARG group=jenkins
@@ -83,7 +83,7 @@ RUN mkdir /home/"${user}"/.jenkins && mkdir -p "${AGENT_WORKDIR}"
 VOLUME /home/"${user}"/.jenkins
 VOLUME "${AGENT_WORKDIR}"
 WORKDIR /home/"${user}"
-ENV user=${user}
+ENV USER=${user}
 LABEL \
     org.opencontainers.image.vendor="Jenkins project" \
     org.opencontainers.image.title="Official Jenkins Agent Base Docker image" \

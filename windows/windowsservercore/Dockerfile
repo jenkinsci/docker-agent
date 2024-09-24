@@ -48,7 +48,7 @@ COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ARG GIT_VERSION=2.46.0
+ARG GIT_VERSION=2.46.1
 ARG GIT_PATCH_VERSION=1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     # The patch "windows.1" always have a different URL than the subsequent patch (ZIP filename is different)
@@ -82,9 +82,9 @@ ARG AGENT_FILENAME=agent.jar
 ARG AGENT_HASH_FILENAME=$AGENT_FILENAME.sha1
 
 RUN net accounts /maxpwage:unlimited ; `
-    net user "$env:user" /add /expire:never /passwordreq:no ; `
-    net localgroup Administrators /add $env:user ; `
-    Set-LocalUser -Name $env:user -PasswordNeverExpires 1; `
+    net user "$env:USER" /add /expire:never /passwordreq:no ; `
+    net localgroup Administrators /add $env:USER ; `
+    Set-LocalUser -Name $env:USER -PasswordNeverExpires 1; `
     New-Item -ItemType Directory -Path C:/ProgramData/Jenkins | Out-Null
 
 ARG AGENT_ROOT=C:/Users/$user
@@ -110,7 +110,7 @@ RUN git config --global core.longpaths true
 VOLUME "${AGENT_ROOT}"/.jenkins
 VOLUME "${AGENT_WORKDIR}"
 WORKDIR "${AGENT_ROOT}"
-ENV user=${user}
+ENV USER=${user}
 LABEL `
     org.opencontainers.image.vendor="Jenkins project" `
     org.opencontainers.image.title="Official Jenkins Agent Base Docker image" `

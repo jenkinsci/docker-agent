@@ -1,27 +1,5 @@
-# The MIT License
-#
-#  Copyright (c) 2015-2023, CloudBees, Inc. and other Jenkins contributors
-#
-#  Permission is hereby granted, free of charge, to any person obtaining a copy
-#  of this software and associated documentation files (the "Software"), to deal
-#  in the Software without restriction, including without limitation the rights
-#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#  copies of the Software, and to permit persons to whom the Software is
-#  furnished to do so, subject to the following conditions:
-#
-#  The above copyright notice and this permission notice shall be included in
-#  all copies or substantial portions of the Software.
-#
-#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-#  THE SOFTWARE.
-ARG DEBIAN_RELEASE=bookworm-20240904
-FROM debian:"${DEBIAN_RELEASE}"-slim as jre-build
-
+ARG UBI9_TAG="9.4-1214.1726694543"
+FROM registry.access.redhat.com/ubi9/ubi:"${UBI9_TAG}" AS jre-build
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
 
 # This Build ARG is populated by Docker
@@ -32,21 +10,20 @@ COPY adoptium-get-jdk-link.sh /usr/bin/local/adoptium-get-jdk-link.sh
 COPY adoptium-install-jdk.sh /usr/bin/local/adoptium-install-jdk.sh
 
 ARG JAVA_VERSION=17.0.12_7
-# hadolint ignore=DL3008
-RUN set -x; apt-get update \
-  && apt-get install --no-install-recommends -y \
+
+RUN dnf install --disableplugin=subscription-manager --setopt=install_weak_deps=0 --setopt=tsflags=nodocs --allowerasing -y \
     ca-certificates \
-    jq \
     curl \
-  && /usr/bin/local/adoptium-install-jdk.sh
+    jq \
+    && dnf clean --disableplugin=subscription-manager all \
+    && /usr/bin/local/adoptium-install-jdk.sh
 
 ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
-RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
-    case "$(jlink --version 2>&1)" in \
+RUN case "$(jlink --version 2>&1)" in \
       # jlink version 11 has less features than JDK17+
       "11."*) set -- "--strip-debug" "--compress=2" ;; \
       "17."*) set -- "--strip-java-debug-attributes" "--compress=2" ;; \
@@ -60,15 +37,9 @@ RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
       --add-modules ALL-MODULE-PATH \
       --no-man-pages \
       --no-header-files \
-      --output /javaruntime; \
-  else \
-    # It is acceptable to have a larger image in arm/v7 (arm 32 bits) environment.
-    # Because jlink fails with the error "jmods: Value too large for defined data type" error.
-    cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
-  fi
+      --output /javaruntime
 
-## Agent image target
-FROM debian:"${DEBIAN_RELEASE}"-slim AS agent
+FROM registry.access.redhat.com/ubi9/ubi:"${UBI9_TAG}" AS agent
 
 ARG user=jenkins
 ARG group=jenkins
@@ -81,27 +52,20 @@ RUN groupadd -g "${gid}" "${group}" \
 ARG AGENT_WORKDIR=/home/"${user}"/agent
 ENV TZ=Etc/UTC
 
-## Always use the latest Debian packages: no need for versions
-# hadolint ignore=DL3008
-RUN apt-get update \
-  && apt-get --yes --no-install-recommends install \
-    ca-certificates \
-    curl \
-    fontconfig \
-    git \
-    git-lfs \
-    less \
-    netbase \
-    openssh-client \
-    patch \
-    tzdata \
-  && apt-get clean \
-  && rm -rf /tmp/* /var/cache/* /var/lib/apt/lists/*
+RUN dnf install --disableplugin=subscription-manager --setopt=install_weak_deps=0 --setopt=tsflags=nodocs -y \
+      ca-certificates \
+      fontconfig \
+      git \
+      git-lfs \
+      less \
+      patch \
+      tzdata \
+    && dnf clean --disableplugin=subscription-manager all
 
 ARG VERSION=3261.v9c670a_4748a_9
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
-  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
+    && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
 ENV LANG C.UTF-8
 
@@ -119,7 +83,7 @@ WORKDIR /home/"${user}"
 ENV USER=${user}
 LABEL \
   org.opencontainers.image.vendor="Jenkins project" \
-  org.opencontainers.image.title="Official Jenkins Agent Base Docker image" \
+  org.opencontainers.image.title="Official Jenkins Agent Base container image for UBI 9" \
   org.opencontainers.image.description="This is a base image, which provides the Jenkins agent executable (agent.jar)" \
   org.opencontainers.image.version="${VERSION}" \
   org.opencontainers.image.url="https://www.jenkins.io/" \
@@ -139,7 +103,7 @@ USER ${user}
 
 LABEL \
   org.opencontainers.image.vendor="Jenkins project" \
-  org.opencontainers.image.title="Official Jenkins Inbound Agent Base Docker image" \
+  org.opencontainers.image.title="Official Jenkins Inbound Agent Base container image for UBI 9" \
   org.opencontainers.image.description="This is an image for Jenkins agents using TCP or WebSockets to establish inbound connection to the Jenkins controller" \
   org.opencontainers.image.version="${VERSION}" \
   org.opencontainers.image.url="https://www.jenkins.io/" \
