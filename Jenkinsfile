@@ -81,7 +81,10 @@ pipeline {
                                     script {
                                         def tagItems = env.TAG_NAME.split('-')
                                         if(tagItems.length == 2) {
-                                            withEnv(["REMOTING_VERSION=${tagItems[0]}", "BUILD_NUMBER=${tagItems[1]}"]) {
+                                            withEnv([
+                                                "REMOTING_VERSION=${tagItems[0]}",
+                                                "BUILD_NUMBER=${tagItems[1]}",
+                                            ]) {
                                                 // This function is defined in the jenkins-infra/pipeline-library
                                                 infra.withDockerCredentials {
                                                     if (isUnix()) {
