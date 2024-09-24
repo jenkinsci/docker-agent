@@ -30,14 +30,23 @@ If you want to see the target images (matching your current architecture) that w
 
 ```bash
 $ make list
+agent_alpine_jdk11
+agent_alpine_jdk17
 agent_alpine_jdk21
+agent_archlinux_jdk11
 agent_debian_jdk11
 agent_debian_jdk17
 agent_debian_jdk21
+agent_rhel_ubi9_jdk17
+agent_rhel_ubi9_jdk21
+inbound-agent_alpine_jdk11
+inbound-agent_alpine_jdk17
 inbound-agent_alpine_jdk21
 inbound-agent_debian_jdk11
 inbound-agent_debian_jdk17
 inbound-agent_debian_jdk21
+inbound-agent_rhel_ubi9_jdk17
+inbound-agent_rhel_ubi9_jdk21
 ```
 
 #### Building a specific image
@@ -128,7 +137,16 @@ $ make show
       "targets": [
         "agent_archlinux_jdk11",
         "alpine",
-        "debian"
+        "debian",
+        "rhel_ubi9"
+      ]
+    },
+    "rhel_ubi9": {
+      "targets": [
+        "agent_rhel_ubi9_jdk17",
+        "agent_rhel_ubi9_jdk21",
+        "inbound-agent_rhel_ubi9_jdk17",
+        "inbound-agent_rhel_ubi9_jdk21"
       ]
     }
   },
