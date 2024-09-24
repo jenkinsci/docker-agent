@@ -6,6 +6,13 @@ group "linux" {
   ]
 }
 
+group "windows" {
+  targets = [
+    "nanoserver",
+    "windowsservercore"
+  ]
+}
+
 group "linux-agent-only" {
   targets = [
     "agent_archlinux_jdk11",
@@ -56,6 +63,30 @@ group "linux-ppc64le" {
   ]
 }
 
+variable "agent_types_to_build" {
+  default = ["agent", "inbound-agent"]
+}
+
+variable "jdks_to_build" {
+  default = [11, 17, 21]
+}
+
+variable "default_jdk" {
+  default = 17
+}
+
+variable "JAVA11_VERSION" {
+  default = "11.0.24_8"
+}
+
+variable "JAVA17_VERSION" {
+  default = "17.0.12_7"
+}
+
+variable "JAVA21_VERSION" {
+  default = "21.0.4_7"
+}
+
 variable "REMOTING_VERSION" {
   default = "3261.v9c670a_4748a_9"
 }
@@ -100,25 +131,21 @@ variable "UBI9_TAG" {
   default = "9.4-1214.1726694543"
 }
 
-variable "JAVA11_VERSION" {
-  default = "11.0.24_8"
+# Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function
+variable "WINDOWS_VERSION_OVERRIDE" {
+  default = ""
 }
 
-variable "JAVA17_VERSION" {
-  default = "17.0.12_7"
+# Set this value to a specific agent type to override agent type to build returned by windowsagenttypes function
+variable "WINDOWS_AGENT_TYPE_OVERRIDE" {
+  default = ""
 }
 
-variable "JAVA21_VERSION" {
-  default = "21.0.4_7"
-}
-
+## Common functions
+# Return the registry organization and repository depending on the agent type
 function "orgrepo" {
   params = [agentType]
   result = equal("agent", agentType) ? "${REGISTRY_ORG}/${REGISTRY_REPO_AGENT}" : "${REGISTRY_ORG}/${REGISTRY_REPO_INBOUND_AGENT}"
-}
-
-variable "default_jdk" {
-  default = 17
 }
 
 # Return "true" if the jdk passed as parameter is the same as the default jdk, "false" otherwise
@@ -137,6 +164,7 @@ function "javaversion" {
   : "${JAVA21_VERSION}"))
 }
 
+## Specific functions
 # Return an array of Alpine platforms to use depending on the jdk passed as parameter
 function "alpine_platforms" {
   params = [jdk]
@@ -155,6 +183,37 @@ function "debian_platforms" {
   : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]))
 }
 
+# Return array of Windows version(s) to build
+# There is no mcr.microsoft.com/windows/servercore:1809 image
+# Can be overriden by setting WINDOWS_VERSION_OVERRIDE to a specific Windows version
+# Ex: WINDOWS_VERSION_OVERRIDE=1809 docker buildx bake windows
+function "windowsversions" {
+  params = [flavor]
+  result = (notequal(WINDOWS_VERSION_OVERRIDE, "")
+    ? [WINDOWS_VERSION_OVERRIDE]
+    : (equal(flavor, "windowsservercore")
+      ? ["ltsc2019", "ltsc2022"]
+      : ["1809", "ltsc2019", "ltsc2022"]))
+}
+
+# Return array of agent type(s) to build
+# Can be overriden to a specific agent type
+function "windowsagenttypes" {
+  params = [override]
+  result = (notequal(override, "")
+    ? [override]
+    : agent_types_to_build)
+}
+
+# Return the Windows version to use as base image for the Windows version passed as parameter
+# There is no mcr.microsoft.com/powershell ltsc2019 base image, using a "1809" instead
+function "toolsversion" {
+  params = [version]
+  result = (equal("ltsc2019", version)
+    ? "1809"
+    : version)
+}
+
 # Return an array of RHEL UBI 9 platforms to use depending on the jdk passed as parameter
 # Note: Jenkins controller container image only supports jdk17 and jdk21 for ubi9
 function "rhel_ubi9_platforms" {
@@ -164,8 +223,8 @@ function "rhel_ubi9_platforms" {
 
 target "alpine" {
   matrix = {
-    type = ["agent", "inbound-agent"]
-    jdk  = [11, 17, 21]
+    type = agent_types_to_build
+    jdk  = jdks_to_build
   }
   name       = "${type}_alpine_jdk${jdk}"
   target     = type
@@ -198,10 +257,10 @@ target "alpine" {
 
 target "debian" {
   matrix = {
-    type = ["agent", "inbound-agent"]
-    jdk  = [11, 17, 21]
+    type = agent_types_to_build
+    jdk  = jdks_to_build
   }
-  name       = "${type}_debian_${jdk}"
+  name       = "${type}_debian_jdk${jdk}"
   target     = type
   dockerfile = "debian/Dockerfile"
   context    = "."
@@ -271,4 +330,60 @@ target "rhel_ubi9" {
     "${REGISTRY}/${orgrepo(type)}:latest-rhel-ubi9-jdk${jdk}",
   ]
   platforms = rhel_ubi9_platforms(jdk)
+}
+
+target "nanoserver" {
+  matrix = {
+    type = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
+    jdk = jdks_to_build
+    windows_version = windowsversions("nanoserver")
+  }
+  name       = "${type}_nanoserver-${windows_version}_jdk${jdk}"
+  dockerfile = "windows/nanoserver/Dockerfile"
+  context    = "."
+  args = {
+    JAVA_HOME              = "C:/openjdk-${jdk}"
+    JAVA_VERSION           = "${replace(javaversion(jdk), "_", "+")}"
+    TOOLS_WINDOWS_VERSION  = "${toolsversion(windows_version)}"
+    VERSION                = REMOTING_VERSION
+    WINDOWS_VERSION_TAG    = windows_version
+  }
+  target = type
+  tags = [
+    # If there is a tag, add versioned tag containing the jdk
+    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk${jdk}-nanoserver-${windows_version}" : "",
+    # If there is a tag and if the jdk is the default one, add versioned and short tags
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-nanoserver-${windows_version}" : "") : "",
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:nanoserver-${windows_version}" : "") : "",
+    "${REGISTRY}/${orgrepo(type)}:jdk${jdk}-nanoserver-${windows_version}",
+  ]
+  platforms = ["windows/amd64"]
+}
+
+target "windowsservercore" {
+  matrix = {
+    type = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
+    jdk = jdks_to_build
+    windows_version = windowsversions("windowsservercore")
+  }
+  name       = "${type}_windowsservercore-${windows_version}_jdk${jdk}"
+  dockerfile = "windows/windowsservercore/Dockerfile"
+  context    = "."
+  args = {
+    JAVA_HOME              = "C:/openjdk-${jdk}"
+    JAVA_VERSION           = "${replace(javaversion(jdk), "_", "+")}"
+    TOOLS_WINDOWS_VERSION  = "${toolsversion(windows_version)}"
+    VERSION                = REMOTING_VERSION
+    WINDOWS_VERSION_TAG    = windows_version
+  }
+  target = type
+  tags = [
+    # If there is a tag, add versioned tag containing the jdk
+    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk${jdk}-windowsservercore-${windows_version}" : "",
+    # If there is a tag and if the jdk is the default one, add versioned and short tags
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-windowsservercore-${windows_version}" : "") : "",
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:windowsservercore-${windows_version}" : "") : "",
+    "${REGISTRY}/${orgrepo(type)}:jdk${jdk}-windowsservercore-${windows_version}",
+  ]
+  platforms = ["windows/amd64"]
 }

@@ -100,17 +100,6 @@ targets:
       file: docker-bake.hcl
       path: variable.JAVA21_VERSION.default
     scmid: default
-  setJDK21VersionDockerCompose:
-    name: "Bump JDK21 version for Windows images in the build-windows.yaml file"
-    kind: yaml
-    spec:
-      file: build-windows.yaml
-      key: $.services.jdk21.build.args.JAVA_VERSION
-    scmid: default
-    transformers:
-      - replacer:
-          from: _
-          to: +
 
 actions:
   default:

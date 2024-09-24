@@ -106,16 +106,6 @@ targets:
       replacepattern: >-
         $$RemotingVersion${1}= '{{ source "lastVersion" }}',
     scmid: default
-  setEnvProps:
-    name: Bump the Jenkins remoting version on the env.props file
-    kind: file
-    spec:
-      file: env.props
-      matchpattern: >-
-        REMOTING_VERSION=(.*)
-      replacepattern: >-
-        REMOTING_VERSION={{ source "lastVersion" }}
-    scmid: default
 
 actions:
   default:
