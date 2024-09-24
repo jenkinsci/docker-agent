@@ -2,7 +2,8 @@ group "linux" {
   targets = [
     "agent_archlinux_jdk11",
     "alpine",
-    "debian"
+    "debian",
+    "rhel_ubi9"
   ]
 }
 
@@ -21,7 +22,9 @@ group "linux-agent-only" {
     "agent_alpine_jdk21",
     "agent_debian_jdk11",
     "agent_debian_jdk17",
-    "agent_debian_jdk21"
+    "agent_debian_jdk21",
+    "agent_rhel_ubi9_jdk17",
+    "agent_rhel_ubi9_jdk21"
   ]
 }
 
@@ -32,14 +35,17 @@ group "linux-inbound-agent-only" {
     "inbound-agent_alpine_jdk21",
     "inbound-agent_debian_jdk11",
     "inbound-agent_debian_jdk17",
-    "inbound-agent_debian_jdk21"
+    "inbound-agent_debian_jdk21",
+    "inbound-agent_rhel_ubi9_jdk17",
+    "inbound-agent_rhel_ubi9_jdk21"
   ]
 }
 
 group "linux-arm64" {
   targets = [
-    "debian",
     "alpine_jdk21",
+    "debian",
+    "rhel_ubi9"
   ]
 }
 
@@ -59,7 +65,8 @@ group "linux-s390x" {
 
 group "linux-ppc64le" {
   targets = [
-    "debian"
+    "debian",
+    "rhel_ubi9"
   ]
 }
 
@@ -306,7 +313,7 @@ target "agent_archlinux_jdk11" {
 
 target "rhel_ubi9" {
   matrix = {
-    type = ["agent", "inbound-agent"]
+    type = agent_types_to_build
     jdk  = [17, 21]
   }
   name       = "${type}_rhel_ubi9_jdk${jdk}"
