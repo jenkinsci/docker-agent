@@ -82,6 +82,7 @@ pipeline {
                                         def tagItems = env.TAG_NAME.split('-')
                                         if(tagItems.length == 2) {
                                             withEnv([
+                                                "ON_TAG=true",
                                                 "REMOTING_VERSION=${tagItems[0]}",
                                                 "BUILD_NUMBER=${tagItems[1]}",
                                             ]) {
