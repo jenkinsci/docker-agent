@@ -1,6 +1,11 @@
 #!/bin/bash
 
-# The Swagger API endpoints for the Red Hat Container Catalog API are documented at: https://catalog.redhat.com/api/containers/v1/ui/#/Repositories/graphql.images.get_images_by_repo
+# This script fetches the latest tag from the Red Hat Container Catalog API for UBI9 images.
+# It ensures that `jq` and `curl` are installed, fetches the tags, and processes them to find the unique tag.
+
+# The Swagger API endpoints for the Red Hat Container Catalog API are documented at:
+# https://catalog.redhat.com/api/containers/v1/ui/#/Repositories/graphql.images.get_images_by_repo
+
 # Correct URL of the Red Hat Container Catalog API for UBI9
 URL="https://catalog.redhat.com/api/containers/v1/repositories/registry/registry.access.redhat.com/repository/ubi9/images?page_size=10&page=0&sort_by=last_update_date%5Bdesc%5D"
 
@@ -32,5 +37,6 @@ fi
 # Sort and remove duplicates
 unique_tag=$(echo "$latest_tag" | sort | uniq | grep -v latest | grep "-")
 
+# Trim spaces
 unique_tag=$(echo "$unique_tag" | xargs)
 echo $unique_tag
