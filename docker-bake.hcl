@@ -131,7 +131,7 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20240904"
+  default = "bookworm-20240926"
 }
 
 variable "UBI9_TAG" {
@@ -200,7 +200,7 @@ function "windowsversions" {
     ? [WINDOWS_VERSION_OVERRIDE]
     : (equal(flavor, "windowsservercore")
       ? ["ltsc2019", "ltsc2022"]
-      : ["1809", "ltsc2019", "ltsc2022"]))
+  : ["1809", "ltsc2019", "ltsc2022"]))
 }
 
 # Return array of agent type(s) to build
@@ -209,7 +209,7 @@ function "windowsagenttypes" {
   params = [override]
   result = (notequal(override, "")
     ? [override]
-    : agent_types_to_build)
+  : agent_types_to_build)
 }
 
 # Return the Windows version to use as base image for the Windows version passed as parameter
@@ -218,7 +218,7 @@ function "toolsversion" {
   params = [version]
   result = (equal("ltsc2019", version)
     ? "1809"
-    : version)
+  : version)
 }
 
 # Return an array of RHEL UBI 9 platforms to use depending on the jdk passed as parameter
@@ -321,9 +321,9 @@ target "rhel_ubi9" {
   dockerfile = "rhel/ubi9/Dockerfile"
   context    = "."
   args = {
-    UBI9_TAG       = UBI9_TAG
-    VERSION        = REMOTING_VERSION
-    JAVA_VERSION   = "${javaversion(jdk)}"
+    UBI9_TAG     = UBI9_TAG
+    VERSION      = REMOTING_VERSION
+    JAVA_VERSION = "${javaversion(jdk)}"
   }
   tags = [
     # If there is a tag, add versioned tag suffixed by the jdk
@@ -341,19 +341,19 @@ target "rhel_ubi9" {
 
 target "nanoserver" {
   matrix = {
-    type = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
-    jdk = jdks_to_build
+    type            = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
+    jdk             = jdks_to_build
     windows_version = windowsversions("nanoserver")
   }
   name       = "${type}_nanoserver-${windows_version}_jdk${jdk}"
   dockerfile = "windows/nanoserver/Dockerfile"
   context    = "."
   args = {
-    JAVA_HOME              = "C:/openjdk-${jdk}"
-    JAVA_VERSION           = "${replace(javaversion(jdk), "_", "+")}"
-    TOOLS_WINDOWS_VERSION  = "${toolsversion(windows_version)}"
-    VERSION                = REMOTING_VERSION
-    WINDOWS_VERSION_TAG    = windows_version
+    JAVA_HOME             = "C:/openjdk-${jdk}"
+    JAVA_VERSION          = "${replace(javaversion(jdk), "_", "+")}"
+    TOOLS_WINDOWS_VERSION = "${toolsversion(windows_version)}"
+    VERSION               = REMOTING_VERSION
+    WINDOWS_VERSION_TAG   = windows_version
   }
   target = type
   tags = [
@@ -369,19 +369,19 @@ target "nanoserver" {
 
 target "windowsservercore" {
   matrix = {
-    type = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
-    jdk = jdks_to_build
+    type            = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
+    jdk             = jdks_to_build
     windows_version = windowsversions("windowsservercore")
   }
   name       = "${type}_windowsservercore-${windows_version}_jdk${jdk}"
   dockerfile = "windows/windowsservercore/Dockerfile"
   context    = "."
   args = {
-    JAVA_HOME              = "C:/openjdk-${jdk}"
-    JAVA_VERSION           = "${replace(javaversion(jdk), "_", "+")}"
-    TOOLS_WINDOWS_VERSION  = "${toolsversion(windows_version)}"
-    VERSION                = REMOTING_VERSION
-    WINDOWS_VERSION_TAG    = windows_version
+    JAVA_HOME             = "C:/openjdk-${jdk}"
+    JAVA_VERSION          = "${replace(javaversion(jdk), "_", "+")}"
+    TOOLS_WINDOWS_VERSION = "${toolsversion(windows_version)}"
+    VERSION               = REMOTING_VERSION
+    WINDOWS_VERSION_TAG   = windows_version
   }
   target = type
   tags = [
