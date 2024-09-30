@@ -33,20 +33,43 @@ fi
 # Declare an associative array to store tags and their published dates
 declare -A tag_dates
 
-# Iterate over the parsed JSON to populate the associative array
+# Declare an array to maintain the original order of tags
+ordered_tags=()
+
+# Iterate over the parsed JSON to populate the associative array and ordered array
 while IFS= read -r line; do
   published_date=$(echo "$line" | jq -r '.published_date')
   tags=$(echo "$line" | jq -r '.tags[]')
 
   for tag in $tags; do
-    # Update the published_date if the current date is more recent
-    if [[ -z "${tag_dates[$tag]}" || "$published_date" > "${tag_dates[$tag]}" ]]; then
-      tag_dates[$tag]=$published_date
+    # Filter tags that contain a hyphen
+    if [[ $tag == *-* ]]; then
+      # Check if a more complete tag exists
+      base_tag=${tag%%.*}
+      if [[ -n "${tag_dates[$base_tag]}" && "$tag" != "$base_tag" ]]; then
+        # If a more complete tag exists, skip the incomplete tag
+        echo "a more complete tag exists for $tag, skip the incomplete tag for base tag $base_tag"
+        continue
+      fi
+      # Update the published_date if the current date is more recent or the same
+      if [[ -z "${tag_dates[$tag]}" || ! "$published_date" < "${tag_dates[$tag]}" ]]; then
+        tag_dates[$tag]=$published_date
+      fi
+      # Add the tag to the ordered array if it's not already present
+      if [[ ! " ${ordered_tags[*]} " =~ " ${tag} " ]]; then
+        ordered_tags+=("$tag")
+      fi
     fi
   done
 done <<< "$all_tags"
 
-# Print the associative array
-for tag in "${!tag_dates[@]}"; do
-  echo "Tag: $tag, Published Date: ${tag_dates[$tag]}"
+# Custom sort function with correct order
+sort_tags() {
+  printf "%s\n" "${ordered_tags[@]}" | sort -t '-' -k1,1n -k2,2n -k2.1,2.3n -k2.5,2.12n
+}
+
+# Print the sorted array and their corresponding published dates
+for tag in $(sort_tags | tac); do
+#  echo "Tag: $tag, Published Date: ${tag_dates[$tag]}"
+  echo "$tag"
 done
