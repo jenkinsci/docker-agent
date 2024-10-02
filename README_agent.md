@@ -10,7 +10,7 @@ Java version depends on the image and the platform, see the _Configurations_ sec
 
 ## Usage
 
-This image is used as the basis for the [Docker Inbound Agent](https://github.com/jenkinsci/docker-agent/README_inbound-agent.md) image.
+This image is used as the basis for the [Docker Inbound Agent](README_inbound-agent.md) image.
 In that image, the container is launched externally and attaches to Jenkins.
 
 This image may instead be used to launch an agent using the **Launch method** of **Launch agent via execution of command on the controller**. For example on Linux you can try
