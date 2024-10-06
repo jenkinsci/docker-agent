@@ -30,19 +30,14 @@ If you want to see the target images (matching your current architecture) that w
 
 ```bash
 $ make list
-agent_alpine_jdk11
 agent_alpine_jdk17
 agent_alpine_jdk21
-agent_archlinux_jdk11
-agent_debian_jdk11
 agent_debian_jdk17
 agent_debian_jdk21
 agent_rhel_ubi9_jdk17
 agent_rhel_ubi9_jdk21
-inbound-agent_alpine_jdk11
 inbound-agent_alpine_jdk17
 inbound-agent_alpine_jdk21
-inbound-agent_debian_jdk11
 inbound-agent_debian_jdk17
 inbound-agent_debian_jdk21
 inbound-agent_rhel_ubi9_jdk17
@@ -110,20 +105,16 @@ $ make show
   "group": {
     "alpine": {
       "targets": [
-        "agent_alpine_jdk11",
         "agent_alpine_jdk17",
         "agent_alpine_jdk21",
-        "inbound-agent_alpine_jdk11",
         "inbound-agent_alpine_jdk17",
         "inbound-agent_alpine_jdk21"
       ]
     },
     "debian": {
       "targets": [
-        "agent_debian_jdk11",
         "agent_debian_jdk17",
         "agent_debian_jdk21",
-        "inbound-agent_debian_jdk11",
         "inbound-agent_debian_jdk17",
         "inbound-agent_debian_jdk21"
       ]
@@ -135,7 +126,6 @@ $ make show
     },
     "linux": {
       "targets": [
-        "agent_archlinux_jdk11",
         "alpine",
         "debian",
         "rhel_ubi9"
@@ -151,19 +141,23 @@ $ make show
     }
   },
   "target": {
-    "agent_alpine_jdk11": {
+    "agent_alpine_jdk17": {
       "context": ".",
       "dockerfile": "alpine/Dockerfile",
       "args": {
-        "ALPINE_TAG": "3.20.1",
-        "JAVA_VERSION": "11.0.23_9",
-        "VERSION": "3256.v88a_f6e922152"
+        "ALPINE_TAG": "3.20.3",
+        "JAVA_VERSION": "17.0.12_7",
+        "VERSION": "3261.v9c670a_4748a_9"
       },
       "tags": [
-        "docker.io/jenkins/agent:alpine-jdk11",
-        "docker.io/jenkins/agent:alpine3.20-jdk11",
-        "docker.io/jenkins/agent:latest-alpine-jdk11",
-        "docker.io/jenkins/agent:latest-alpine3.20-jdk11"
+        "docker.io/jenkins/agent:alpine",
+        "docker.io/jenkins/agent:alpine3.20",
+        "docker.io/jenkins/agent:latest-alpine",
+        "docker.io/jenkins/agent:latest-alpine3.20",
+        "docker.io/jenkins/agent:alpine-jdk17",
+        "docker.io/jenkins/agent:alpine3.20-jdk17",
+        "docker.io/jenkins/agent:latest-alpine-jdk17",
+        "docker.io/jenkins/agent:latest-alpine3.20-jdk17"
       ],
       "target": "agent",
       "platforms": [
