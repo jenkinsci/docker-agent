@@ -1,6 +1,5 @@
 group "linux" {
   targets = [
-    "agent_archlinux_jdk11",
     "alpine",
     "debian",
     "rhel_ubi9"
@@ -16,11 +15,8 @@ group "windows" {
 
 group "linux-agent-only" {
   targets = [
-    "agent_archlinux_jdk11",
-    "agent_alpine_jdk11",
     "agent_alpine_jdk17",
     "agent_alpine_jdk21",
-    "agent_debian_jdk11",
     "agent_debian_jdk17",
     "agent_debian_jdk21",
     "agent_rhel_ubi9_jdk17",
@@ -30,10 +26,8 @@ group "linux-agent-only" {
 
 group "linux-inbound-agent-only" {
   targets = [
-    "inbound-agent_alpine_jdk11",
     "inbound-agent_alpine_jdk17",
     "inbound-agent_alpine_jdk21",
-    "inbound-agent_debian_jdk11",
     "inbound-agent_debian_jdk17",
     "inbound-agent_debian_jdk21",
     "inbound-agent_rhel_ubi9_jdk17",
@@ -51,14 +45,12 @@ group "linux-arm64" {
 
 group "linux-arm32" {
   targets = [
-    "debian_jdk11",
     "debian_jdk17"
   ]
 }
 
 group "linux-s390x" {
   targets = [
-    "debian_jdk11",
     "debian_jdk21"
   ]
 }
@@ -75,15 +67,11 @@ variable "agent_types_to_build" {
 }
 
 variable "jdks_to_build" {
-  default = [11, 17, 21]
+  default = [17, 21]
 }
 
 variable "default_jdk" {
   default = 17
-}
-
-variable "JAVA11_VERSION" {
-  default = "11.0.24_8"
 }
 
 variable "JAVA17_VERSION" {
@@ -164,11 +152,9 @@ function "is_default_jdk" {
 # Return the complete Java version corresponding to the jdk passed as parameter
 function "javaversion" {
   params = [jdk]
-  result = (equal(11, jdk)
-    ? "${JAVA11_VERSION}"
-    : (equal(17, jdk)
+  result = (equal(17, jdk)
       ? "${JAVA17_VERSION}"
-  : "${JAVA21_VERSION}"))
+  : "${JAVA21_VERSION}")
 }
 
 ## Specific functions
@@ -183,11 +169,9 @@ function "alpine_platforms" {
 # Return an array of Debian platforms to use depending on the jdk passed as parameter
 function "debian_platforms" {
   params = [jdk]
-  result = (equal(11, jdk)
-    ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7", "linux/s390x"]
-    : (equal(17, jdk)
+  result = (equal(17, jdk)
       ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7"]
-  : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]))
+  : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"])
 }
 
 # Return array of Windows version(s) to build
@@ -291,24 +275,6 @@ target "debian" {
     "${REGISTRY}/${orgrepo(type)}:latest-jdk${jdk}",
   ]
   platforms = debian_platforms(jdk)
-}
-
-target "agent_archlinux_jdk11" {
-  dockerfile = "archlinux/Dockerfile"
-  context    = "."
-  args = {
-    JAVA_VERSION = JAVA11_VERSION
-    VERSION      = REMOTING_VERSION
-  }
-  tags = [
-    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo("agent")}:${REMOTING_VERSION}-${BUILD_NUMBER}-archlinux" : "",
-    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo("agent")}:${REMOTING_VERSION}-${BUILD_NUMBER}-archlinux-jdk11" : "",
-    "${REGISTRY}/${orgrepo("agent")}:archlinux",
-    "${REGISTRY}/${orgrepo("agent")}:latest-archlinux",
-    "${REGISTRY}/${orgrepo("agent")}:archlinux-jdk11",
-    "${REGISTRY}/${orgrepo("agent")}:latest-archlinux-jdk11",
-  ]
-  platforms = ["linux/amd64"]
 }
 
 target "rhel_ubi9" {

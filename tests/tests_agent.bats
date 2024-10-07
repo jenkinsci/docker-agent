@@ -91,7 +91,7 @@ ARCH=${ARCH:-x86_64}
 @test "[${SUT_IMAGE}] use build args correctly" {
   cd "${BATS_TEST_DIRNAME}"/.. || false
 
-  local TEST_VERSION="3025.vf64a_a_3da_6b_55" # Older version, must work with JDK11 and JDK17 and should contain https://github.com/jenkinsci/remoting/pull/532
+  local TEST_VERSION="3025.vf64a_a_3da_6b_55" # Older version, must work with JDK17 and should contain https://github.com/jenkinsci/remoting/pull/532
   local TEST_USER="test-user"
   local TEST_GROUP="test-group"
   local TEST_UID=2000

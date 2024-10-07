@@ -42,16 +42,14 @@ RUN apk add --no-cache \
 ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 
 RUN case "$(jlink --version 2>&1)" in \
-      # jlink version 11 has less features than JDK17+
-      "11."*) set -- "--strip-debug" "--compress=2" ;; \
-      "17."*) set -- "--strip-java-debug-attributes" "--compress=2" ;; \
+      "17."*) set -- "--compress=2" ;; \
       # the compression argument is different for JDK21
-      "21."*) set -- "--strip-java-debug-attributes" "--compress=zip-6" ;; \
+      "21."*) set -- "--compress=zip-6" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
+      --strip-java-debug-attributes \
       "$1" \
-      "$2" \
       --add-modules ALL-MODULE-PATH \
       --no-man-pages \
       --no-header-files \
