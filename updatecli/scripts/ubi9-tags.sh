@@ -40,23 +40,26 @@ ordered_tags=()
 while IFS= read -r line; do
   published_date=$(echo "$line" | jq -r '.published_date')
   tags=$(echo "$line" | jq -r '.tags[]')
-
   for tag in $tags; do
     # Filter tags that contain a hyphen
     if [[ $tag == *-* ]]; then
-      # Check if a more complete tag exists
-      base_tag=${tag%%.*}
-      if [[ -n "${tag_dates[$base_tag]}" && "$tag" != "$base_tag" ]]; then
-        # If a more complete tag exists, skip the incomplete tag
-        echo "a more complete tag exists for $tag, skip the incomplete tag for base tag $base_tag"
-        continue
-      fi
       # Update the published_date if the current date is more recent or the same
       if [[ -z "${tag_dates[$tag]}" || ! "$published_date" < "${tag_dates[$tag]}" ]]; then
         tag_dates[$tag]=$published_date
       fi
-      # Add the tag to the ordered array if it's not already present
-      if [[ ! " ${ordered_tags[*]} " =~ " ${tag} " ]]; then
+      # Add or replace the tag in the ordered array
+      IFS='.' read -r part1 part2 _ <<< "$tag"
+      base_tag="${part1}.${part2}"
+      # echo "Base tag is $base_tag and tag is $tag"
+      replaced=false
+      for i in "${!ordered_tags[@]}"; do
+        if [[ "${ordered_tags[i]}" == "$base_tag" ]]; then
+          ordered_tags[i]="$tag"
+          replaced=true
+          break
+        fi
+      done
+      if ! $replaced; then
         ordered_tags+=("$tag")
       fi
     fi
@@ -70,6 +73,5 @@ sort_tags() {
 
 # Print the sorted array and their corresponding published dates
 for tag in $(sort_tags | tac); do
-#  echo "Tag: $tag, Published Date: ${tag_dates[$tag]}"
   echo "$tag"
 done
