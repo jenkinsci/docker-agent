@@ -119,7 +119,7 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20240926"
+  default = "bookworm-20241016"
 }
 
 variable "UBI9_TAG" {
@@ -153,7 +153,7 @@ function "is_default_jdk" {
 function "javaversion" {
   params = [jdk]
   result = (equal(17, jdk)
-      ? "${JAVA17_VERSION}"
+    ? "${JAVA17_VERSION}"
   : "${JAVA21_VERSION}")
 }
 
@@ -170,7 +170,7 @@ function "alpine_platforms" {
 function "debian_platforms" {
   params = [jdk]
   result = (equal(17, jdk)
-      ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7"]
+    ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7"]
   : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"])
 }
 
