@@ -75,7 +75,7 @@ variable "default_jdk" {
 }
 
 variable "JAVA17_VERSION" {
-  default = "17.0.12_7"
+  default = "17.0.13_11"
 }
 
 variable "JAVA21_VERSION" {
