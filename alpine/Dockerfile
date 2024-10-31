@@ -31,7 +31,7 @@ ARG TARGETPLATFORM
 COPY adoptium-get-jdk-link.sh /usr/bin/local/adoptium-get-jdk-link.sh
 COPY adoptium-install-jdk.sh /usr/bin/local/adoptium-install-jdk.sh
 
-ARG JAVA_VERSION=17.0.12_7
+ARG JAVA_VERSION=17.0.13_11
 # hadolint ignore=DL3018
 RUN apk add --no-cache \
     ca-certificates \
@@ -42,16 +42,14 @@ RUN apk add --no-cache \
 ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 
 RUN case "$(jlink --version 2>&1)" in \
-      # jlink version 11 has less features than JDK17+
-      "11."*) set -- "--strip-debug" "--compress=2" ;; \
-      "17."*) set -- "--strip-java-debug-attributes" "--compress=2" ;; \
+      "17."*) set -- "--compress=2" ;; \
       # the compression argument is different for JDK21
-      "21."*) set -- "--strip-java-debug-attributes" "--compress=zip-6" ;; \
+      "21."*) set -- "--compress=zip-6" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
+      --strip-java-debug-attributes \
       "$1" \
-      "$2" \
       --add-modules ALL-MODULE-PATH \
       --no-man-pages \
       --no-header-files \
@@ -88,7 +86,7 @@ RUN apk add --no-cache \
       tzdata-utils \
     && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ARG VERSION=3261.v9c670a_4748a_9
+ARG VERSION=3273.v4cfe589b_fd83
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar

@@ -19,7 +19,7 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-ARG DEBIAN_RELEASE=bookworm-20240904
+ARG DEBIAN_RELEASE=bookworm-20241016
 FROM debian:"${DEBIAN_RELEASE}"-slim as jre-build
 
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
@@ -31,7 +31,7 @@ ARG TARGETPLATFORM
 COPY adoptium-get-jdk-link.sh /usr/bin/local/adoptium-get-jdk-link.sh
 COPY adoptium-install-jdk.sh /usr/bin/local/adoptium-install-jdk.sh
 
-ARG JAVA_VERSION=17.0.12_7
+ARG JAVA_VERSION=17.0.13_11
 # hadolint ignore=DL3008
 RUN set -x; apt-get update \
   && apt-get install --no-install-recommends -y \
@@ -47,16 +47,14 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 # while still saving space (approx 200mb from the full distribution)
 RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
     case "$(jlink --version 2>&1)" in \
-      # jlink version 11 has less features than JDK17+
-      "11."*) set -- "--strip-debug" "--compress=2" ;; \
-      "17."*) set -- "--strip-java-debug-attributes" "--compress=2" ;; \
+      "17."*) set -- "--compress=2" ;; \
       # the compression argument is different for JDK21
-      "21."*) set -- "--strip-java-debug-attributes" "--compress=zip-6" ;; \
+      "21."*) set -- "--compress=zip-6" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
+      --strip-java-debug-attributes \
       "$1" \
-      "$2" \
       --add-modules ALL-MODULE-PATH \
       --no-man-pages \
       --no-header-files \
@@ -98,7 +96,7 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /tmp/* /var/cache/* /var/lib/apt/lists/*
 
-ARG VERSION=3261.v9c670a_4748a_9
+ARG VERSION=3273.v4cfe589b_fd83
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar

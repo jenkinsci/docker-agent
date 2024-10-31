@@ -43,15 +43,6 @@ targets:
         keyword: ARG
         matcher: VERSION
     scmid: default
-  setArchlinuxDockerImage:
-    name: Bump the Jenkins remoting version on Archlinux
-    kind: dockerfile
-    spec:
-      file: archlinux/Dockerfile
-      instruction:
-        keyword: ARG
-        matcher: VERSION
-    scmid: default
   setDebianDockerImage:
     name: Bump the Jenkins remoting version on Debian Bullseye
     kind: dockerfile
