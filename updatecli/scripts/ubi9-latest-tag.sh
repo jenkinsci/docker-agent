@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -eux
 # This script fetches the latest tag from the Red Hat Container Catalog API for UBI9 images.
 # It ensures that `jq` and `curl` are installed, fetches the tags, and processes them to find the unique tag.
 
