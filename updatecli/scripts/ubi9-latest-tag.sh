@@ -17,7 +17,7 @@ if ! command -v jq >/dev/null 2>&1 || ! command -v curl >/dev/null 2>&1; then
 fi
 
 # Fetch the tags using curl
-response=$(curl --silent --fail --location --header 'accept: application/json' "$URL")
+response=$(curl --silent --fail --location --connect-timeout 10 --max-time 30 --header 'accept: application/json' "$URL")
 
 # Check if the response is empty or null
 if [ -z "$response" ] || [ "$response" == "null" ]; then
