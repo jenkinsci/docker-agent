@@ -7,7 +7,7 @@
 # https://catalog.redhat.com/api/containers/v1/ui/#/Repositories/graphql.images.get_images_by_repo
 
 # Correct URL of the Red Hat Container Catalog API for UBI9
-URL="https://catalog.redhat.com/api/containers/v1/repositories/registry/registry.access.redhat.com/repository/ubi9/images?page_size=10&page=0&sort_by=last_update_date%5Bdesc%5D"
+URL="https://catalog.redhat.com/api/containers/v1/repositories/registry/registry.access.redhat.com/repository/ubi9/images?page_size=100&page=0&sort_by=last_update_date%5Bdesc%5D"
 
 # Check if jq and curl are installed
 # If they are not installed, exit the script with an error message
@@ -17,8 +17,7 @@ if ! command -v jq >/dev/null 2>&1 || ! command -v curl >/dev/null 2>&1; then
 fi
 
 # Fetch the tags using curl
-# curl --silent --fail --location --header 'accept: application/json' "$URL"
-response=$(curl --silent --fail --location --verbose --header 'accept: application/json' "$URL")
+response=$(curl --silent --fail --location --header 'accept: application/json' "$URL")
 
 # Check if the response is empty or null
 if [ -z "$response" ] || [ "$response" == "null" ]; then
@@ -26,12 +25,15 @@ if [ -z "$response" ] || [ "$response" == "null" ]; then
   exit 1
 fi
 
-# Parse the JSON response using jq to find the "latest" tag and its associated tags
-latest_tag="$(echo "$response" | jq '.data[].repositories[].signatures[].tags' | jq -s 'flatten(1) | first')"
+# Debug: Print the response to check its structure
+# echo "Response: $response" >&2
+
+# Parse the JSON response using jq to find the version associated with the "latest" tag
+latest_tag=$(echo "$response" | jq -r '.data[].repositories[] | select(.tags[].name == "latest") | .tags[] | select(.name != "latest") | .name')
 
 # Check if the latest_tag is empty
 if [ -z "$latest_tag" ]; then
-  >&2 echo "Error: No valid tags found."
+  echo "Error: No valid tags found."
   exit 1
 fi
 
@@ -40,5 +42,13 @@ unique_tag=$(echo "$latest_tag" | sort | uniq | grep -v latest | grep "-")
 
 # Trim spaces
 unique_tag=$(echo "$unique_tag" | xargs)
+
+# Check if the latest_version is empty
+if [ -z "$unique_tag" ]; then
+  >&2 echo "Error: No valid version found for the 'latest' tag."
+  exit 1
+fi
+
+# Output the latest version
 echo "$unique_tag"
 exit 0
