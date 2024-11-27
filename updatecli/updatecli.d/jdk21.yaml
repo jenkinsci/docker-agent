@@ -27,19 +27,19 @@ sources:
     kind: temurin
     name: Get the latest Adoptium JDK21 version via the API
     spec:
-      featureversion: 21  # Feature version to fetch
+      featureversion: 21
     transformers:
-      - trimprefix: "jdk-"  # Remove the "jdk-" prefix from the version string
+      - trimprefix: "jdk-"
 
 # Architectures must match those of the targets in docker-bake.hcl
 conditions:
   checkTemurinAllReleases:
     name: Check if the "<latestJDK21Version>" is available for all platforms
     kind: temurin
-    sourceid: latestJDK21Version  # Source to check the version from
+    sourceid: latestJDK21Version
     spec:
-      featureversion: 21  # Feature version to check
-      platforms: # List of platforms to check the version for
+      featureversion: 21
+      platforms:
         - alpine-linux/x64
         - alpine-linux/aarch64
         - linux/x64

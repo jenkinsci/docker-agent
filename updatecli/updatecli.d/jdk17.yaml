@@ -18,18 +18,18 @@ sources:
     kind: temurin
     name: Get the latest Adoptium JDK17 version via the API
     spec:
-      featureversion: 17  # Feature version to fetch
+      featureversion: 17
     transformers:
-      - trimprefix: "jdk-"  # Remove the "jdk-" prefix from the version string
+      - trimprefix: "jdk-"
 
 conditions:
   checkTemurinAllReleases:
     name: Check if the "<lastVersion>" is available for all platforms
     kind: temurin
-    sourceid: lastVersion  # Source to check the version from
+    sourceid: lastVersion
     spec:
-      featureversion: 17  # Feature version to check
-      platforms:  # List of platforms to check the version for
+      featureversion: 17
+      platforms:
         - alpine-linux/x64
         - linux/x64
         - linux/aarch64
@@ -43,8 +43,8 @@ targets:
     kind: hcl
     transformers:
       - replacer:
-          from: "+"  # Character to replace
-          to: "_"  # Replacement character
+          from: "+"
+          to: "_"
     spec:
       file: docker-bake.hcl
       path: variable.JAVA17_VERSION.default
@@ -54,8 +54,8 @@ targets:
     kind: dockerfile
     transformers:
       - replacer:
-          from: "+"  # Character to replace
-          to: "_"  # Replacement character
+          from: "+"
+          to: "_"
     spec:
       file: alpine/Dockerfile
       instruction:
@@ -67,8 +67,8 @@ targets:
     kind: dockerfile
     transformers:
       - replacer:
-          from: "+"  # Character to replace
-          to: "_"  # Replacement character
+          from: "+"
+          to: "_"
     spec:
       file: debian/Dockerfile
       instruction:
