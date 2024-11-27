@@ -40,12 +40,6 @@ unique_tag=$(echo "$latest_tag" | sort | uniq | grep -v latest | grep "-")
 # Trim spaces
 unique_tag=$(echo "$unique_tag" | xargs)
 
-# Check if the latest_version is empty
-if [ -z "$unique_tag" ]; then
-  >&2 echo "Error: No valid version found for the 'latest' tag."
-  exit 1
-fi
-
 # Output the latest version
 echo "$unique_tag"
 exit 0
