@@ -17,8 +17,10 @@ if ! command -v jq >/dev/null 2>&1 || ! command -v curl >/dev/null 2>&1; then
 fi
 
 # Fetch the tags using curl
-curl --silent --fail --location --verbose --header 'accept: application/json' "$URL" \
+latest_tag="$(curl --silent --fail --location --verbose --header 'accept: application/json' "$URL" \
     | jq --sort-keys 'first(.data[].repositories[].signatures[].tags)[]' \
-    | xargs `# Trim eventual whitespaces`
+    | xargs `# Trim eventual whitespaces`)"
+
+[ -z "$latest_tag" ] || exit 1
 
 exit 0
