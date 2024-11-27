@@ -18,7 +18,7 @@ fi
 
 # Fetch the tags using curl
 curl --silent --fail --location --verbose --header 'accept: application/json' "$URL" \
-    | jq --sort-keys 'first(.data[].repositories[].signatures[].tags)[]') \
+    | jq --sort-keys 'first(.data[].repositories[].signatures[].tags)[]' \
     | xargs `# Trim eventual whitespaces`
 
 exit 0
