@@ -21,6 +21,6 @@ latest_tag="$(curl --silent --fail --location --verbose --header 'accept: applic
     | jq --sort-keys 'first(.data[].repositories[].signatures[].tags)[]' \
     | xargs `# Trim eventual whitespaces`)"
 
-[ -z "$latest_tag" ] || exit 1
+[ -n "$latest_tag" ] || exit 1
 
 exit 0
