@@ -26,7 +26,7 @@ if [ -z "$response" ] || [ "$response" == "null" ]; then
 fi
 
 # Parse the JSON response using jq to find the "latest" tag and its associated tags
-latest_tag="$(echo "$response" | jq --sort-keys 'first(.data[].repositories[].signatures[].tags)[]'"
+latest_tag="$(echo "$response" | jq --sort-keys 'first(.data[].repositories[].signatures[].tags)[]')"
 
 # Check if the latest_tag is empty
 if [ -z "$latest_tag" ]; then
