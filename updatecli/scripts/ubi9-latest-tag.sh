@@ -25,9 +25,6 @@ if [ -z "$response" ] || [ "$response" == "null" ]; then
   exit 1
 fi
 
-# Debug: Print the response to check its structure
-# echo "Response: $response" >&2
-
 # Parse the JSON response using jq to find the version associated with the "latest" tag
 latest_tag=$(echo "$response" | jq -r '.data[].repositories[] | select(.tags[].name == "latest") | .tags[] | select(.name != "latest") | .name')
 
