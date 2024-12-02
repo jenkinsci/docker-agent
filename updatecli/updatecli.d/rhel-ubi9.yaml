@@ -1,6 +1,4 @@
 ---
-# This YAML configuration file is used to bump the UBI9 version in the Dockerfile and docker-bake.hcl and create a pull request with the changes.
-
 name: Bump UBI9 version
 
 scms:
@@ -17,49 +15,51 @@ scms:
 
 sources:
   latestVersion:
-    name: "Get the latest UBI9 Linux version" # Source to get the latest UBI9 version
+    name: "Get the latest UBI9 Linux version"
     kind: shell
     spec:
-      command: bash updatecli/scripts/ubi9-latest-tag.sh # Command to fetch the latest UBI9 tag
+      command: bash -x updatecli/scripts/ubi9-latest-tag.sh
 
 conditions:
   checkUbi9DockerImage:
     kind: dockerimage
-    name: Check if the container image "ubi9" is available # Condition to check if the UBI9 Docker image is available
+    name: Check if the container image "ubi9" is available
+    sourceid: latestVersion # Provides the found tag as "input"
     spec:
       architectures:
         - linux/amd64
         - linux/arm64
         - linux/s390x
         - linux/ppc64le
-      image: registry.access.redhat.com/ubi9 # Docker image to check. The tag is automatically set to the version found in the only source
+      image: registry.access.redhat.com/ubi9
+
 
 targets:
   updateDockerfile:
-    name: "Update the value of the base image (ARG UBI9_TAG) in the Dockerfile" # Target to update the Dockerfile with the new UBI9 tag
+    name: "Update the value of the base image (ARG UBI9_TAG) in the Dockerfile"
     kind: dockerfile
     sourceid: latestVersion
     spec:
-      file: rhel/ubi9/Dockerfile # Path to the Dockerfile
+      file: rhel/ubi9/Dockerfile
       instruction:
-        keyword: "ARG" # Dockerfile instruction keyword
-        matcher: "UBI9_TAG" # Dockerfile instruction matcher
+        keyword: ARG
+        matcher: UBI9_TAG
     scmid: default
   updateDockerBake:
-    name: "Update the default value of the variable UBI9_TAG in the docker-bake.hcl" # Target to update the docker-bake.hcl file with the new UBI9 tag
+    name: "Update the default value of the variable UBI9_TAG in the docker-bake.hcl"
     kind: hcl
     sourceid: latestVersion
     spec:
-      file: docker-bake.hcl # Path to the docker-bake.hcl file
-      path: variable.UBI9_TAG.default # Path to the variable in the HCL file
+      file: docker-bake.hcl
+      path: variable.UBI9_TAG.default
     scmid: default
 
 actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump UBI9 version to {{ source "latestVersion" }} # Title of the pull request
+    title: Bump UBI9 version to {{ source "latestVersion" }}
     spec:
       labels:
         - dependencies
-        - rhel-ubi9 # Labels for the pull request
+        - rhel-ubi9
