@@ -45,9 +45,6 @@ if [ -z "$latest_tag" ]; then
   exit 1
 fi
 
-# Trim spaces
-unique_tag=$(echo "$latest_tag" | xargs)
-
 # Output the latest tag version
 echo "$latest_tag"
 exit 0
