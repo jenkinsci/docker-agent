@@ -13,8 +13,7 @@
 # - page: 0
 # - sort_by: last_update_date[desc]
 
-# The curl command fetches the JSON data containing the tags for the UBI9 images.
-# The script then parses the JSON response using jq to find the version associated with the "latest" tag.
+# The curl command fetches the JSON data containing the tags for the UBI9 images, then parses it using `jq` to find the version associated with the "latest" tag.
 # It focuses on tags that contain a hyphen, as these represent the long-form tag names.
 # The script ensures that only one instance of each tag is kept, in case of duplicates.
 
@@ -28,12 +27,7 @@ if ! command -v jq >/dev/null 2>&1 || ! command -v curl >/dev/null 2>&1; then
     exit 1
 fi
 
-# Fetch the tags using curl, for `ub9`, in the `registry.access.redhat.com`, sorted by last update date descending, and keeping only page 0.
-# --fail: Fail silently on HTTP errors
-# --silent: Don't show progress meter or error messages
-# --show-error: Show error message if it fails
-# --retry 3: Retry failed requests up to 3 times
-# --retry-delay 2: Wait 2 seconds between retries
+# Fetch the tags using curl, for `ubi9`, in the `registry.access.redhat.com`, sorted by last update date descending, and keeping only the first page.
 response=$(curl --silent --fail --location --connect-timeout 10 --retry 3 --retry-delay 2 --max-time 30 --header 'accept: application/json' "$URL")
 
 # Check if the response is empty or null
@@ -43,7 +37,7 @@ if [ -z "$response" ] || [ "$response" == "null" ]; then
 fi
 
 # Parse the JSON response using jq to find the version associated with the "latest" tag
-latest_tag=$(echo "$response" | jq -r '.data[].repositories[] | select(.tags[].name == "latest") | .tags[] | select(.name != "latest" and (.name | contains("-"))) | .name' | sort -u)
+latest_tag=$(echo "$response" | jq -r '.data[].repositories[] | select(.tags[].name == "latest") | .tags[] | select(.name != "latest" and (.name | contains("-"))) | .name' | sort -u | xargs)
 
 # Check if the latest_tag is empty
 if [ -z "$latest_tag" ]; then
@@ -54,6 +48,6 @@ fi
 # Trim spaces
 unique_tag=$(echo "$latest_tag" | xargs)
 
-# Output the latest version
-echo "$unique_tag"
+# Output the latest tag version
+echo "$latest_tag"
 exit 0
