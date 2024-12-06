@@ -37,7 +37,8 @@ RUN echo \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 RUN sudo apt-get update
-RUN sudo apt-get --yes --no-install-recommends install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+#RUN sudo apt-get --yes --no-install-recommends install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+RUN sudo apt-get install docker-ce docker-ce-cli containerd.io
 RUN sudo service docker start
 
 # 切换回 jenkins 用户
