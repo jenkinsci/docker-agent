@@ -27,7 +27,7 @@ if ! command -v jq >/dev/null 2>&1 || ! command -v curl >/dev/null 2>&1; then
     exit 1
 fi
 
-# Fetch the tags using curl, for `ubi9`, in the `registry.access.redhat.com`, sorted by last update date descending, and keeping only the first page.
+# Fetch `ubi9` from registry.access.redhat.com sorted by most recent update date, and keeping only the first page.
 response=$(curl --silent --fail --location --connect-timeout 10 --retry 3 --retry-delay 2 --max-time 30 --header 'accept: application/json' "$URL")
 
 # Check if the response is empty or null
