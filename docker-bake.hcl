@@ -111,7 +111,7 @@ variable "ON_TAG" {
 }
 
 variable "ALPINE_FULL_TAG" {
-  default = "3.20.3"
+  default = "3.21.0"
 }
 
 variable "ALPINE_SHORT_TAG" {
@@ -119,7 +119,7 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20241111"
+  default = "bookworm-20241202"
 }
 
 variable "UBI9_TAG" {
