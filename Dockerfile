@@ -1,4 +1,4 @@
-FROM jenkins/inbound-agent:latest
+FROM hadesarchitect/jenkins-inbound-agent-dind:latest
 
 # 切换到 root 用户
 USER root
