@@ -2,69 +2,7 @@
 version: 2
 updates:
 
-# Alpine Linux
-- package-ecosystem: docker
-  directory: "alpine"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
-  target-branch: master
-  reviewers:
-  - MarkEWaite
-  labels:
-  - dependencies
-
-# Arch Linux
-
-- package-ecosystem: docker
-  directory: "archlinux"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
-  target-branch: master
-  reviewers:
-  - MarkEWaite
-  labels:
-  - dependencies
-
-# Debian Linux
-
-- package-ecosystem: docker
-  directory: "debian"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
-  target-branch: master
-  reviewers:
-  - MarkEWaite
-  labels:
-  - dependencies
-
-# Windows
-- package-ecosystem: docker
-  directory: "windows/nanoserver"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
-  target-branch: master
-  reviewers:
-  - slide
-  labels:
-  - dependencies
-
-- package-ecosystem: docker
-  directory: "windows/windowsservercore"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 2
-  target-branch: master
-  reviewers:
-  - slide
-  labels:
-  - dependencies
-
 # GitHub actions
-
 - package-ecosystem: "github-actions"
   target-branch: master
   directory: "/"

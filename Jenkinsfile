@@ -1,13 +1,14 @@
 def agentSelector(String imageType) {
-    // Image type running on a Linux agent
+    // Linux agent
     if (imageType == 'linux') {
-        return 'linux'
+        // Need Docker and a LOT of memory for faster builds (due to multi archs) or fallback to linux (trusted.ci)
+        return 'docker-highmem || linux'
     }
-    // Image types running on a Windows Server Core 2022 agent
+    // Windows Server Core 2022 agent
     if (imageType.contains('2022')) {
         return 'windows-2022'
     }
-    // Remaining image types running on a Windows Server Core 2019 agent: (nanoserver|windowservercore)-(1809|2019)
+    // Windows Server Core 2019 agent (for nanoserver 1809 & ltsc2019 and for windowservercore ltsc2019)
     return 'windows-2019'
 }
 
@@ -36,7 +37,7 @@ pipeline {
                             timeout(time: 60, unit: 'MINUTES')
                         }
                         environment {
-                            DOCKERHUB_ORGANISATION = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
+                            REGISTRY_ORG = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
                         }
                         stages {
                             stage('Prepare Docker') {
@@ -44,10 +45,7 @@ pipeline {
                                     environment name: 'IMAGE_TYPE', value: 'linux'
                                 }
                                 steps {
-                                    sh '''
-                                    docker buildx create --use
-                                    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-                                    '''
+                                    sh 'make docker-init'
                                 }
                             }
                             stage('Build and Test') {
@@ -57,11 +55,11 @@ pipeline {
                                 }
                                 steps {
                                     script {
-                                        if(isUnix()) {
+                                        if (isUnix()) {
                                             sh './build.sh'
                                             sh './build.sh test'
                                             // If the tests are passing for Linux AMD64, then we can build all the CPU architectures
-                                            sh 'docker buildx bake --file docker-bake.hcl linux'
+                                            sh 'make every-build'
                                         } else {
                                             powershell '& ./build.ps1 test'
                                         }
@@ -69,6 +67,7 @@ pipeline {
                                 }
                                 post {
                                     always {
+                                        archiveArtifacts artifacts: 'build-windows_*.yaml', allowEmptyArchive: true
                                         junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results*.xml')
                                     }
                                 }
@@ -82,18 +81,18 @@ pipeline {
                                     script {
                                         def tagItems = env.TAG_NAME.split('-')
                                         if(tagItems.length == 2) {
-                                            def remotingVersion = tagItems[0]
-                                            def buildNumber = tagItems[1]
-                                            // This function is defined in the jenkins-infra/pipeline-library
-                                            infra.withDockerCredentials {
-                                                if (isUnix()) {
-                                                    sh """
-                                                    docker buildx create --use
-                                                    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-                                                    ./build.sh -r ${remotingVersion} -b ${buildNumber} -d publish
-                                                    """
-                                                } else {
-                                                    powershell "& ./build.ps1 -RemotingVersion $remotingVersion -BuildNumber $buildNumber -DisableEnvProps publish"
+                                            withEnv([
+                                                "ON_TAG=true",
+                                                "REMOTING_VERSION=${tagItems[0]}",
+                                                "BUILD_NUMBER=${tagItems[1]}",
+                                            ]) {
+                                                // This function is defined in the jenkins-infra/pipeline-library
+                                                infra.withDockerCredentials {
+                                                    if (isUnix()) {
+                                                        sh 'make publish'
+                                                    } else {
+                                                        powershell '& ./build.ps1 publish'
+                                                    }
                                                 }
                                             }
                                         } else {

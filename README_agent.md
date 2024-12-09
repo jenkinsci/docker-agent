@@ -10,7 +10,7 @@ Java version depends on the image and the platform, see the _Configurations_ sec
 
 ## Usage
 
-This image is used as the basis for the [Docker Inbound Agent](https://github.com/jenkinsci/docker-agent/README_inbound-agent.md) image.
+This image is used as the basis for the [Docker Inbound Agent](https://github.com/jenkinsci/docker-agent/tree/master/README_inbound-agent.md) image.
 In that image, the container is launched externally and attaches to Jenkins.
 
 This image may instead be used to launch an agent using the **Launch method** of **Launch agent via execution of command on the controller**. For example on Linux you can try
@@ -43,7 +43,7 @@ docker run -i --rm --name agent1 --init -v agent1-workdir:/home/jenkins/agent je
 Call example for Windows Containers:
 
 ```powershell
-docker run -i --rm --name agent1 --init -v agent1-workdir:C:/Users/jenkins/Work jenkins/agent:jdk11-windowsservercore-ltsc2019 java -jar C:/ProgramData/Jenkins/agent.jar -workDir C:/Users/jenkins/Work
+docker run -i --rm --name agent1 --init -v agent1-workdir:C:/Users/jenkins/Work jenkins/agent:jdk17-windowsservercore-ltsc2019 java -jar C:/ProgramData/Jenkins/agent.jar -workDir C:/Users/jenkins/Work
 ```
 
 ## Configurations
@@ -64,6 +64,11 @@ The image has several supported configurations, which can be accessed via the fo
       * `jenkins/agent:alpine-jdk17`
       * `jenkins/agent:latest-alpine`
       * `jenkins/agent:latest-alpine-jdk17`
+    * rhel-ubi9 (Based on Red Hat Universal Base Image 9)
+      * `jenkins/agent:rhel-ubi9`
+      * `jenkins/agent:rhel-ubi9-jdk17`
+      * `jenkins/agent:latest-rhel-ubi9`
+      * `jenkins/agent:latest-rhel-ubi9-jdk17`
   * Java 21:
     * bookworm (Based on `debian:bookworm-${builddate}`):
       * `jenkins/agent:bookworm`
@@ -75,22 +80,9 @@ The image has several supported configurations, which can be accessed via the fo
       * `jenkins/agent:alpine-jdk21`
       * `jenkins/agent:latest-alpine`
       * `jenkins/agent:latest-alpine-jdk21`
-  * Java 11:
-    * bookworm (Based on `debian:bookworm-${builddate}`):
-      * `jenkins/agent:bookworm`
-      * `jenkins/agent:bookworm-jdk11`
-      * `jenkins/agent:jdk11`
-      * `jenkins/agent:latest-bookworm-jdk11`
-    * alpine (Small image based on Alpine Linux, based on `alpine:${version}`):
-      * `jenkins/agent:alpine` 
-      * `jenkins/agent:alpine-jdk11`
-      * `jenkins/agent:latest-alpine`
-      * `jenkins/agent:latest-alpine-jdk11`
-    * archlinux (Image based on Arch Linux, based on `archlinux:latest`):
-      * `jenkins/agent:archlinux`
-      * `jenkins/agent:archlinux-jdk11`
-      * `jenkins/agent:latest-archlinux`
-      * `jenkins/agent:latest-archlinux-jdk11`
+    * rhel-ubi9 (Based on Red Hat Universal Base Image 9)
+      * `jenkins/agent:rhel-ubi9-jdk21`
+      * `jenkins/agent:latest-rhel-ubi9-jdk21`
 
 * Windows Images:
   * Java 17 (default):
@@ -98,10 +90,6 @@ The image has several supported configurations, which can be accessed via the fo
       * `jenkins/agent:jdk17-nanoserver-1809`
       * `jenkins/agent:jdk17-nanoserver-ltsc2019`
       * `jenkins/agent:jdk17-nanoserver-ltsc2022`
-    * Latest Jenkins agent version on Windows Server Core with Java 11:
-      * `jenkins/agent:jdk17-windowsservercore-1809`
-      * `jenkins/agent:jdk17-windowsservercore-ltsc2019`
-      * `jenkins/agent:jdk17-windowsservercore-ltsc2022`
   * Java 21:
     * Latest Jenkins agent version on Windows Nano Server and Java 21:
       * `jenkins/agent:jdk21-nanoserver-1809`
@@ -111,15 +99,6 @@ The image has several supported configurations, which can be accessed via the fo
       * `jenkins/agent:jdk21-windowsservercore-1809`
       * `jenkins/agent:jdk21-windowsservercore-ltsc2019`
       * `jenkins/agent:jdk21-windowsservercore-ltsc2022`
-  * Java 11:
-    * Latest Jenkins agent version on Windows Nano Server and Java 11:
-      * `jenkins/agent:jdk11-nanoserver-1809`
-      * `jenkins/agent:jdk11-nanoserver-ltsc2019`
-      * `jenkins/agent:jdk11-nanoserver-ltsc2022`
-    * Latest Jenkins agent version on Windows Server Core with Java 11:
-      * `jenkins/agent:jdk11-windowsservercore-1809`
-      * `jenkins/agent:jdk11-windowsservercore-ltsc2019`
-      * `jenkins/agent:jdk11-windowsservercore-ltsc2022`
 
 The file [docker-bake.hcl](https://github.com/jenkinsci/docker-agent/blob/master/docker-bake.hcl) defines all the configuration for Linux images and their associated tags.
 

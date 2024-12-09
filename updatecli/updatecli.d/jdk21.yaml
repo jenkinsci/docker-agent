@@ -23,100 +23,49 @@ scms:
       branch: "main"
 
 sources:
-  getLatestJDK21Version:
-    name: Get the latest Adoptium JDK21 version
-    kind: gittag
-    scmid: temurin21-binaries
+  latestJDK21Version:
+    kind: temurin
+    name: Get the latest Adoptium JDK21 version via the API
     spec:
-      versionfilter:
-        kind: regex
-        pattern: {{ .temurin.version_pattern }}
+      featureversion: 21
     transformers:
       - trimprefix: "jdk-"
-      - replacer:
-          from: "+"
-          to: "_"
 
 # Architectures must match those of the targets in docker-bake.hcl
 conditions:
-  checkTemurinAlpineDockerImage:
-    kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-alpine" is available
-    transformers:
-      - addsuffix: "-jdk-alpine"
+  checkTemurinAllReleases:
+    name: Check if the "<latestJDK21Version>" is available for all platforms
+    kind: temurin
+    sourceid: latestJDK21Version
     spec:
-      architectures:
-        - linux/amd64
-        - linux/arm64
-      image: eclipse-temurin
-  checkTemurinDebianDockerImages:
-    kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-jammy" is available
-    transformers:
-      - addsuffix: "-jdk-jammy"
-    spec:
-      architectures:
-        - linux/amd64
-        - linux/arm64
-      image: eclipse-temurin
-  checkTemurinNanoserver2019DockerImage:
-    kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-nanoserver-1809" is available
-    transformers:
-      - addsuffix: "-jdk-nanoserver-1809"
-    spec:
-      architecture: windows/amd64
-      image: eclipse-temurin
-  checkTemurinWindowsCore2019DockerImage:
-    kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-1809" is available
-    transformers:
-      - addsuffix: "-jdk-windowsservercore-1809"
-    spec:
-      architecture: windows/amd64
-      image: eclipse-temurin
-  checkTemurinNanoserver2022DockerImage:
-    kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-nanoserver-ltsc2022" is available
-    transformers:
-      - addsuffix: "-jdk-nanoserver-ltsc2022"
-    spec:
-      architecture: windows/amd64
-      image: eclipse-temurin
-  checkTemurinWindowsCore2022DockerImage:
-    kind: dockerimage
-    name: Check if the container image "eclipse-temurin:<lastVersion>-jdk-windowsservercore-ltsc2022" is available
-    transformers:
-      - addsuffix: "-jdk-windowsservercore-ltsc2022"
-    spec:
-      architecture: windows/amd64
-      image: eclipse-temurin
+      featureversion: 21
+      platforms:
+        - alpine-linux/x64
+        - alpine-linux/aarch64
+        - linux/x64
+        - linux/aarch64
+        - linux/ppc64le
+        - linux/s390x
+        - windows/x64
 
 targets:
   setJDK21VersionDockerBake:
     name: "Bump JDK21 version for Linux images in the docker-bake.hcl file"
     kind: hcl
+    transformers:
+      - replacer:
+          from: "+"
+          to: "_"
     spec:
       file: docker-bake.hcl
       path: variable.JAVA21_VERSION.default
     scmid: default
-  setJDK21VersionDockerCompose:
-    name: "Bump JDK21 version for Windows images in the build-windows.yaml file"
-    kind: yaml
-    spec:
-      file: build-windows.yaml
-      key: $.services.jdk21.build.args.JAVA_VERSION
-    scmid: default
-    transformers:
-      - replacer:
-          from: _
-          to: +
 
 actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump JDK21 version to {{ source "getLatestJDK21Version" }}
+    title: Bump JDK21 version to {{ source "latestJDK21Version" }}
     spec:
       labels:
         - dependencies
