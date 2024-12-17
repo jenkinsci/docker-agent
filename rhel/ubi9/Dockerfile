@@ -1,4 +1,4 @@
-ARG UBI9_TAG=9.5-1732804088
+ARG UBI9_TAG=9.5-1734081738
 FROM registry.access.redhat.com/ubi9/ubi:"${UBI9_TAG}" AS jre-build
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
 
