@@ -135,6 +135,9 @@ RUN chmod +x /usr/local/bin/jenkins-agent &&\
     ln -s /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-slave
 USER ${user}
 
+# Copy the certificate file to the container
+COPY ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+
 LABEL \
   org.opencontainers.image.vendor="Jenkins project" \
   org.opencontainers.image.title="Official Jenkins Inbound Agent Base Docker image" \
@@ -144,4 +147,4 @@ LABEL \
   org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
   org.opencontainers.image.licenses="MIT"
 
-ENTRYPOINT ["/usr/local/bin/jenkins-agent"]
+ENTRYPOINT ["/usr/local/bin/jenkins-agent", "-cert", "@/etc/ssl/certs/ca-certificates.crt"]

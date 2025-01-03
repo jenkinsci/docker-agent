@@ -35,7 +35,8 @@ Param(
     $JenkinsJavaBin = '',
     $JavaHome = $env:JAVA_HOME,
     $JenkinsJavaOpts = '',
-    $RemotingOpts = ''
+    $RemotingOpts = '',
+    $Cert = '' # P7458
 )
 
 # Usage jenkins-agent.ps1 [options] -Url http://jenkins -Secret [SECRET] -Name [AGENT_NAME]
@@ -75,6 +76,7 @@ if(![System.String]::IsNullOrWhiteSpace($Cmd)) {
         'InstanceIdentity' = 'JENKINS_INSTANCE_IDENTITY';
         'Protocols' = 'JENKINS_PROTOCOLS';
         'RemotingOpts' = 'REMOTING_OPTS';
+        'Cert' = 'JENKINS_CERT' # P7458
     }
 
     # this does some trickery to update the variable from the CmdletBinding
@@ -145,6 +147,11 @@ if(![System.String]::IsNullOrWhiteSpace($Cmd)) {
 
     if(![System.String]::IsNullOrWhiteSpace($Protocols)) {
         $AgentArguments += @('-protocols', $Protocols)
+    }
+
+    if(![System.String]::IsNullOrWhiteSpace($Cert)) {
+        $CertContent = Get-Content -Path $Cert -Raw
+        $AgentArguments += @('-cert', $CertContent)
     }
 
     if(![System.String]::IsNullOrWhiteSpace($JenkinsJavaBin)) {
