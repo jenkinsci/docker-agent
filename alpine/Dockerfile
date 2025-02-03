@@ -31,7 +31,7 @@ ARG TARGETPLATFORM
 COPY adoptium-get-jdk-link.sh /usr/bin/local/adoptium-get-jdk-link.sh
 COPY adoptium-install-jdk.sh /usr/bin/local/adoptium-install-jdk.sh
 
-ARG JAVA_VERSION=17.0.13_11
+ARG JAVA_VERSION=17.0.14_7
 # hadolint ignore=DL3018
 RUN apk add --no-cache \
     ca-certificates \
