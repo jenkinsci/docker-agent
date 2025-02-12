@@ -168,7 +168,7 @@ function "javaversion" {
     ? "${JAVA17_VERSION}"
   : (equal(21, jdk)
     ? "${JAVA21_VERSION}"
-  : "${JAVA25_VERSION}"))
+  : "${JAVA25_VERSION}-preview"))
 }
 
 ## Specific functions
