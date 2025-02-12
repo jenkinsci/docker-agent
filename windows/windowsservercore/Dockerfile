@@ -38,24 +38,10 @@ RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
     $proc.WaitForExit() ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
 
-ARG JAVA_VERSION=25.0.0+1
-RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
-    $javaMajorVersion = $env:JAVA_VERSION.substring(0,2) ; `
-    $msiUrl = 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk' -f $env:JAVA_VERSION.Replace('+', '%2B') ; `
-    Invoke-WebRequest $msiUrl -OutFile 'C:\temp\jdk.msi' ; `
-    $proc = Start-Process -FilePath 'msiexec.exe' -ArgumentList '/i', 'C:\temp\jdk.msi', '/L*V', 'C:\temp\OpenJDK.log', '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome',  "INSTALLDIR=C:\openjdk-${javaMajorVersion}" -Wait -Passthru ; `
-    $proc.WaitForExit() ; `
-    Remove-Item -Path C:\temp -Recurse | Out-Null
-
 ## Agent image target
 FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS agent
 
 ARG JAVA_HOME="C:\openjdk-17"
-ENV JAVA_HOME=${JAVA_HOME}
-
-COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
-
-ARG JAVA_HOME="C:\openjdk-25"
 ENV JAVA_HOME=${JAVA_HOME}
 
 COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
