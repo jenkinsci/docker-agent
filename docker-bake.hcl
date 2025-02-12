@@ -17,10 +17,13 @@ group "linux-agent-only" {
   targets = [
     "agent_alpine_jdk17",
     "agent_alpine_jdk21",
+    "agent_alpine_jdk25",
     "agent_debian_jdk17",
     "agent_debian_jdk21",
+    "agent_debian_jdk25",
     "agent_rhel_ubi9_jdk17",
-    "agent_rhel_ubi9_jdk21"
+    "agent_rhel_ubi9_jdk21",
+    "agent_rhel_ubi9_jdk25"
   ]
 }
 
@@ -28,16 +31,20 @@ group "linux-inbound-agent-only" {
   targets = [
     "inbound-agent_alpine_jdk17",
     "inbound-agent_alpine_jdk21",
+    "inbound-agent_alpine_jdk25",
     "inbound-agent_debian_jdk17",
     "inbound-agent_debian_jdk21",
+    "inbound-agent_debian_jdk25",
     "inbound-agent_rhel_ubi9_jdk17",
-    "inbound-agent_rhel_ubi9_jdk21"
+    "inbound-agent_rhel_ubi9_jdk21",
+    "inbound-agent_rhel_ubi9_jdk25"
   ]
 }
 
 group "linux-arm64" {
   targets = [
     "alpine_jdk21",
+    "alpine_jdk25",
     "debian",
     "rhel_ubi9"
   ]
@@ -67,7 +74,7 @@ variable "agent_types_to_build" {
 }
 
 variable "jdks_to_build" {
-  default = [17, 21]
+  default = [17, 21, 25]
 }
 
 variable "default_jdk" {
@@ -80,6 +87,10 @@ variable "JAVA17_VERSION" {
 
 variable "JAVA21_VERSION" {
   default = "21.0.6_7"
+}
+
+variable "JAVA25_VERSION" {
+  default = "25.0.0_1"
 }
 
 variable "REMOTING_VERSION" {
@@ -154,7 +165,9 @@ function "javaversion" {
   params = [jdk]
   result = (equal(17, jdk)
     ? "${JAVA17_VERSION}"
-  : "${JAVA21_VERSION}")
+  : (equal(21, jdk)
+    ? "${JAVA21_VERSION}"
+  : "${JAVA25_VERSION}"))
 }
 
 ## Specific functions
@@ -163,7 +176,9 @@ function "alpine_platforms" {
   params = [jdk]
   result = (equal(21, jdk)
     ? ["linux/amd64", "linux/arm64"]
-  : ["linux/amd64"])
+  : (equal(25, jdk)
+    ? ["linux/amd64", "linux/arm64"]
+  : ["linux/amd64"]))
 }
 
 # Return an array of Debian platforms to use depending on the jdk passed as parameter
@@ -171,7 +186,9 @@ function "debian_platforms" {
   params = [jdk]
   result = (equal(17, jdk)
     ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7"]
-  : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"])
+  : (equal(21, jdk)
+    ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
+  : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]))
 }
 
 # Return array of Windows version(s) to build
@@ -280,7 +297,7 @@ target "debian" {
 target "rhel_ubi9" {
   matrix = {
     type = agent_types_to_build
-    jdk  = [17, 21]
+    jdk  = [17, 21, 25]
   }
   name       = "${type}_rhel_ubi9_jdk${jdk}"
   target     = type

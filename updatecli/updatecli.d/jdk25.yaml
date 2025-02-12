@@ -1,5 +1,5 @@
 ---
-name: Bump JDK21 version for all Linux images
+name: Bump JDK25 version for all Linux images
 
 scms:
   default:
@@ -12,33 +12,33 @@ scms:
       token: "{{ requiredEnv .github.token }}"
       username: "{{ .github.username }}"
       branch: "{{ .github.branch }}"
-  temurin21-binaries:
+  temurin25-binaries:
     kind: "github"
     spec:
       user: "{{ .github.user }}"
       email: "{{ .github.email }}"
       owner: "adoptium"
-      repository: "temurin21-binaries"
+      repository: "temurin25-binaries"
       token: '{{ requiredEnv .github.token }}'
       branch: "main"
 
 sources:
-  latestJDK21Version:
+  latestJDK25Version:
     kind: temurin
-    name: Get the latest Adoptium JDK21 version via the API
+    name: Get the latest Adoptium JDK25 version via the API
     spec:
-      featureversion: 21
+      featureversion: 25
     transformers:
       - trimprefix: "jdk-"
 
 # Architectures must match those of the targets in docker-bake.hcl
 conditions:
   checkTemurinAllReleases:
-    name: Check if the "<latestJDK21Version>" is available for all platforms
+    name: Check if the "<latestJDK25Version>" is available for all platforms
     kind: temurin
-    sourceid: latestJDK21Version
+    sourceid: latestJDK25Version
     spec:
-      featureversion: 21
+      featureversion: 25
       platforms:
         - alpine-linux/x64
         - alpine-linux/aarch64
@@ -49,8 +49,8 @@ conditions:
         - windows/x64
 
 targets:
-  setJDK21VersionDockerBake:
-    name: "Bump JDK21 version for Linux images in the docker-bake.hcl file"
+  setJDK25VersionDockerBake:
+    name: "Bump JDK25 version for Linux images in the docker-bake.hcl file"
     kind: hcl
     transformers:
       - replacer:
@@ -58,15 +58,15 @@ targets:
           to: "_"
     spec:
       file: docker-bake.hcl
-      path: variable.JAVA21_VERSION.default
+      path: variable.JAVA25_VERSION.default
     scmid: default
 
 actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump JDK21 version to {{ source "latestJDK21Version" }}
+    title: Bump JDK25 version to {{ source "latestJDK25Version" }}
     spec:
       labels:
         - dependencies
-        - jdk21
+        - jdk25

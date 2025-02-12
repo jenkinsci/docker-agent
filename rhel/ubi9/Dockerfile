@@ -27,6 +27,8 @@ RUN case "$(jlink --version 2>&1)" in \
       "17."*) set -- "--compress=2" ;; \
       # the compression argument is different for JDK21
       "21."*) set -- "--compress=zip-6" ;; \
+      # the compression argument is different for JDK25
+      "25."*) set -- "--compress=zip-6" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
