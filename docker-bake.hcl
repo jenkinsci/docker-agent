@@ -58,7 +58,7 @@ group "linux-arm32" {
 
 group "linux-s390x" {
   targets = [
-    "debian_jdk21"
+    "debian_jdk21",
     "debian_jdk25"
   ]
 }
