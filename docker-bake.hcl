@@ -90,7 +90,7 @@ variable "JAVA21_VERSION" {
 }
 
 variable "JAVA25_VERSION" {
-  default = "25.0.0_1"
+  default = "25+9-ea-beta"
 }
 
 variable "REMOTING_VERSION" {

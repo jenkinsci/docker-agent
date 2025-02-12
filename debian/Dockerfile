@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 ARG DEBIAN_RELEASE=bookworm-20250203
-FROM debian:"${DEBIAN_RELEASE}"-slim as jre-build
+FROM debian:"${DEBIAN_RELEASE}"-slim AS jre-build
 
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
 
@@ -47,17 +47,14 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 # while still saving space (approx 200mb from the full distribution)
 RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
     case "$(jlink --version 2>&1)" in \
-      "17."*) set -- "--compress=2" ;; \
-      # the compression argument is different for JDK21
-      "21."*) set -- "--compress=zip-6" ;; \
-      # the compression argument is different for JDK25
-      "25."*) set -- "--compress=zip-6" ;; \
+      "17."*) options="--compress=2 --add-modules ALL-MODULE-PATH" ;; \
+      "21."*) options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
+      "25"*) options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
-    esac; \
+    esac && \
     jlink \
       --strip-java-debug-attributes \
-      "$1" \
-      --add-modules ALL-MODULE-PATH \
+      ${options} \
       --no-man-pages \
       --no-header-files \
       --output /javaruntime; \
@@ -103,7 +100,7 @@ ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
 
 ENV JAVA_HOME=/opt/java/openjdk
 COPY --from=jre-build /javaruntime "$JAVA_HOME"
