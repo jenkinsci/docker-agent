@@ -1,21 +1,21 @@
 [CmdletBinding()]
 Param(
     [Parameter(Position = 1)]
-    # Default build.ps1 target
+# Default build.ps1 target
     [String] $Target = 'build',
-    # Remoting version to include
+# Remoting version to include
     [String] $RemotingVersion = '3283.v92c105e0f819',
-    # Type of agent ("agent" or "inbound-agent")
+# Type of agent ("agent" or "inbound-agent")
     [String] $AgentType = '',
-    # Windows flavor and windows version to build
+# Windows flavor and windows version to build
     [String] $ImageType = 'nanoserver-ltsc2019',
-    # Image build number
+# Image build number
     [String] $BuildNumber = '1',
-    # Generate a docker compose file even if it already exists
+# Generate a docker compose file even if it already exists
     [switch] $OverwriteDockerComposeFile = $false,
-    # Print the build and publish command instead of executing them if set
+# Print the build and publish command instead of executing them if set
     [switch] $DryRun = $false,
-    # Output debug info for tests: 'empty' (no additional test output), 'debug' (test cmd & stderr outputed), 'verbose' (test cmd, stderr, stdout outputed)
+# Output debug info for tests: 'empty' (no additional test output), 'debug' (test cmd & stderr outputed), 'verbose' (test cmd, stderr, stdout outputed)
     [String] $TestsDebug = ''
 )
 
@@ -175,7 +175,8 @@ Test-CommandExists 'yq'
 
 foreach($agentType in $AgentTypes) {
     $dockerComposeFile = 'build-windows_{0}_{1}.yaml' -f $AgentType, $ImageType
-    $baseDockerCmd = '{0} build --parallel --pull' -f $baseDockerCmd
+    $baseDockerCmd = 'docker-compose --file={0}' -f $dockerComposeFile
+    $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
     # Generate the docker compose file if it doesn't exists or if the parameter OverwriteDockerComposeFile is set
     if ((Test-Path $dockerComposeFile) -and -not $OverwriteDockerComposeFile) {
