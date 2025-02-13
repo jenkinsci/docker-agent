@@ -51,7 +51,7 @@ RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
       "21."*) options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
       "25"*) options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
-    esac && \
+    esac; \
     jlink \
       --strip-java-debug-attributes \
       ${options} \
