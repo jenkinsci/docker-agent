@@ -24,17 +24,17 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
 RUN case "$(jlink --version 2>&1)" in \
-    "17."*) options="--compress=2 --add-modules ALL-MODULE-PATH" ;; \
-    "21."*) options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
-    "25"*) options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
-    *) echo "Unsupported Java version ($(jlink --version 2>&1))" && exit 1 ;; \
-esac && \
-jlink \
-    --strip-java-debug-attributes \
-    ${options} \
-    --no-man-pages \
-    --no-header-files \
-    --output /javaruntime
+      "17."*) options="--compress=2 --add-modules ALL-MODULE-PATH" ;; \
+      "21."*) options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
+      "25"*) options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
+      *) echo "Unsupported Java version ($(jlink --version 2>&1))" && exit 1 ;; \
+    esac && \
+    jlink \
+      --strip-java-debug-attributes \
+      ${options} \
+      --no-man-pages \
+      --no-header-files \
+      --output /javaruntime
 
 FROM registry.access.redhat.com/ubi9/ubi:"${UBI9_TAG}" AS agent
 
