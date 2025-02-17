@@ -321,12 +321,10 @@ target "rhel_ubi9" {
       "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-rhel-ubi9-jdk${jdk}${equal(jdk, 25) ? "-preview" : ""}"
       : "",
     # If there is a tag and if the jdk is the default one, add versioned short tag
-      equal(ON_TAG, "true") ? (is_default_jdk(jdk) ?
-      "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-rhel-ubi9${equal(jdk, 25) ? "-preview" : ""}" :
-      "") : "",
+      equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-rhel-ubi9" : "") : "",
     # If the jdk is the default one, add rhel and latest short tags
-      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:rhel-ubi9${equal(jdk, 25) ? "-preview" : ""}" : "",
-      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-rhel-ubi9${equal(jdk, 25) ? "-preview" : ""}" : "",
+      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:rhel-ubi9" : "",
+      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-rhel-ubi9" : "",
     "${REGISTRY}/${orgrepo(type)}:rhel-ubi9-jdk${jdk}${equal(jdk, 25) ? "-preview" : ""}",
     "${REGISTRY}/${orgrepo(type)}:latest-rhel-ubi9-jdk${jdk}${equal(jdk, 25) ? "-preview" : ""}",
   ]
