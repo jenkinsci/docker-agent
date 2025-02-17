@@ -253,19 +253,13 @@ target "alpine" {
       "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk${jdk}${equal(jdk, 25) ? "-preview" : ""}"
       : "",
     # If there is a tag and if the jdk is the default one, add Alpine short tags
-      equal(ON_TAG, "true") ? (is_default_jdk(jdk) ?
-      "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${equal(jdk, 25) ? "-preview" : ""}" : "")
-      : "",
-      equal(ON_TAG, "true") ? (is_default_jdk(jdk) ?
-      "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}${equal(jdk, 25) ? "-preview" : ""}"
-      : "") : "",
+      equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine" : "") : "",
+      equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}" : "") : "",
     # If the jdk is the default one, add Alpine short tags
-      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:alpine${equal(jdk, 25) ? "-preview" : ""}" : "",
-      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:alpine${ALPINE_SHORT_TAG}${equal(jdk, 25) ? "-preview" : ""}"
-      : "",
-      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-alpine${equal(jdk, 25) ? "-preview" : ""}" : "",
-      is_default_jdk(jdk) ?
-      "${REGISTRY}/${orgrepo(type)}:latest-alpine${ALPINE_SHORT_TAG}${equal(jdk, 25) ? "-preview" : ""}" : "",
+      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:alpine" : "",
+      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:alpine${ALPINE_SHORT_TAG}" : "",
+      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-alpine" : "",
+      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-alpine${ALPINE_SHORT_TAG}" : "",
     "${REGISTRY}/${orgrepo(type)}:alpine-jdk${jdk}${equal(jdk, 25) ? "-preview" : ""}",
     "${REGISTRY}/${orgrepo(type)}:alpine${ALPINE_SHORT_TAG}-jdk${jdk}${equal(jdk, 25) ? "-preview" : ""}",
     "${REGISTRY}/${orgrepo(type)}:latest-alpine-jdk${jdk}${equal(jdk, 25) ? "-preview" : ""}",
