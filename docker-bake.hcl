@@ -288,12 +288,11 @@ target "debian" {
       "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk${jdk}${equal(jdk, 25) ? "-preview" : ""}" :
       "",
     # If there is a tag and if the jdk is the default one, add versioned short tag
-      equal(ON_TAG, "true") ? (is_default_jdk(jdk) ?
-      "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}${equal(jdk, 25) ? "-preview" : ""}" : "") : "",
+      equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}" : "") : "",
     # If the jdk is the default one, add Debian and latest short tags
-      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:bookworm${equal(jdk, 25) ? "-preview" : ""}" : "",
-      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest${equal(jdk, 25) ? "-preview" : ""}" : "",
-      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-bookworm${equal(jdk, 25) ? "-preview" : ""}" : "",
+      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:bookworm" : "",
+      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest" : "",
+      is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-bookworm" : "",
     "${REGISTRY}/${orgrepo(type)}:bookworm-jdk${jdk}${equal(jdk, 25) ? "-preview" : ""}",
     "${REGISTRY}/${orgrepo(type)}:jdk${jdk}${equal(jdk, 25) ? "-preview" : ""}",
     "${REGISTRY}/${orgrepo(type)}:latest-bookworm-jdk${jdk}${equal(jdk, 25) ? "-preview" : ""}",
