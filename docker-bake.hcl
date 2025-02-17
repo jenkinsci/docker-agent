@@ -354,11 +354,8 @@ target "nanoserver" {
       "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk${jdk}-nanoserver-${windows_version}${equal(jdk, 25) ? "-preview" : ""}"
       : "",
     # If there is a tag and if the jdk is the default one, add versioned and short tags
-      equal(ON_TAG, "true") ? (is_default_jdk(jdk) ?
-      "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-nanoserver-${windows_version}${equal(jdk, 25) ? "-preview" : ""}"
-      : "") : "",
-      equal(ON_TAG, "true") ? (is_default_jdk(jdk) ?
-      "${REGISTRY}/${orgrepo(type)}:nanoserver-${windows_version}${equal(jdk, 25) ? "-preview" : ""}" : "") : "",
+      equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-nanoserver-${windows_version}" : "") : "",
+      equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:nanoserver-${windows_version}" : "") : "",
     "${REGISTRY}/${orgrepo(type)}:jdk${jdk}-nanoserver-${windows_version}${equal(jdk, 25) ? "-preview" : ""}",
   ]
   platforms = ["windows/amd64"]
