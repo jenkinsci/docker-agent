@@ -123,7 +123,7 @@ variable "ON_TAG" {
 }
 
 variable "ALPINE_FULL_TAG" {
-  default = "3.21.2"
+  default = "3.21.3"
 }
 
 variable "ALPINE_SHORT_TAG" {
@@ -135,7 +135,7 @@ variable "DEBIAN_RELEASE" {
 }
 
 variable "UBI9_TAG" {
-  default = "9.5-1738814488"
+  default = "9.5-1739751568"
 }
 
 # Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function
