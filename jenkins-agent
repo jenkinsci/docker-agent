@@ -133,9 +133,21 @@ else
 		esac
 	fi
 
+	# Handle the -cert parameter
+	CERT=""
+	for arg in "$@"; do
+		if [ "$arg" = "-cert" ]; then
+			CERT_FILE=true
+		elif [ "$CERT_FILE" = true ]; then
+			CERT_CONTENT=$(cat "$arg")
+			CERT="-cert $CERT_CONTENT"
+			CERT_FILE=false
+		fi
+	done
+
 	#TODO: Handle the case when the command-line and Environment variable contain different values.
 	#It is fine it blows up for now since it should lead to an error anyway.
 
-        exec $JAVA_BIN $JAVA_OPTIONS -jar $AGENT_FILE $SECRET $AGENT_NAME $TUNNEL $URL $WORKDIR $WEB_SOCKET $DIRECT $PROTOCOLS $INSTANCE_IDENTITY $REMOTING_OPTS "$@"
+        exec $JAVA_BIN $JAVA_OPTIONS -jar $AGENT_FILE $SECRET $AGENT_NAME $TUNNEL $URL $WORKDIR $WEB_SOCKET $DIRECT $PROTOCOLS $INSTANCE_IDENTITY $CERT $REMOTING_OPTS "$@"
 
 fi
