@@ -91,6 +91,8 @@ ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
+# Copy the certificate file to the container
+COPY ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 ENV JAVA_HOME=/opt/java/openjdk
 COPY --from=jre-build /javaruntime "$JAVA_HOME"
@@ -133,4 +135,4 @@ LABEL \
     org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
     org.opencontainers.image.licenses="MIT"
 
-ENTRYPOINT ["/usr/local/bin/jenkins-agent"]
+ENTRYPOINT ["/usr/local/bin/jenkins-agent", "-cert", "@/etc/ssl/certs/ca-certificates.crt"]
