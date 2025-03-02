@@ -280,7 +280,7 @@ target "debian" {
 target "rhel_ubi9" {
   matrix = {
     type = agent_types_to_build
-    jdk  = [17, 21]
+    jdk  = jdks_to_build
   }
   name       = "${type}_rhel_ubi9_jdk${jdk}"
   target     = type
