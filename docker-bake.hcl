@@ -261,14 +261,14 @@ function "linux_tags" {
 
     # If the jdk is the default one, add distribution and latest short tags
     is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${distribution_name(distribution)}" : "",
-    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-${distribution_name(distribution)}" : "",
-    # ":latest" tag for the default distribution. For other distributions, duplicate tag above (not an issue, deduplicated at the end)
     is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest${distribution_suffix(distribution)}" : "",
+    # Needed for the ":latest-bookworm" case. For other distributions, result in the same tag as above (not an issue, deduplicated at the end)
+    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-${distribution_name(distribution)}" : "",
 
     # Tags always added
     "${REGISTRY}/${orgrepo(type)}:${distribution_name(distribution)}-jdk${preview_tag(jdk)}",
     "${REGISTRY}/${orgrepo(type)}:latest-${distribution_name(distribution)}-jdk${preview_tag(jdk)}",
-    # Short tags for the default distribution. For other distributions, duplicate tag above (not an issue, deduplicated at the end)
+    # ":jdkN" and ":latest-jdkN" short tags for the default distribution. For other distributions, result in the tags above (not an issue, deduplicated at the end)
     "${REGISTRY}/${orgrepo(type)}:${distribution_prefix(distribution)}jdk${preview_tag(jdk)}",
     "${REGISTRY}/${orgrepo(type)}:latest-${distribution_prefix(distribution)}jdk${preview_tag(jdk)}",
   ]
