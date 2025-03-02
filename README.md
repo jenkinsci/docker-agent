@@ -97,7 +97,7 @@ make every-build
 
 #### Other `make` targets
 
-`show` gives us a detailed view of the images that will be built, with the tags, platforms, and Dockerfiles.
+`show` (and `show-windows`) gives us a detailed view of the images that could be built, with all tags, platforms, and Dockerfiles.
 
 ```bash
 $ make show
