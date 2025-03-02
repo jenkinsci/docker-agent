@@ -74,6 +74,10 @@ variable "default_jdk" {
   default = 17
 }
 
+variable "jdks_in_preview" {
+  default = [25]
+}
+
 variable "JAVA17_VERSION" {
   default = "17.0.14_7"
 }
@@ -212,6 +216,77 @@ function "rhel_ubi9_platforms" {
   result = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
 }
 
+# Return the distribution followed by a dash if it is not the default distribution
+function distribution_prefix {
+  params = [distribution]
+  result = (equal("debian", distribution)
+    ? ""
+    : "${distribution}-")
+}
+
+# Return a dash followed by the distribution if it is not the default distribution
+function distribution_suffix {
+  params = [distribution]
+  result = (equal("debian", distribution)
+    ? ""
+    : "-${distribution}")
+}
+
+# Return the official name of the default distribution
+function distribution_name {
+  params = [distribution]
+  result = (equal("debian", distribution)
+    ? "bookworm"
+    : distribution)
+}
+
+# Return the tag suffixed by "-preview" if the jdk passed as parameter is in the jdks_in_preview list
+function preview_tag {
+  params = [jdk]
+  result = (contains(jdks_in_preview, jdk)
+    ? "${jdk}-preview"
+    : jdk)
+}
+
+# Return an array of tags depending on the agent type, the jdk and the Linux distribution passed as parameters
+function "linux_tags" {
+  params = [type, jdk, distribution]
+  result = [
+    ## All
+    # If there is a tag, add versioned tag suffixed by the jdk
+    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}${distribution_suffix(distribution)}-jdk${preview_tag(jdk)}" : "",
+
+    # If there is a tag and if the jdk is the default one, add versioned short tag
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}${distribution_suffix(distribution)}" : "") : "",
+
+    # If the jdk is the default one, add distribution and latest short tags
+    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${distribution_name(distribution)}" : "",
+    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-${distribution_name(distribution)}" : "",
+    # ":latest" tag for the default distribution. For other distributions, duplicate tag above (not an issue, deduplicated at the end)
+    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest${distribution_suffix(distribution)}" : "",
+
+    # Tags always added
+    "${REGISTRY}/${orgrepo(type)}:${distribution_name(distribution)}-jdk${preview_tag(jdk)}",
+    "${REGISTRY}/${orgrepo(type)}:latest-${distribution_name(distribution)}-jdk${preview_tag(jdk)}",
+    # Short tags for the default distribution. For other distributions, duplicate tag above (not an issue, deduplicated at the end)
+    "${REGISTRY}/${orgrepo(type)}:${distribution_prefix(distribution)}jdk${preview_tag(jdk)}",
+    "${REGISTRY}/${orgrepo(type)}:latest-${distribution_prefix(distribution)}jdk${preview_tag(jdk)}",
+  ]
+}
+
+# Return an array of tags depending on the agent type, the jdk and the flavor and version of Windows passed as parameters
+function "windows_tags" {
+  params = [type, jdk, flavor_and_version]
+  result = [
+    # If there is a tag, add versioned tag containing the jdk
+    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk${preview_tag(jdk)}-${flavor_and_version}" : "",
+    # If there is a tag and if the jdk is the default one, add versioned and short tags
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-${flavor_and_version}" : "") : "",
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${flavor_and_version}" : "") : "",
+    "${REGISTRY}/${orgrepo(type)}:jdk${preview_tag(jdk)}-${flavor_and_version}",
+  ]
+}
+
 target "alpine" {
   matrix = {
     type = agent_types_to_build
@@ -226,23 +301,7 @@ target "alpine" {
     VERSION      = REMOTING_VERSION
     JAVA_VERSION = "${javaversion(jdk)}"
   }
-  tags = [
-    # If there is a tag, add versioned tags suffixed by the jdk
-    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine-jdk${jdk}" : "",
-    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}-jdk${jdk}" : "",
-    # If there is a tag and if the jdk is the default one, add Alpine short tags
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine" : "") : "",
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-alpine${ALPINE_SHORT_TAG}" : "") : "",
-    # If the jdk is the default one, add Alpine short tags
-    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:alpine" : "",
-    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:alpine${ALPINE_SHORT_TAG}" : "",
-    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-alpine" : "",
-    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-alpine${ALPINE_SHORT_TAG}" : "",
-    "${REGISTRY}/${orgrepo(type)}:alpine-jdk${jdk}",
-    "${REGISTRY}/${orgrepo(type)}:alpine${ALPINE_SHORT_TAG}-jdk${jdk}",
-    "${REGISTRY}/${orgrepo(type)}:latest-alpine-jdk${jdk}",
-    "${REGISTRY}/${orgrepo(type)}:latest-alpine${ALPINE_SHORT_TAG}-jdk${jdk}",
-  ]
+  tags = concat(linux_tags(type, jdk, "alpine"), linux_tags(type, jdk, "alpine${ALPINE_SHORT_TAG}"))
   platforms = alpine_platforms(jdk)
 }
 
@@ -260,20 +319,7 @@ target "debian" {
     DEBIAN_RELEASE = DEBIAN_RELEASE
     JAVA_VERSION   = "${javaversion(jdk)}"
   }
-  tags = [
-    # If there is a tag, add versioned tag suffixed by the jdk
-    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk${jdk}" : "",
-    # If there is a tag and if the jdk is the default one, add versioned short tag
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}" : "") : "",
-    # If the jdk is the default one, add Debian and latest short tags
-    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:bookworm" : "",
-    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest" : "",
-    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-bookworm" : "",
-    "${REGISTRY}/${orgrepo(type)}:bookworm-jdk${jdk}",
-    "${REGISTRY}/${orgrepo(type)}:jdk${jdk}",
-    "${REGISTRY}/${orgrepo(type)}:latest-bookworm-jdk${jdk}",
-    "${REGISTRY}/${orgrepo(type)}:latest-jdk${jdk}",
-  ]
+  tags = linux_tags(type, jdk, "debian")
   platforms = debian_platforms(jdk)
 }
 
@@ -291,17 +337,7 @@ target "rhel_ubi9" {
     VERSION      = REMOTING_VERSION
     JAVA_VERSION = "${javaversion(jdk)}"
   }
-  tags = [
-    # If there is a tag, add versioned tag suffixed by the jdk
-    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-rhel-ubi9-jdk${jdk}" : "",
-    # If there is a tag and if the jdk is the default one, add versioned short tag
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-rhel-ubi9" : "") : "",
-    # If the jdk is the default one, add rhel and latest short tags
-    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:rhel-ubi9" : "",
-    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-rhel-ubi9" : "",
-    "${REGISTRY}/${orgrepo(type)}:rhel-ubi9-jdk${jdk}",
-    "${REGISTRY}/${orgrepo(type)}:latest-rhel-ubi9-jdk${jdk}",
-  ]
+  tags = linux_tags(type, jdk, "rhel-ubi9")
   platforms = rhel_ubi9_platforms(jdk)
 }
 
@@ -322,14 +358,7 @@ target "nanoserver" {
     WINDOWS_VERSION_TAG   = windows_version
   }
   target = type
-  tags = [
-    # If there is a tag, add versioned tag containing the jdk
-    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk${jdk}-nanoserver-${windows_version}" : "",
-    # If there is a tag and if the jdk is the default one, add versioned and short tags
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-nanoserver-${windows_version}" : "") : "",
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:nanoserver-${windows_version}" : "") : "",
-    "${REGISTRY}/${orgrepo(type)}:jdk${jdk}-nanoserver-${windows_version}",
-  ]
+  tags = windows_tags(type, jdk, "nanoserver-${windows_version}")
   platforms = ["windows/amd64"]
 }
 
@@ -350,13 +379,6 @@ target "windowsservercore" {
     WINDOWS_VERSION_TAG   = windows_version
   }
   target = type
-  tags = [
-    # If there is a tag, add versioned tag containing the jdk
-    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk${jdk}-windowsservercore-${windows_version}" : "",
-    # If there is a tag and if the jdk is the default one, add versioned and short tags
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-windowsservercore-${windows_version}" : "") : "",
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:windowsservercore-${windows_version}" : "") : "",
-    "${REGISTRY}/${orgrepo(type)}:jdk${jdk}-windowsservercore-${windows_version}",
-  ]
+  tags = windows_tags(type, jdk, "windowsservercore-${windows_version}")
   platforms = ["windows/amd64"]
 }
