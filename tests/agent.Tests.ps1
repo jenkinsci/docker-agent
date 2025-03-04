@@ -95,7 +95,8 @@ Describe "[$global:IMAGE_NAME] image has correct applications in the PATH" {
 
     It 'can create a long path' {
         $longPath = 'C:\temp\longpath\' + ('a' * 250)
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`New-Item -ItemType Directory -Path ${longPath}`""
+        $repository = 'https://github.com/jenkinsci/pipeline-model-definition-plugin.git'
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`New-Item -ItemType Directory -Path ${longPath} ; cd ${longPath} ; git clone ${repository}`""
         $exitCode | Should -Be 0
     }
 
