@@ -99,6 +99,9 @@ function Test-Image {
     $env:VERSION = "$RemotingVersion"
     $env:JAVA_VERSION = "$javaVersion"
 
+    # TOOD: remove
+    $env:TESTS_DEBUG = 'verbose'
+
     $targetPath = '.\target\{0}\{1}' -f $agentType, $imageTag
     if (Test-Path $targetPath) {
         Remove-Item -Recurse -Force $targetPath
