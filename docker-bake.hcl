@@ -101,7 +101,7 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20250203"
+  default = "bookworm-20250224"
 }
 
 variable "UBI9_TAG" {
@@ -199,7 +199,7 @@ function distribution_prefix {
   params = [distribution]
   result = (equal("debian", distribution)
     ? ""
-    : "${distribution}-")
+  : "${distribution}-")
 }
 
 # Return a dash followed by the distribution if it is not the default distribution
@@ -207,7 +207,7 @@ function distribution_suffix {
   params = [distribution]
   result = (equal("debian", distribution)
     ? ""
-    : "-${distribution}")
+  : "-${distribution}")
 }
 
 # Return the official name of the default distribution
@@ -215,7 +215,7 @@ function distribution_name {
   params = [distribution]
   result = (equal("debian", distribution)
     ? "bookworm"
-    : distribution)
+  : distribution)
 }
 
 # Return the tag suffixed by "-preview" if the jdk passed as parameter is in the jdks_in_preview list
@@ -223,7 +223,7 @@ function preview_tag {
   params = [jdk]
   result = (contains(jdks_in_preview, jdk)
     ? "${jdk}-preview"
-    : jdk)
+  : jdk)
 }
 
 # Return an array of tags depending on the agent type, the jdk and the Linux distribution passed as parameters
@@ -279,7 +279,7 @@ target "alpine" {
     VERSION      = REMOTING_VERSION
     JAVA_VERSION = "${javaversion(jdk)}"
   }
-  tags = concat(linux_tags(type, jdk, "alpine"), linux_tags(type, jdk, "alpine${ALPINE_SHORT_TAG}"))
+  tags      = concat(linux_tags(type, jdk, "alpine"), linux_tags(type, jdk, "alpine${ALPINE_SHORT_TAG}"))
   platforms = alpine_platforms(jdk)
 }
 
@@ -297,7 +297,7 @@ target "debian" {
     DEBIAN_RELEASE = DEBIAN_RELEASE
     JAVA_VERSION   = "${javaversion(jdk)}"
   }
-  tags = linux_tags(type, jdk, "debian")
+  tags      = linux_tags(type, jdk, "debian")
   platforms = debian_platforms(jdk)
 }
 
@@ -315,7 +315,7 @@ target "rhel_ubi9" {
     VERSION      = REMOTING_VERSION
     JAVA_VERSION = "${javaversion(jdk)}"
   }
-  tags = linux_tags(type, jdk, "rhel-ubi9")
+  tags      = linux_tags(type, jdk, "rhel-ubi9")
   platforms = rhel_ubi9_platforms(jdk)
 }
 
@@ -335,8 +335,8 @@ target "nanoserver" {
     VERSION               = REMOTING_VERSION
     WINDOWS_VERSION_TAG   = windows_version
   }
-  target = type
-  tags = windows_tags(type, jdk, "nanoserver-${windows_version}")
+  target    = type
+  tags      = windows_tags(type, jdk, "nanoserver-${windows_version}")
   platforms = ["windows/amd64"]
 }
 
@@ -356,7 +356,7 @@ target "windowsservercore" {
     VERSION               = REMOTING_VERSION
     WINDOWS_VERSION_TAG   = windows_version
   }
-  target = type
-  tags = windows_tags(type, jdk, "windowsservercore-${windows_version}")
+  target    = type
+  tags      = windows_tags(type, jdk, "windowsservercore-${windows_version}")
   platforms = ["windows/amd64"]
 }
