@@ -13,28 +13,6 @@ group "windows" {
   ]
 }
 
-group "linux-agent-only" {
-  targets = [
-    "agent_alpine_jdk17",
-    "agent_alpine_jdk21",
-    "agent_debian_jdk17",
-    "agent_debian_jdk21",
-    "agent_rhel_ubi9_jdk17",
-    "agent_rhel_ubi9_jdk21"
-  ]
-}
-
-group "linux-inbound-agent-only" {
-  targets = [
-    "inbound-agent_alpine_jdk17",
-    "inbound-agent_alpine_jdk21",
-    "inbound-agent_debian_jdk17",
-    "inbound-agent_debian_jdk21",
-    "inbound-agent_rhel_ubi9_jdk17",
-    "inbound-agent_rhel_ubi9_jdk21"
-  ]
-}
-
 group "linux-arm64" {
   targets = [
     "alpine_jdk21",
