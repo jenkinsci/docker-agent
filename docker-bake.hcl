@@ -45,7 +45,9 @@ variable "agent_types_to_build" {
 }
 
 variable "jdks_to_build" {
-  default = [17, 21]
+  # TODO: restore when fix and test are validated
+  # default = [17, 21]
+  default = [21]
 }
 
 variable "default_jdk" {
