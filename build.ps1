@@ -99,7 +99,7 @@ function Test-Image {
     $env:VERSION = "$RemotingVersion"
     $env:JAVA_VERSION = "$javaVersion"
 
-    # TOOD: remove
+    # TODO: remove before merging when the test is functional
     $env:TESTS_DEBUG = 'verbose'
 
     $targetPath = '.\target\{0}\{1}' -f $agentType, $imageTag
