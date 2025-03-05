@@ -51,6 +51,9 @@ every-build: check-reqs
 show:
 	@$(bake_cli) linux --print
 
+show-%:
+	@$(bake_cli) $* --print
+
 list: check-reqs
 	@set -x; make --silent show | jq -r '.target | path(.. | select(.platforms[] | contains("linux/$(ARCH)"))?) | add'
 
