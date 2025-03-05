@@ -88,15 +88,15 @@ Describe "[$global:IMAGE_NAME] image has correct applications in the PATH" {
         $stdout.Trim() | Should -Match "git-lfs/${global:GITLFSVERSION}"
     }
 
-    It 'does not include jenkins-agent.ps1 (inbound-agent)' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if (Test-Path C:/ProgramData/Jenkins/jenkins-agent.ps1) { exit -1 } else { exit 0 }`""
+    It 'can use git in a long path' {
+        $longPath = 'C:\' + ('a' * 250)
+        $repository = 'https://github.com/jenkinsci/pipeline-model-definition-plugin.git'
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`New-Item -ItemType Directory -Path ${longPath} ; cd ${longPath} ; git remote add origin $repository ; git fetch origin ; git checkout master || git checkout main`""
         $exitCode | Should -Be 0
     }
 
-    It 'can create a long path' {
-        $longPath = 'C:\temp\longpath\' + ('a' * 250)
-        $repository = 'https://github.com/jenkinsci/pipeline-model-definition-plugin.git'
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`New-Item -ItemType Directory -Path ${longPath} ; cd ${longPath} ; git clone ${repository}`""
+    It 'does not include jenkins-agent.ps1 (inbound-agent)' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if (Test-Path C:/ProgramData/Jenkins/jenkins-agent.ps1) { exit -1 } else { exit 0 }`""
         $exitCode | Should -Be 0
     }
 
