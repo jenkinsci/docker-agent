@@ -97,7 +97,7 @@ make every-build
 
 #### Other `make` targets
 
-`show` gives us a detailed view of the images that will be built, with the tags, platforms, and Dockerfiles.
+`show` (and `show-windows`) gives us a detailed view of the images that could be built, with tags, platforms, and Dockerfiles.
 
 ```bash
 $ make show
@@ -168,6 +168,36 @@ $ make show
       ]
     },
     [...]
+```
+
+To view all tags, set `ON_TAG` (and eventually `BUILD_NUMBER`):
+```bash
+$ ON_TAG=true BUILD_NUMBER=3 make show
+[...]
+  "target": {
+    "agent_alpine_jdk17": {
+      "context": ".",
+      "dockerfile": "alpine/Dockerfile",
+      "args": {
+        "ALPINE_TAG": "3.21.3",
+        "JAVA_VERSION": "17.0.14_7",
+        "VERSION": "3283.v92c105e0f819"
+      },
+      "tags": [
+        "docker.io/jenkins/agent:3283.v92c105e0f819-3-alpine-jdk17",
+        "docker.io/jenkins/agent:3283.v92c105e0f819-3-alpine3.21-jdk17",
+        "docker.io/jenkins/agent:3283.v92c105e0f819-3-alpine",
+        "docker.io/jenkins/agent:3283.v92c105e0f819-3-alpine3.21",
+        "docker.io/jenkins/agent:alpine",
+        "docker.io/jenkins/agent:alpine3.21",
+        "docker.io/jenkins/agent:latest-alpine",
+        "docker.io/jenkins/agent:latest-alpine3.21",
+        "docker.io/jenkins/agent:alpine-jdk17",
+        "docker.io/jenkins/agent:alpine3.21-jdk17",
+        "docker.io/jenkins/agent:latest-alpine-jdk17",
+        "docker.io/jenkins/agent:latest-alpine3.21-jdk17"
+      ],
+      [...]
 ```
 
 `bats` is a dependency target. It will update the [`bats` submodule](https://github.com/bats-core/bats-core) and run the tests.
