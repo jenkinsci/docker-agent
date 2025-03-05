@@ -1,9 +1,11 @@
 group "linux" {
-  targets = [
-    "alpine",
-    "debian",
-    "rhel_ubi9"
-  ]
+  # TODO: restore when fix and test are validated
+  # targets = [
+  #   "alpine",
+  #   "debian",
+  #   "rhel_ubi9"
+  # ]
+  targets = []
 }
 
 group "windows" {
@@ -167,8 +169,12 @@ function "windowsversions" {
   result = (notequal(WINDOWS_VERSION_OVERRIDE, "")
     ? [WINDOWS_VERSION_OVERRIDE]
     : (equal(flavor, "windowsservercore")
-      ? ["ltsc2019", "ltsc2022"]
-  : ["1809", "ltsc2019", "ltsc2022"]))
+      ? ["ltsc2022"]
+      # TODO: restore when fix and test are validated
+      # ? ["ltsc2019", "ltsc2022"]
+  : ["ltsc2019"]))
+  # TODO: restore when fix and test are validated
+  # : ["1809", "ltsc2019", "ltsc2022"]))
 }
 
 # Return array of agent type(s) to build
