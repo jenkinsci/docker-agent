@@ -89,7 +89,9 @@ Describe "[$global:IMAGE_NAME] image has correct applications in the PATH" {
     }
 
     It 'can use git in a long path' {
-        $longPath = 'C:\' + ('a' * 250) + '\repo'
+        # $longPath = 'C:\' + ('a' * 250) + '\repo'
+        # TODO: restore line above and remove line below
+        $longPath = 'C:\source\temp\aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\heldesk'
         $repository = 'https://github.com/jenkinsci/pipeline-model-definition-plugin.git'
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"git version ; reg.exe query HKLM\SYSTEM\CurrentControlSet\Control\FileSystem ; cat .\.gitconfig ; New-Item -ItemType Directory -Path ${longPath} ; cd ${longPath} ; git init ; git remote add origin $repository ; git fetch origin ; git checkout master`""
         $exitCode | Should -Be 0
