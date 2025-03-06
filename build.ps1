@@ -49,17 +49,11 @@ if (![String]::IsNullOrWhiteSpace($env:IMAGE_TYPE)) {
 }
 
 # TODO: remove after
-Write-Debug '== git config --system --list'
-Invoke-Expression 'git config --system --list'
-Invoke-Expression 'git config set --system core.longPaths=true'
-Write-Debug '== git config --system --list after setting core.longPaths=true'
-# Sanity checks
-Write-Debug '== git config --global --list'
-Invoke-Expression 'git config --global --list'
 Invoke-Expression 'git config set --global core.longPaths=true'
-Write-Debug '== git config --global --list'
-Invoke-Expression 'git config --global --list after setting core.longPaths=true'
+# Sanity checks
+Invoke-Expression 'git config --global --list'
 Invoke-Expression 'reg.exe query HKLM\SYSTEM\CurrentControlSet\Control\FileSystem'
+Invoke-Expression 'git config --system --list'
 
 # Ensure constant env vars used in docker-bake.hcl are defined
 $env:REMOTING_VERSION = "$RemotingVersion"
