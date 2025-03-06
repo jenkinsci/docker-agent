@@ -48,6 +48,8 @@ if (![String]::IsNullOrWhiteSpace($env:IMAGE_TYPE)) {
     $ImageType = $env:IMAGE_TYPE
 }
 
+# TODO: remove after
+Invoke-Expression 'git config set --system core.longPaths=true'
 # Sanity checks
 Invoke-Expression 'git config --global --list'
 Invoke-Expression 'reg.exe query HKLM\SYSTEM\CurrentControlSet\Control\FileSystem'
