@@ -48,6 +48,10 @@ if (![String]::IsNullOrWhiteSpace($env:IMAGE_TYPE)) {
     $ImageType = $env:IMAGE_TYPE
 }
 
+# Sanity checks
+Invoke-Expression 'git config --global --list'
+Invoke-Expression 'reg.exe query HKLM\SYSTEM\CurrentControlSet\Control\FileSystem'
+
 # Ensure constant env vars used in docker-bake.hcl are defined
 $env:REMOTING_VERSION = "$RemotingVersion"
 $env:BUILD_NUMBER = $BuildNumber
