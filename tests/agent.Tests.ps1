@@ -82,11 +82,11 @@ Describe "[$global:IMAGE_NAME] image has correct applications in the PATH" {
     #     $stdout.Trim() | Should -Match 'user.*jenkins'
     # }
 
-    # It 'has git-lfs (and thus git) installed' {
-    #     $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
-    #     $exitCode | Should -Be 0
-    #     $stdout.Trim() | Should -Match "git-lfs/${global:GITLFSVERSION}"
-    # }
+    It 'has git-lfs (and thus git) installed' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
+        $exitCode | Should -Be 0
+        $stdout.Trim() | Should -Match "git-lfs/${global:GITLFSVERSION}"
+    }
 
     It 'can use git in a long path' {
         # $longPath = 'C:\' + ('a' * 250) + '\repo'
