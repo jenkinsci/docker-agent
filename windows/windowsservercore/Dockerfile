@@ -49,7 +49,7 @@ COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 # TODO: restore to current version when the fix and the test are validated
-ARG GIT_VERSION=2.47.1
+ARG GIT_VERSION=2.46.0
 ARG GIT_PATCH_VERSION=1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     # The patch "windows.1" always have a different URL than the subsequent patch (ZIP filename is different)
