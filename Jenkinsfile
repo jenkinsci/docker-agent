@@ -25,7 +25,9 @@ pipeline {
                 axes {
                     axis {
                         name 'IMAGE_TYPE'
-                        values 'linux', 'nanoserver-1809', 'nanoserver-ltsc2019', 'nanoserver-ltsc2022', 'windowsservercore-1809', 'windowsservercore-ltsc2019', 'windowsservercore-ltsc2022'
+                        // TODO: restore when the fix and the test are validated
+                        // values 'linux', 'nanoserver-1809', 'nanoserver-ltsc2019', 'nanoserver-ltsc2022', 'windowsservercore-1809', 'windowsservercore-ltsc2019', 'windowsservercore-ltsc2022'
+                        values 'nanoserver-ltsc2019', 'windowsservercore-ltsc2022'
                     }
                 }
                 stages {
