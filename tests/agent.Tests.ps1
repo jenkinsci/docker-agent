@@ -55,7 +55,17 @@ Cleanup($global:CONTAINERNAME)
 # }
 
 Describe "[$global:IMAGE_NAME] image has correct applications in the PATH" {
-    BeforeAll {
+    # BeforeAll {
+    #     docker run --detach --interactive --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
+    #     Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+    # }
+
+    It 'can run docker' {
+        docker run --detach --interactive --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
+        $exitCode | Should -Be 0
+    }
+
+    It 'can use Is-ContainerRunning' {
         docker run --detach --interactive --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
@@ -89,6 +99,8 @@ Describe "[$global:IMAGE_NAME] image has correct applications in the PATH" {
     # }
 
     It 'can use git in a long path' {
+        docker run --detach --interactive --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
+        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
         # $longPath = 'C:\' + ('a' * 250) + '\repo'
         # TODO: restore line above and remove line below
         $longPath = 'C:\source\temp\aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\heldesk'
