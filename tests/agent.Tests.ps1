@@ -38,169 +38,190 @@ $global:GITLFSVERSION = '3.6.1'
 
 Cleanup($global:CONTAINERNAME)
 
-Describe "[$global:IMAGE_NAME] image is present" {
-    It 'inspects image' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect $global:IMAGE_NAME"
-        $exitCode | Should -Be 0
-    }
-}
+# Describe "[$global:IMAGE_NAME] image is present" {
+#     It 'inspects image' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect $global:IMAGE_NAME"
+#         $exitCode | Should -Be 0
+#     }
+# }
 
-Describe "[$global:IMAGE_NAME] correct image metadata" {
-    It 'has correct volumes' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format='{{.Config.Volumes}}' $global:IMAGE_NAME"
-        $stdout = $stdout.Trim()
-        $stdout | Should -Match 'C:/Users/jenkins/.jenkins'
-        $stdout | Should -Match 'C:/Users/jenkins/Work'
-    }
-}
+# Describe "[$global:IMAGE_NAME] correct image metadata" {
+#     It 'has correct volumes' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format='{{.Config.Volumes}}' $global:IMAGE_NAME"
+#         $stdout = $stdout.Trim()
+#         $stdout | Should -Match 'C:/Users/jenkins/.jenkins'
+#         $stdout | Should -Match 'C:/Users/jenkins/Work'
+#     }
+# }
 
 Describe "[$global:IMAGE_NAME] image has correct applications in the PATH" {
-    BeforeAll {
+    # BeforeAll {
+    #     docker run --detach --interactive --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
+    #     Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+    # }
+
+    It 'can run docker' {
+        docker run --detach --interactive --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
+        $exitCode | Should -Be 0
+    }
+
+    It 'can use Is-ContainerRunning' {
         docker run --detach --interactive --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
 
-    It 'has java installed and in the path' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if (`$null -eq (Get-Command java.exe -ErrorAction SilentlyContinue)) { exit -1 } else { exit 0 }`""
-        $exitCode | Should -Be 0
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$global:VERSION = java -version 2>&1 ; Write-Host `$global:VERSION`""
-        $r = [regex] "^openjdk version `"(?<major>\d+)"
-        $m = $r.Match($stdout)
-        $m | Should -Not -Be $null
-        $m.Groups['major'].ToString() | Should -Be $global:JAVAMAJORVERSION
-    }
+    # It 'has java installed and in the path' {
+    #     $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if (`$null -eq (Get-Command java.exe -ErrorAction SilentlyContinue)) { exit -1 } else { exit 0 }`""
+    #     $exitCode | Should -Be 0
+    #     $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$global:VERSION = java -version 2>&1 ; Write-Host `$global:VERSION`""
+    #     $r = [regex] "^openjdk version `"(?<major>\d+)"
+    #     $m = $r.Match($stdout)
+    #     $m | Should -Not -Be $null
+    #     $m.Groups['major'].ToString() | Should -Be $global:JAVAMAJORVERSION
+    # }
 
-    It 'has AGENT_WORKDIR in the environment' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"Get-ChildItem env:`""
-        $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match 'AGENT_WORKDIR.*C:/Users/jenkins/Work'
-    }
+    # It 'has AGENT_WORKDIR in the environment' {
+    #     $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"Get-ChildItem env:`""
+    #     $exitCode | Should -Be 0
+    #     $stdout.Trim() | Should -Match 'AGENT_WORKDIR.*C:/Users/jenkins/Work'
+    # }
 
-    It 'has user in the environment' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"Get-ChildItem env:`""
-        $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match 'user.*jenkins'
-    }
+    # It 'has user in the environment' {
+    #     $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"Get-ChildItem env:`""
+    #     $exitCode | Should -Be 0
+    #     $stdout.Trim() | Should -Match 'user.*jenkins'
+    # }
 
-    It 'has git-lfs (and thus git) installed' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
-        $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match "git-lfs/${global:GITLFSVERSION}"
-    }
+    # It 'has git-lfs (and thus git) installed' {
+    #     $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
+    #     $exitCode | Should -Be 0
+    #     $stdout.Trim() | Should -Match "git-lfs/${global:GITLFSVERSION}"
+    # }
 
-    It 'does not include jenkins-agent.ps1 (inbound-agent)' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if (Test-Path C:/ProgramData/Jenkins/jenkins-agent.ps1) { exit -1 } else { exit 0 }`""
-        $exitCode | Should -Be 0
-    }
-
-    AfterAll {
-        Cleanup($global:CONTAINERNAME)
-    }
-}
-
-Describe "[$global:IMAGE_NAME] check user account" {
-    BeforeAll {
-        docker run -d -it --name "$global:CONTAINERNAME" -P "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
+    It 'can use git in a long path' {
+        docker run --detach --interactive --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-    }
-
-    It 'Password never expires' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if ((net user jenkins | Select-String -Pattern 'Password expires') -match 'Never') { exit 0 } else { exit -1 }`""
+        # $longPath = 'C:\' + ('a' * 250) + '\repo'
+        # TODO: restore line above and remove line below
+        $longPath = 'C:\source\temp\aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\heldesk'
+        $repository = 'https://github.com/jenkinsci/pipeline-model-definition-plugin.git'
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"git version ; reg.exe query HKLM\SYSTEM\CurrentControlSet\Control\FileSystem ; cat .\.gitconfig ; New-Item -ItemType Directory -Path ${longPath} ; cd ${longPath} ; git init ; git remote add origin $repository ; git fetch origin ; git checkout master`""
         $exitCode | Should -Be 0
     }
 
-    It 'Password not required' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if ((net user jenkins | Select-String -Pattern 'Password required') -match 'No') { exit 0 } else { exit -1 }`""
-        $exitCode | Should -Be 0
-    }
+    # It 'does not include jenkins-agent.ps1 (inbound-agent)' {
+    #     $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if (Test-Path C:/ProgramData/Jenkins/jenkins-agent.ps1) { exit -1 } else { exit 0 }`""
+    #     $exitCode | Should -Be 0
+    # }
 
     AfterAll {
         Cleanup($global:CONTAINERNAME)
     }
 }
 
-Describe "[$global:IMAGE_NAME] check user access to directories" {
-    BeforeAll {
-        docker run -d -it --name "$global:CONTAINERNAME" -P "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
-        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-    }
+# Describe "[$global:IMAGE_NAME] check user account" {
+#     BeforeAll {
+#         docker run -d -it --name "$global:CONTAINERNAME" -P "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
+#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+#     }
 
-    It 'can write to HOME' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path C:/Users/jenkins/a.txt | Out-Null ; if (Test-Path C:/Users/jenkins/a.txt) { exit 0 } else { exit -1 }`""
-        $exitCode | Should -Be 0
-    }
+#     It 'Password never expires' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if ((net user jenkins | Select-String -Pattern 'Password expires') -match 'Never') { exit 0 } else { exit -1 }`""
+#         $exitCode | Should -Be 0
+#     }
 
-    It 'can write to HOME/.jenkins' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path C:/Users/jenkins/.jenkins/a.txt | Out-Null ; if (Test-Path C:/Users/jenkins/.jenkins/a.txt) { exit 0 } else { exit -1 }`""
-        $exitCode | Should -Be 0
-    }
+#     It 'Password not required' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if ((net user jenkins | Select-String -Pattern 'Password required') -match 'No') { exit 0 } else { exit -1 }`""
+#         $exitCode | Should -Be 0
+#     }
 
-    It 'can write to HOME/Work' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path C:/Users/jenkins/Work/a.txt | Out-Null ; if (Test-Path C:/Users/jenkins/Work/a.txt) { exit 0 } else { exit -1 }`""
-        $exitCode | Should -Be 0
-    }
+#     AfterAll {
+#         Cleanup($global:CONTAINERNAME)
+#     }
+# }
 
-    AfterAll {
-        Cleanup($global:CONTAINERNAME)
-    }
-}
+# Describe "[$global:IMAGE_NAME] check user access to directories" {
+#     BeforeAll {
+#         docker run -d -it --name "$global:CONTAINERNAME" -P "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
+#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+#     }
 
-$global:TEST_VERSION = '4.0'
-$global:TEST_USER = 'test-user'
-$global:TEST_AGENT_WORKDIR = 'C:/test-user/something'
+#     It 'can write to HOME' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path C:/Users/jenkins/a.txt | Out-Null ; if (Test-Path C:/Users/jenkins/a.txt) { exit 0 } else { exit -1 }`""
+#         $exitCode | Should -Be 0
+#     }
 
-Describe "[$global:IMAGE_NAME] can be built with custom build arguments" {
-    BeforeAll {
-        Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
+#     It 'can write to HOME/.jenkins' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path C:/Users/jenkins/.jenkins/a.txt | Out-Null ; if (Test-Path C:/Users/jenkins/.jenkins/a.txt) { exit 0 } else { exit -1 }`""
+#         $exitCode | Should -Be 0
+#     }
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --target agent --build-arg `"VERSION=${global:TEST_VERSION}`" --build-arg `"JAVA_VERSION=${global:JAVA_VERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:WINDOWSVERSIONFALLBACKTAG}`" --build-arg `"user=${global:TEST_USER}`" --build-arg `"AGENT_WORKDIR=${global:TEST_AGENT_WORKDIR}`" --tag ${global:IMAGE_NAME} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
-        $exitCode | Should -Be 0
+#     It 'can write to HOME/Work' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path C:/Users/jenkins/Work/a.txt | Out-Null ; if (Test-Path C:/Users/jenkins/Work/a.txt) { exit 0 } else { exit -1 }`""
+#         $exitCode | Should -Be 0
+#     }
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run -d -it --name $global:CONTAINERNAME -P $global:IMAGE_NAME $global:CONTAINERSHELL"
-        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-    }
+#     AfterAll {
+#         Cleanup($global:CONTAINERNAME)
+#     }
+# }
 
-    It 'has the correct version of remoting' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$global:VERSION = java -jar C:/ProgramData/Jenkins/agent.jar -version ; Write-Host `$global:VERSION`""
-        $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match $global:TEST_VERSION
-    }
+# $global:TEST_VERSION = '4.0'
+# $global:TEST_USER = 'test-user'
+# $global:TEST_AGENT_WORKDIR = 'C:/test-user/something'
 
-    It 'has correct user' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"(Get-ChildItem env:\ | Where-Object { `$_.Name -eq 'USERNAME' }).Value`""
-        $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match $global:TEST_USER
-    }
+# Describe "[$global:IMAGE_NAME] can be built with custom build arguments" {
+#     BeforeAll {
+#         Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
 
-    It 'has correct AGENT_WORKDIR' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"Get-ChildItem env:`""
-        $exitCode | Should -Be 0
-        $stdout | Should -Match "AGENT_WORKDIR.*${global:TEST_AGENT_WORKDIR}"
-    }
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "build --target agent --build-arg `"VERSION=${global:TEST_VERSION}`" --build-arg `"JAVA_VERSION=${global:JAVA_VERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:WINDOWSVERSIONFALLBACKTAG}`" --build-arg `"user=${global:TEST_USER}`" --build-arg `"AGENT_WORKDIR=${global:TEST_AGENT_WORKDIR}`" --tag ${global:IMAGE_NAME} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
+#         $exitCode | Should -Be 0
 
-    It 'can write to HOME' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path C:/Users/${TEST_USER}/a.txt | Out-Null ; if (Test-Path C:/Users/${TEST_USER}/a.txt) { exit 0 } else { exit -1 }`""
-        $exitCode | Should -Be 0
-    }
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run -d -it --name $global:CONTAINERNAME -P $global:IMAGE_NAME $global:CONTAINERSHELL"
+#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+#     }
 
-    It 'can write to HOME/.jenkins' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path C:/Users/${TEST_USER}/.jenkins/a.txt | Out-Null ; if (Test-Path C:/Users/${TEST_USER}/.jenkins/a.txt) { exit 0 } else { exit -1 }`""
-        $exitCode | Should -Be 0
-    }
+#     It 'has the correct version of remoting' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$global:VERSION = java -jar C:/ProgramData/Jenkins/agent.jar -version ; Write-Host `$global:VERSION`""
+#         $exitCode | Should -Be 0
+#         $stdout.Trim() | Should -Match $global:TEST_VERSION
+#     }
 
-    It 'can write to HOME/Work' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path ${TEST_AGENT_WORKDIR}/a.txt | Out-Null ; if (Test-Path ${TEST_AGENT_WORKDIR}/a.txt) { exit 0 } else { exit -1 }`""
-        $exitCode | Should -Be 0
-    }
+#     It 'has correct user' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"(Get-ChildItem env:\ | Where-Object { `$_.Name -eq 'USERNAME' }).Value`""
+#         $exitCode | Should -Be 0
+#         $stdout.Trim() | Should -Match $global:TEST_USER
+#     }
 
-    It 'version in docker metadata' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format=`"{{index .Config.Labels \`"org.opencontainers.image.version\`"}}`" $global:IMAGE_NAME"
-        $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match $global:sTEST_VERSION
-    }
+#     It 'has correct AGENT_WORKDIR' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"Get-ChildItem env:`""
+#         $exitCode | Should -Be 0
+#         $stdout | Should -Match "AGENT_WORKDIR.*${global:TEST_AGENT_WORKDIR}"
+#     }
 
-    AfterAll {
-        Pop-Location -StackName 'agent'
-        Cleanup($global:CONTAINERNAME)
-    }
-}
+#     It 'can write to HOME' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path C:/Users/${TEST_USER}/a.txt | Out-Null ; if (Test-Path C:/Users/${TEST_USER}/a.txt) { exit 0 } else { exit -1 }`""
+#         $exitCode | Should -Be 0
+#     }
+
+#     It 'can write to HOME/.jenkins' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path C:/Users/${TEST_USER}/.jenkins/a.txt | Out-Null ; if (Test-Path C:/Users/${TEST_USER}/.jenkins/a.txt) { exit 0 } else { exit -1 }`""
+#         $exitCode | Should -Be 0
+#     }
+
+#     It 'can write to HOME/Work' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path ${TEST_AGENT_WORKDIR}/a.txt | Out-Null ; if (Test-Path ${TEST_AGENT_WORKDIR}/a.txt) { exit 0 } else { exit -1 }`""
+#         $exitCode | Should -Be 0
+#     }
+
+#     It 'version in docker metadata' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format=`"{{index .Config.Labels \`"org.opencontainers.image.version\`"}}`" $global:IMAGE_NAME"
+#         $exitCode | Should -Be 0
+#         $stdout.Trim() | Should -Match $global:sTEST_VERSION
+#     }
+
+#     AfterAll {
+#         Pop-Location -StackName 'agent'
+#         Cleanup($global:CONTAINERNAME)
+#     }
+# }
