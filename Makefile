@@ -34,7 +34,16 @@ check-reqs:
 
 ## This function is specific to Jenkins infrastructure and isn't required in other contexts
 docker-init: check-reqs
-	@set -x; docker buildx create --use
+ifeq ($(CI),true)
+ifeq ($(wildcard /etc/buildkitd.toml),)
+	echo 'WARNING: /etc/buildkitd.toml not found, using default configuration.'
+	docker buildx create --use --bootstrap --driver docker-container
+else
+	docker buildx create --use --bootstrap --driver docker-container --config /etc/buildkitd.toml
+endif
+else
+	docker buildx create --use --bootstrap --driver docker-container
+endif
 	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
 build: check-reqs
