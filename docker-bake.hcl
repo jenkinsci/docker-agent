@@ -82,6 +82,10 @@ variable "default_jdk" {
   default = 17
 }
 
+variable "jdks_in_preview" {
+  default = [25]
+}
+
 variable "JAVA17_VERSION" {
   default = "17.0.14_7"
 }
@@ -95,7 +99,7 @@ variable "JAVA25_VERSION" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "3283.v92c105e0f819"
+  default = "3301.v4363ddcca_4e7"
 }
 
 variable "REGISTRY" {
@@ -131,11 +135,11 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20250203"
+  default = "bookworm-20250317"
 }
 
 variable "UBI9_TAG" {
-  default = "9.5-1739751568"
+  default = "9.5-1741850090"
 }
 
 # Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function
@@ -230,6 +234,77 @@ function "rhel_ubi9_platforms" {
   result = ["linux/amd64", "linux/arm64", "linux/ppc64le"]
 }
 
+# Return the distribution followed by a dash if it is not the default distribution
+function distribution_prefix {
+  params = [distribution]
+  result = (equal("debian", distribution)
+    ? ""
+  : "${distribution}-")
+}
+
+# Return a dash followed by the distribution if it is not the default distribution
+function distribution_suffix {
+  params = [distribution]
+  result = (equal("debian", distribution)
+    ? ""
+  : "-${distribution}")
+}
+
+# Return the official name of the default distribution
+function distribution_name {
+  params = [distribution]
+  result = (equal("debian", distribution)
+    ? "bookworm"
+  : distribution)
+}
+
+# Return the tag suffixed by "-preview" if the jdk passed as parameter is in the jdks_in_preview list
+function preview_tag {
+  params = [jdk]
+  result = (contains(jdks_in_preview, jdk)
+    ? "${jdk}-preview"
+  : jdk)
+}
+
+# Return an array of tags depending on the agent type, the jdk and the Linux distribution passed as parameters
+function "linux_tags" {
+  params = [type, jdk, distribution]
+  result = [
+    ## All
+    # If there is a tag, add versioned tag suffixed by the jdk
+    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}${distribution_suffix(distribution)}-jdk${preview_tag(jdk)}" : "",
+
+    # If there is a tag and if the jdk is the default one, add versioned short tag
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}${distribution_suffix(distribution)}" : "") : "",
+
+    # If the jdk is the default one, add distribution and latest short tags
+    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${distribution_name(distribution)}" : "",
+    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest${distribution_suffix(distribution)}" : "",
+    # Needed for the ":latest-bookworm" case. For other distributions, result in the same tag as above (not an issue, deduplicated at the end)
+    is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-${distribution_name(distribution)}" : "",
+
+    # Tags always added
+    "${REGISTRY}/${orgrepo(type)}:${distribution_name(distribution)}-jdk${preview_tag(jdk)}",
+    "${REGISTRY}/${orgrepo(type)}:latest-${distribution_name(distribution)}-jdk${preview_tag(jdk)}",
+    # ":jdkN" and ":latest-jdkN" short tags for the default distribution. For other distributions, result in the tags above (not an issue, deduplicated at the end)
+    "${REGISTRY}/${orgrepo(type)}:${distribution_prefix(distribution)}jdk${preview_tag(jdk)}",
+    "${REGISTRY}/${orgrepo(type)}:latest-${distribution_prefix(distribution)}jdk${preview_tag(jdk)}",
+  ]
+}
+
+# Return an array of tags depending on the agent type, the jdk and the flavor and version of Windows passed as parameters
+function "windows_tags" {
+  params = [type, jdk, flavor_and_version]
+  result = [
+    # If there is a tag, add versioned tag containing the jdk
+    equal(ON_TAG, "true") ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-jdk${preview_tag(jdk)}-${flavor_and_version}" : "",
+    # If there is a tag and if the jdk is the default one, add versioned and short tags
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${REMOTING_VERSION}-${BUILD_NUMBER}-${flavor_and_version}" : "") : "",
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${flavor_and_version}" : "") : "",
+    "${REGISTRY}/${orgrepo(type)}:jdk${preview_tag(jdk)}-${flavor_and_version}",
+  ]
+}
+
 target "alpine" {
   matrix = {
     type = agent_types_to_build
@@ -304,7 +379,7 @@ target "debian" {
 target "rhel_ubi9" {
   matrix = {
     type = agent_types_to_build
-    jdk = [17, 21, 25]
+    jdk  = jdks_to_build
   }
   name       = "${type}_rhel_ubi9_jdk${jdk}"
   target     = type

@@ -7,8 +7,7 @@ OPTIND=1
 
 target="build"
 build_number="1"
-remoting_version="3283.v92c105e0f819"
-disable_env_props=0
+remoting_version="3301.v4363ddcca_4e7"
 exit_result=0
 
 function exit_if_error() {
@@ -19,7 +18,7 @@ function exit_if_error() {
   fi
 }
 
-while getopts "t:r:b:d" opt; do
+while getopts "t:r:b" opt; do
   case "$opt" in
     t)
       target=$OPTARG
@@ -29,9 +28,6 @@ while getopts "t:r:b:d" opt; do
       ;;
     b)
       build_number=$OPTARG
-      ;;
-    d)
-      disable_env_props=1
       ;;
     *)
       echo "Invalid flag passed: '${opt}'."
@@ -44,11 +40,6 @@ shift "$((OPTIND - 1 ))"
 if [[ $# -gt 0 ]] ; then
   target=$1
   shift
-fi
-
-if [[ "${disable_env_props}" = "0" ]] ; then
-  source env.props
-  export "$(cut -d= -f1 env.props)"
 fi
 
 export REGISTRY_ORG=${DOCKERHUB_ORGANISATION:-jenkins4eval}
