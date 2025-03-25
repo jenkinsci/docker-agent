@@ -48,6 +48,13 @@ if (![String]::IsNullOrWhiteSpace($env:IMAGE_TYPE)) {
     $ImageType = $env:IMAGE_TYPE
 }
 
+# TODO: remove after
+Invoke-Expression 'git config set --global core.longPaths=true'
+# Sanity checks
+Invoke-Expression 'git config --global --list'
+Invoke-Expression 'reg.exe query HKLM\SYSTEM\CurrentControlSet\Control\FileSystem'
+Invoke-Expression 'git config --system --list'
+
 # Ensure constant env vars used in docker-bake.hcl are defined
 $env:REMOTING_VERSION = "$RemotingVersion"
 $env:BUILD_NUMBER = $BuildNumber
@@ -98,6 +105,9 @@ function Test-Image {
     $env:IMAGE_NAME = $imageName
     $env:VERSION = "$RemotingVersion"
     $env:JAVA_VERSION = "$javaVersion"
+
+    # TODO: remove before merging when the test is functional
+    $env:TESTS_DEBUG = 'verbose'
 
     $targetPath = '.\target\{0}\{1}' -f $agentType, $imageTag
     if (Test-Path $targetPath) {
