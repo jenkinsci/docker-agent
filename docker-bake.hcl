@@ -408,8 +408,8 @@ target "rhel_ubi9" {
 
 target "nanoserver" {
   matrix = {
-    type = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
-    jdk = jdks_to_build
+    type                       = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
+    jdk                         = jdks_to_build
     windows_version = windowsversions("nanoserver")
   }
   name       = "${type}_nanoserver-${windows_version}_jdk${jdk}"
