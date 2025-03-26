@@ -27,12 +27,6 @@ if (![String]::IsNullOrWhiteSpace($env:TESTS_DEBUG)) {
 }
 # $env:TESTS_DEBUG = $TestsDebug
 $env:TESTS_DEBUG = $true
-# Skip if the ImageType is not "nanoserver-ltsc2019" or "windowsservercore-ltsc2019"
-if ($env:IMAGE_TYPE -ne 'nanoserver-ltsc2019' -and $env:IMAGE_TYPE -ne 'windowsservercore-ltsc2019') {
-    Write-Host 'DEBUG: Skipping build other than "nanoserver-ltsc2019" or "windowsservercore-ltsc2019" for now'
-    exit 0
-}
-
 
 if (![String]::IsNullOrWhiteSpace($env:AGENT_TYPE)) {
     $AgentType = $env:AGENT_TYPE
