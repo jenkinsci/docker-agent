@@ -25,8 +25,7 @@ $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downl
 if (![String]::IsNullOrWhiteSpace($env:TESTS_DEBUG)) {
     $TestsDebug = $env:TESTS_DEBUG
 }
-# $env:TESTS_DEBUG = $TestsDebug
-$env:TESTS_DEBUG = $true
+$env:TESTS_DEBUG = $TestsDebug
 
 if (![String]::IsNullOrWhiteSpace($env:AGENT_TYPE)) {
     $AgentType = $env:AGENT_TYPE
