@@ -45,7 +45,7 @@ parallelStages = [failFast: false]
     'windowsservercore-ltsc2019',
     'windowsservercore-ltsc2022'
 ].each { imageType ->
-    parallelStages["Building ${imageType}"] = {
+    parallelStages[imageType] = {
         withEnv(["IMAGE_TYPE=${imageType}"]) {
             int retryCounter = 0
             retry(count: 2, conditions: [kubernetesAgent(handleNonKubernetes: true), nonresumable()]) {
@@ -54,6 +54,7 @@ parallelStages = [failFast: false]
                 retryCounter++
                 node(resolvedAgentLabel) {
                     timeout(time: 60, unit: 'MINUTES') {
+                        checkout scm
                         if (imageType == "linux") {
                             stage('Prepare Docker') {
                                 sh 'make docker-init'
