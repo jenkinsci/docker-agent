@@ -55,9 +55,6 @@ build-%:
 	@set -x; $(bake_cli) '$*' --set '*.platform=linux/$(ARCH)'
 
 every-build: check-reqs
-# TODO: remove
-	@echo 'DEBUG: Skipping linux builds for now'
-	@exit 0
 	@set -x; $(bake_base_cli) linux
 
 show:

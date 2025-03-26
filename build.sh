@@ -47,10 +47,6 @@ export REGISTRY_REPO_AGENT=${DOCKERHUB_REPO_AGENT:-agent}
 export REGISTRY_REPO_INBOUND_AGENT=${DOCKERHUB_REPO_INBOUND_AGENT:-inbound-agent}
 remoting_version=${REMOTING_VERSION:-${remoting_version}}
 
-# TODO: remove
-echo 'DEBUG: Skipping linux builds for now'
-exit 0
-
 if [[ "${target}" = "build" ]] ; then
   make show
   make build
