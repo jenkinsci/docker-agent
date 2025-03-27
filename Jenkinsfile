@@ -46,7 +46,7 @@ parallelStages = [failFast: false]
     'windowsservercore-ltsc2022'
 ].each { imageType ->
     parallelStages[imageType] = {
-        withEnv(["IMAGE_TYPE=${imageType}"]) {
+        withEnv(["IMAGE_TYPE=${imageType}", "REGISTRY_ORG=${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"]) {
             int retryCounter = 0
             retry(count: 2, conditions: [kubernetesAgent(handleNonKubernetes: true), nonresumable()]) {
                 // Use local variable to manage concurrency and increment BEFORE spinning up any agent
