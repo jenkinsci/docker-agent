@@ -1,3 +1,11 @@
+final String cronExpr = env.BRANCH_IS_PRIMARY ? '@daily' : ''
+
+properties([
+    buildDiscarder(logRotator(numToKeepStr: '10')),
+    disableConcurrentBuilds(abortPrevious: true),
+    pipelineTriggers([cron(cronExpr)]),
+])
+
 def agentSelector(String imageType) {
     // Linux agent
     if (imageType == 'linux') {
@@ -17,93 +25,82 @@ def agentSelector(String imageType) {
     return 'windows-2019'
 }
 
-pipeline {
-    agent none
-
-    options {
-        buildDiscarder(logRotator(daysToKeepStr: '10'))
+// Ref. https://github.com/jenkins-infra/pipeline-library/pull/917
+def spotAgentSelector(String agentLabel, int counter) {
+    if (counter > 1) {
+        return agentLabel + ' && nonspot'
     }
 
-    stages {
-        stage('Pipeline') {
-            matrix {
-                axes {
-                    axis {
-                        name 'IMAGE_TYPE'
-                        values 'linux', 'nanoserver-1809', 'nanoserver-ltsc2019', 'nanoserver-ltsc2022', 'windowsservercore-1809', 'windowsservercore-ltsc2019', 'windowsservercore-ltsc2022'
-                    }
-                }
-                stages {
-                    stage('Main') {
-                        agent {
-                            label agentSelector(env.IMAGE_TYPE)
-                        }
-                        options {
-                            timeout(time: 60, unit: 'MINUTES')
-                        }
-                        environment {
-                            REGISTRY_ORG = "${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"
-                        }
-                        stages {
+    return agentLabel + ' && spot'
+}
+
+// Specify parallel stages
+parallelStages = [failFast: false]
+[
+    'linux',
+    'nanoserver-1809',
+    'nanoserver-ltsc2019',
+    'nanoserver-ltsc2022',
+    'windowsservercore-1809',
+    'windowsservercore-ltsc2019',
+    'windowsservercore-ltsc2022'
+].each { imageType ->
+    parallelStages[imageType] = {
+        withEnv(["IMAGE_TYPE=${imageType}", "REGISTRY_ORG=${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"]) {
+            int retryCounter = 0
+            retry(count: 2, conditions: [kubernetesAgent(handleNonKubernetes: true), nonresumable()]) {
+                // Use local variable to manage concurrency and increment BEFORE spinning up any agent
+                final String resolvedAgentLabel = spotAgentSelector(agentSelector(imageType), retryCounter)
+                retryCounter++
+                node(resolvedAgentLabel) {
+                    timeout(time: 60, unit: 'MINUTES') {
+                        checkout scm
+                        if (imageType == "linux") {
                             stage('Prepare Docker') {
-                                when {
-                                    environment name: 'IMAGE_TYPE', value: 'linux'
-                                }
-                                steps {
-                                    sh 'make docker-init'
-                                }
+                                sh 'make docker-init'
                             }
-                            stage('Build and Test') {
-                                // This stage is the "CI" and should be run on all code changes triggered by a code change
-                                when {
-                                    not { buildingTag() }
-                                }
-                                steps {
-                                    script {
-                                        if (isUnix()) {
-                                            sh './build.sh'
-                                            sh './build.sh test'
-                                            // If the tests are passing for Linux AMD64, then we can build all the CPU architectures
-                                            sh 'make every-build'
-                                        } else {
-                                            powershell '& ./build.ps1 test'
-                                        }
-                                    }
-                                }
-                                post {
-                                    always {
-                                        archiveArtifacts artifacts: 'build-windows_*.yaml', allowEmptyArchive: true
-                                        junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results*.xml')
-                                    }
-                                }
-                            }
+                        }
+                        // This function is defined in the jenkins-infra/pipeline-library
+                        if (infra.isTrusted()) {
+                            // trusted.ci.jenkins.io builds (e.g. publication to DockerHub)
                             stage('Deploy to DockerHub') {
-                                // This stage is the "CD" and should only be run when a tag triggered the build
-                                when {
-                                    buildingTag()
-                                }
-                                steps {
-                                    script {
-                                        def tagItems = env.TAG_NAME.split('-')
-                                        if(tagItems.length == 2) {
-                                            withEnv([
-                                                "ON_TAG=true",
-                                                "REMOTING_VERSION=${tagItems[0]}",
-                                                "BUILD_NUMBER=${tagItems[1]}",
-                                            ]) {
-                                                // This function is defined in the jenkins-infra/pipeline-library
-                                                infra.withDockerCredentials {
-                                                    if (isUnix()) {
-                                                        sh 'make publish'
-                                                    } else {
-                                                        powershell '& ./build.ps1 publish'
-                                                    }
-                                                }
+                                String[] tagItems = env.TAG_NAME.split('-')
+                                if(tagItems.length == 2) {
+                                    withEnv([
+                                        "ON_TAG=true",
+                                        "REMOTING_VERSION=${tagItems[0]}",
+                                        "BUILD_NUMBER=${tagItems[1]}",
+                                    ]) {
+                                        // This function is defined in the jenkins-infra/pipeline-library
+                                        infra.withDockerCredentials {
+                                            if (isUnix()) {
+                                                sh 'make publish'
+                                            } else {
+                                                powershell '& ./build.ps1 publish'
                                             }
-                                        } else {
-                                            error("The deployment to Docker Hub failed because the tag doesn't contain any '-'.")
                                         }
                                     }
+                                } else {
+                                    error("The deployment to Docker Hub failed because the tag doesn't contain any '-'.")
+                                }
+                            }
+                        } else {
+                            stage('Build and Test') {
+                                // ci.jenkins.io builds (e.g. no publication)
+                                if (isUnix()) {
+                                    sh './build.sh'
+                                    sh './build.sh test'
+                                } else {
+                                    powershell '& ./build.ps1 test'
+                                    archiveArtifacts artifacts: 'build-windows_*.yaml', allowEmptyArchive: true
+                                }
+                                junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results*.xml')
+                            }
+                            // If the tests are passing for Linux AMD64, then we can build all the CPU architectures
+                            if (isUnix()) {
+                                stage('Multi-Arch Build') {
+
+                                    sh 'make every-build'
                                 }
                             }
                         }
@@ -114,4 +111,6 @@ pipeline {
     }
 }
 
-// vim: ft=groovy
+// Execute parallel stages
+parallel parallelStages
+// // vim: ft=groovy
