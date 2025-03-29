@@ -88,6 +88,17 @@ Describe "[$global:IMAGE_NAME] image has correct applications in the PATH" {
         $stdout.Trim() | Should -Match "git-lfs/${global:GITLFSVERSION}"
     }
 
+    It 'can use git in a long path' {
+        # docker run --detach --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" "$global:CONTAINERSHELL"
+        # Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+        $longPath = 'C:\source\temp\' + ('a' * 200) + '\repo'
+        # TODO: restore line above and remove line below
+        # $longPath = 'C:\source\temp\aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\heldesk'
+        $repository = 'https://github.com/jenkinsci/pipeline-model-definition-plugin.git'
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"git version ; reg.exe query HKLM\SYSTEM\CurrentControlSet\Control\FileSystem ; cat .\.gitconfig ; New-Item -ItemType Directory -Path ${longPath} ; cd ${longPath} ; git init ; git remote add origin $repository ; git fetch origin ; git checkout master`""
+        $exitCode | Should -Be 0
+    }
+
     It 'does not include jenkins-agent.ps1 (inbound-agent)' {
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if (Test-Path C:/ProgramData/Jenkins/jenkins-agent.ps1) { exit -1 } else { exit 0 }`""
         $exitCode | Should -Be 0
