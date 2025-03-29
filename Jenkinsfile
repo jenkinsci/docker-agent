@@ -41,7 +41,7 @@ def spotAgentSelector(String agentLabel, int counter) {
 }
 
 // Specify parallel stages
-parallelStages = [failFast: false]
+def parallelStages = [failFast: false]
 [
     'linux',
     'nanoserver-1809',
