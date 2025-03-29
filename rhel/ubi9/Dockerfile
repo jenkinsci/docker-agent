@@ -65,7 +65,7 @@ ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
     && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
 
 ENV JAVA_HOME=/opt/java/openjdk
 COPY --from=jre-build /javaruntime "$JAVA_HOME"
