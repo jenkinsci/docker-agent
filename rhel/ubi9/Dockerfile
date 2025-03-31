@@ -1,4 +1,4 @@
-ARG UBI9_TAG=9.5-1741850090
+ARG UBI9_TAG=9.5-1742918310
 FROM registry.access.redhat.com/ubi9/ubi:"${UBI9_TAG}" AS jre-build
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
 
@@ -65,7 +65,7 @@ ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
     && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
 
 ENV JAVA_HOME=/opt/java/openjdk
 COPY --from=jre-build /javaruntime "$JAVA_HOME"
