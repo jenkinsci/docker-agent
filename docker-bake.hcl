@@ -65,7 +65,7 @@ variable "JAVA21_VERSION" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "3307.v632ed11b_3a_c7"
+  default = "3309.v27b_9314fd1a_4"
 }
 
 variable "REGISTRY" {

@@ -36,8 +36,8 @@ if [ -z "$response" ] || [ "$response" == "null" ]; then
   exit 1
 fi
 
-# Parse the JSON response using jq to find the version associated with the "latest" tag
-latest_tag=$(echo "$response" | jq -r '.data[].repositories[] | select(.tags[].name == "latest") | .tags[] | select(.name != "latest" and (.name | contains("-"))) | .name' | sort -u | xargs)
+# Parse the JSON response using jq to find the most recent version
+latest_tag=$(echo "$response" | jq -r '.data[].repositories[] | select(.tags[].name != "latest") | .tags[] | .name ' | sort -u | tail -n 1)
 
 # Check if the latest_tag is empty
 if [ -z "$latest_tag" ]; then
