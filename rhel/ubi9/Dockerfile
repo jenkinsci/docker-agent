@@ -1,4 +1,4 @@
-ARG UBI9_TAG=9.5-1744101466
+ARG UBI9_TAG=9.5-1745848351
 FROM registry.access.redhat.com/ubi9/ubi:"${UBI9_TAG}" AS jre-build
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
 
@@ -9,7 +9,7 @@ ARG TARGETPLATFORM
 COPY adoptium-get-jdk-link.sh /usr/bin/local/adoptium-get-jdk-link.sh
 COPY adoptium-install-jdk.sh /usr/bin/local/adoptium-install-jdk.sh
 
-ARG JAVA_VERSION=17.0.12_7
+ARG JAVA_VERSION=17.0.15_6
 
 RUN dnf install --disableplugin=subscription-manager --setopt=install_weak_deps=0 --setopt=tsflags=nodocs --allowerasing -y \
     ca-certificates \
