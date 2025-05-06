@@ -102,8 +102,9 @@ targets:
       kind: file
       spec:
         file: README.md
-        matchpattern: '"VERSION": "[0-9]+\.[a-zA-Z0-9_]+_[a-zA-Z0-9_]+-[0-9]+"'
-        replacepattern: '"VERSION": "{{ source "lastVersion" }}"'
+        matchpattern: >-
+          (.*)"VERSION":\s"(.*)".*
+        replacepattern: '$1"VERSION": "{{ source "lastVersion" }}"'
       scmid: default
 
 actions:
