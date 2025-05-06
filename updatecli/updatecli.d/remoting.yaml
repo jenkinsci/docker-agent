@@ -103,8 +103,8 @@ targets:
       spec:
         file: README.md
         matchpattern: >-
-          (.*)"VERSION":\s"(.*)".*
-        replacepattern: '$1"VERSION": "{{ source "lastVersion" }}"'
+          (.*)"VERSION":\s"(.*)"(.*)
+        replacepattern: '$1"VERSION": "{{ source "lastVersion" }}"$2'
       scmid: default
 
 actions:
