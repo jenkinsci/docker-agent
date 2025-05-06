@@ -75,6 +75,18 @@ targets:
         keyword: ARG
         matcher: JAVA_VERSION
     scmid: default
+  setJDK17VersionReadme:
+    name: "Bump JDK17 version in README.md file"
+    kind: file
+    transformers:
+      - replacer:
+          from: "+"
+          to: "_"
+    spec:
+      file: README.md
+      matchpattern: '"JAVA_VERSION": "(17.*)"(.*)'
+      replacepattern: '"JAVA_VERSION": "{{ source "lastVersion" }}"$2'
+    scmid: default
 
 actions:
   default:
