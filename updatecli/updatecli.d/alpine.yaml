@@ -64,6 +64,22 @@ targets:
       file: docker-bake.hcl
       path: variable.ALPINE_FULL_TAG.default
     scmid: default
+  updateReadmeAlpineTag:
+    name: "Update the ALPINE_TAG value in the README.md file"
+    kind: file
+    spec:
+      file: README.md
+      matchpattern: '"ALPINE_TAG": "3\.[0-9]+\.[0-9]+"'
+      replacepattern: '"ALPINE_TAG": "{{ source "latestVersion" }}"'
+    scmid: default
+  updateReadmeAlpineTags:
+    name: "Update the Alpine version in the image tags in the README.md file"
+    kind: file
+    spec:
+      file: README.md
+      matchpattern: 'alpine3\.[0-9]+'
+      replacepattern: 'alpine{{ regexReplaceAll "^(3\\.[0-9]+).*$" (source "latestVersion") "${1}" }}'
+    scmid: default
 actions:
   default:
     kind: github/pullrequest
