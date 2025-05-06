@@ -85,7 +85,7 @@ function Test-Image {
         [String] $AgentTypeAndImageName
     )
 
-    # Ex: agent|docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019|21.0.3_9
+    # Ex: agent|docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019|21.0.7_6
     $items = $AgentTypeAndImageName.Split('|')
     $agentType = $items[0]
     $imageName = $items[1] -replace 'docker.io/', ''
