@@ -49,28 +49,30 @@ targets:
       file: docker-bake.hcl
       path: variable.JAVA17_VERSION.default
     scmid: default
-  setJDK17VersionAlpine:
-    name: "Bump JDK17 default ARG version on Alpine Dockerfile"
+  ## Update Dockerfiles default JAVA_VERSION argument as JDK17 is the current default Java version
+  setJDK17VersionLinux:
+    name: "Bump JDK17 default ARG version in Linux images"
     kind: dockerfile
     transformers:
       - replacer:
           from: "+"
           to: "_"
     spec:
-      file: alpine/Dockerfile
+      files:
+        - alpine/Dockerfile
+        - debian/Dockerfile
+        - rhel/ubi9/Dockerfile
       instruction:
         keyword: ARG
         matcher: JAVA_VERSION
     scmid: default
-  setJDK17VersionDebian:
-    name: "Bump JDK17 default ARG version on Debian Dockerfile"
+  setJDK17VersionWindows:
+    name: "Bump JDK17 default ARG version in Windows images"
     kind: dockerfile
-    transformers:
-      - replacer:
-          from: "+"
-          to: "_"
     spec:
-      file: debian/Dockerfile
+      files:
+        - windows/nanoserver/Dockerfile
+        - windows/windowsservercore/Dockerfile
       instruction:
         keyword: ARG
         matcher: JAVA_VERSION
