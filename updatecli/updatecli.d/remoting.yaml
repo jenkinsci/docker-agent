@@ -97,6 +97,15 @@ targets:
       replacepattern: >-
         $$RemotingVersion${1}= '{{ source "lastVersion" }}',
     scmid: default
+  updateReadmeRemotingVersion:
+      name: "Update the remoting version in the README.md file"
+      kind: file
+      spec:
+        file: README.md
+        matchpattern: >-
+          (.*)"VERSION":\s"(.*)"(.*)
+        replacepattern: '$1"VERSION": "{{ source "lastVersion" }}"$2'
+      scmid: default
 
 actions:
   default:
