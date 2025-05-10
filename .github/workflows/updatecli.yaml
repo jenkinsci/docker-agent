@@ -3,8 +3,7 @@ on:
   # Allow to be run manually
   workflow_dispatch:
   schedule:
-    # Run once per week (to avoid alert fatigue)
-    - cron: '0 2 * * 1' # Every Monday at 2am UTC
+    - cron: '0 1 * * *' # Once a day at 01:00am UTC
   push:
   pull_request:
 jobs:
