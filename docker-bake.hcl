@@ -23,7 +23,8 @@ group "linux-arm64" {
 
 group "linux-arm32" {
   targets = [
-    "debian_jdk17"
+    "debian_jdk17",
+    "debian_jdk25"
   ]
 }
 
@@ -45,7 +46,7 @@ variable "agent_types_to_build" {
 }
 
 variable "jdks_to_build" {
-  default = [17, 21]
+  default = [17, 21, 25]
 }
 
 variable "default_jdk" {
@@ -62,6 +63,10 @@ variable "JAVA17_VERSION" {
 
 variable "JAVA21_VERSION" {
   default = "21.0.7_6"
+}
+
+variable "JAVA25_VERSION" {
+  default = "25.0.0_1"
 }
 
 variable "REMOTING_VERSION" {
@@ -136,7 +141,9 @@ function "javaversion" {
   params = [jdk]
   result = (equal(17, jdk)
     ? "${JAVA17_VERSION}"
-  : "${JAVA21_VERSION}")
+  : (equal(21, jdk)
+    ? "${JAVA21_VERSION}"
+  : "${JAVA25_VERSION}"))
 }
 
 ## Specific functions
@@ -153,7 +160,9 @@ function "debian_platforms" {
   params = [jdk]
   result = (equal(17, jdk)
     ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7"]
-  : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"])
+  : (equal(25, jdk)
+    ? ["linux/amd64", "linux/arm64"]
+  : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]))
 }
 
 # Return array of Windows version(s) to build
