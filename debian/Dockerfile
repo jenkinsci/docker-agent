@@ -55,6 +55,7 @@ RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
     jlink \
       --strip-java-debug-attributes \
       "$1" \
+      --module-path /opt/jdk-${JAVA_VERSION}/jmods \
       --add-modules ALL-MODULE-PATH \
       --no-man-pages \
       --no-header-files \
