@@ -138,12 +138,13 @@ function "is_default_jdk" {
 
 # Return the complete Java version corresponding to the jdk passed as parameter
 function "javaversion" {
-  params = [jdk]
-  result = (equal(17, jdk)
-    ? "${JAVA17_VERSION}"
-  : (equal(21, jdk)
-    ? "${JAVA21_VERSION}"
-  : "${JAVA25_VERSION}"))
+    params = [jdk]
+  jdk_versions = {
+    17 = "${JAVA17_VERSION}"
+    21 = "${JAVA21_VERSION}"
+    25 = "${JAVA25_VERSION}"
+  }
+  result = lookup(jdk_versions, jdk, "") == "" ? error("Unsupported JDK version") : lookup(jdk_versions, jdk, "")
 }
 
 ## Specific functions
