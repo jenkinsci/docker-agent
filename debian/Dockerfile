@@ -48,8 +48,8 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
     case "$(jlink --version 2>&1)" in \
       "17."*) set -- "--compress=2" ;; \
-      # the compression argument is different for JDK21
       "21."*) set -- "--compress=zip-6" ;; \
+      "25"*) set -- "--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
