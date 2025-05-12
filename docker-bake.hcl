@@ -162,7 +162,7 @@ function "debian_platforms" {
   result = (equal(17, jdk)
     ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7"]
   : (equal(25, jdk)
-    ? ["linux/amd64", "linux/arm64"]
+    ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]
   : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]))
 }
 
