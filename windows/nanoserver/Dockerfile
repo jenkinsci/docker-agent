@@ -32,7 +32,7 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 ARG JAVA_VERSION=17.0.15+6
 RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
     $javaMajorVersion = $env:JAVA_VERSION.substring(0,2) ; `
-    $msiUrl = 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk' -f $env:JAVA_VERSION.Replace('+', '%2B') ; `
+    $msiUrl = if ($javaMajorVersion -eq '25') { 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk&modules=java.base,java.logging,java.xml,java.se' -f $env:JAVA_VERSION.Replace('+', '%2B') } else { 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk' -f $env:JAVA_VERSION.Replace('+', '%2B') } ; `
     Invoke-WebRequest $msiUrl -OutFile 'C:\temp\jdk.msi' ; `
     $proc = Start-Process -FilePath 'msiexec.exe' -ArgumentList '/i', 'C:\temp\jdk.msi', '/L*V', 'C:\temp\OpenJDK.log', '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome',  "INSTALLDIR=C:\openjdk-${javaMajorVersion}" -Wait -Passthru ; `
     $proc.WaitForExit() ; `
@@ -45,14 +45,19 @@ FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-
 ## Agent image target
 FROM mcr.microsoft.com/windows/nanoserver:"${WINDOWS_VERSION_TAG}" AS agent
 
-ARG JAVA_HOME="C:\openjdk-17"
+ARG JAVA_VERSION=17.0.15+6
 ENV PSHOME="C:\Program Files\PowerShell"
 ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
+
+# Extract major version from JAVA_VERSION to determine JAVA_HOME path
+RUN $javaMajorVersion = $env:JAVA_VERSION.substring(0,2); `
+    $env:JAVA_HOME = "C:\openjdk-$javaMajorVersion"; `
+    [Environment]::SetEnvironmentVariable('JAVA_HOME', $env:JAVA_HOME, [EnvironmentVariableTarget]::Machine)
 
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
 COPY --from=jdk-core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
 COPY --from=jdk-core /windows/system32/whoami.exe /windows/system32/whoami.exe
-COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
+COPY --from=jdk-core $env:JAVA_HOME $env:JAVA_HOME
 COPY --from=pwsh-source $PSHOME $PSHOME
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
@@ -70,9 +75,12 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Remove-Item mingit.zip -Force
 
 ENV ProgramFiles="C:\Program Files" `
-    WindowsPATH="C:\Windows\system32;C:\Windows" `
-    JAVA_HOME="${JAVA_HOME}"
-ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
+    WindowsPATH="C:\Windows\system32;C:\Windows"
+
+# Update PATH to include the dynamic JAVA_HOME
+RUN $javaHome = [Environment]::GetEnvironmentVariable('JAVA_HOME', [EnvironmentVariableTarget]::Machine) ; `
+    $env:PATH = "$env:WindowsPATH;$env:ProgramFiles\PowerShell;$javaHome\bin;C:\mingit\cmd" ; `
+    [Environment]::SetEnvironmentVariable('PATH', $env:PATH, [EnvironmentVariableTarget]::Machine)
 
 ARG GIT_LFS_VERSION=3.6.1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
