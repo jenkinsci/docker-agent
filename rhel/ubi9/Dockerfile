@@ -16,15 +16,7 @@ RUN dnf install --disableplugin=subscription-manager --setopt=install_weak_deps=
     curl \
     jq \
     && dnf clean --disableplugin=subscription-manager all \
-    && /usr/bin/local/adoptium-install-jdk.sh \
-    && echo "Contents of /opt/jdk-${JAVA_VERSION}:" \
-    && ls -l /opt/jdk-${JAVA_VERSION} \
-    && if [ -d "/opt/jdk-${JAVA_VERSION}/jmods" ]; then \
-         echo "Contents of /opt/jdk-${JAVA_VERSION}/jmods:"; \
-         ls -l /opt/jdk-${JAVA_VERSION}/jmods; \
-       else \
-         echo "jmods directory does not exist for JDK ${JAVA_VERSION}"; \
-       fi
+    && /usr/bin/local/adoptium-install-jdk.sh
 
 ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 
