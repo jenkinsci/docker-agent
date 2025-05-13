@@ -31,14 +31,14 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ARG JAVA_VERSION=17.0.15+6
 RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
-    $javaMajorVersion = $env:JAVA_VERSION.substring(0,2) ; `
+    $javaMajorVersion = if ($env:JAVA_VERSION -replace '^([0-9]+).*$', '$1' ; `
     $msiUrl = if ($javaMajorVersion -eq '25') { 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk&modules=java.base,java.logging,java.xml,java.se' -f $env:JAVA_VERSION.Replace('+', '%2B') } else { 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk' -f $env:JAVA_VERSION.Replace('+', '%2B') } ; `
     Invoke-WebRequest $msiUrl -OutFile 'C:\temp\jdk.msi' ; `
     $proc = Start-Process -FilePath 'msiexec.exe' -ArgumentList '/i', 'C:\temp\jdk.msi', '/L*V', 'C:\temp\OpenJDK.log', '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome',  "INSTALLDIR=C:\openjdk-${javaMajorVersion}" -Wait -Passthru ; `
     $proc.WaitForExit() ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
 
-RUN powershell -Command "$javaMajorVersion = $env:JAVA_VERSION.substring(0,2); if ($javaMajorVersion -eq '17') { $options = '--compress=2 --add-modules ALL-MODULE-PATH' } elseif ($javaMajorVersion -eq '21') { $options = '--compress=zip-6 --add-modules ALL-MODULE-PATH' } elseif ($javaMajorVersion -eq '25') { $options = '--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se' } else { throw \"Unsupported Java version $env:JAVA_VERSION\" }; jlink --strip-java-debug-attributes $options --no-man-pages --no-header-files --output C:\javaruntime"
+RUN powershell -Command "$javaMajorVersion = if ($env:JAVA_VERSION -replace '^([0-9]+).*$', '$1'; if ($javaMajorVersion -eq '17') { $options = '--compress=2 --add-modules ALL-MODULE-PATH' } elseif ($javaMajorVersion -eq '21') { $options = '--compress=zip-6 --add-modules ALL-MODULE-PATH' } elseif ($javaMajorVersion -eq '25') { $options = '--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se' } else { throw \"Unsupported Java version $env:JAVA_VERSION\" }; jlink --strip-java-debug-attributes $options --no-man-pages --no-header-files --output C:\javaruntime"
 
 FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-source
 
@@ -50,7 +50,7 @@ ENV PSHOME="C:\Program Files\PowerShell"
 ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
 
 # Extract major version from JAVA_VERSION to determine JAVA_HOME path
-RUN $javaMajorVersion = $env:JAVA_VERSION.substring(0,2); `
+RUN $javaMajorVersion = if ($env:JAVA_VERSION -replace '^([0-9]+).*$', '$1'; `
     $env:JAVA_HOME = "C:\openjdk-$javaMajorVersion"; `
     [Environment]::SetEnvironmentVariable('JAVA_HOME', $env:JAVA_HOME, [EnvironmentVariableTarget]::Machine)
 
