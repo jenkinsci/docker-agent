@@ -48,17 +48,16 @@ RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
 
 RUN if ($env:JAVA_VERSION -like '17*') { `
         $javaMajorVersion = '17'; `
-        $options = '--compress=2 --add-modules ALL-MODULE-PATH'; `
+        & jlink --strip-java-debug-attributes --compress=2 --add-modules ALL-MODULE-PATH --no-man-pages --no-header-files --output C:\javaruntime; `
     } elseif ($env:JAVA_VERSION -like '21*') { `
         $javaMajorVersion = '21'; `
-        $options = '--compress=zip-6 --add-modules ALL-MODULE-PATH'; `
+        & jlink --strip-java-debug-attributes --compress=zip-6 --add-modules ALL-MODULE-PATH --no-man-pages --no-header-files --output C:\javaruntime; `
     } elseif ($env:JAVA_VERSION -like '25*') { `
         $javaMajorVersion = '25'; `
-        $options = '--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se'; `
+        & jlink --strip-java-debug-attributes --compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se --no-man-pages --no-header-files --output C:\javaruntime; `
     } else { `
         throw "Unsupported Java version $env:JAVA_VERSION"; `
-    }; `
-    jlink --strip-java-debug-attributes $options --no-man-pages --no-header-files --output C:\javaruntime
+    }
 
 FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-source
 
