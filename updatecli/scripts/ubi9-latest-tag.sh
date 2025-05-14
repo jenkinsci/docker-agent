@@ -37,7 +37,18 @@ if [ -z "$response" ] || [ "$response" == "null" ]; then
 fi
 
 # Parse the JSON response using jq to find the version associated with the "latest" tag
-latest_tag=$(echo "$response" | jq -r '.data[].repositories[] | select(.tags[].name == "latest") | .tags[] | select(.name != "latest" and (.name | contains("-"))) | .name' | sort -u | xargs)
+# - The response is expected to be a JSON object containing repository data.
+# - The script uses `jq` to:
+#   1. Iterate over all repositories in the `data` array.
+#   2. Select repositories where at least one tag has the name "latest".
+#   3. From those repositories, select tags that:
+#      - Do not have the name "latest".
+#      - Contain a hyphen in their name (indicating a long-form tag).
+#   4. Extract the `name` of the matching tags.
+#   5. Sort the tag names uniquely (`sort -u`).
+#   6. Take the last tag in the sorted list (`tail -n 1`), which is assumed to be the most recent valid tag.
+latest_tag=$(echo "$response" | jq -r '.data[].repositories[] | select(.tags[].name == "latest") | .tags[] | select(.name != "latest" and (.name | contains("-"))) | .name' | sort -u | tail -n 1)
+
 
 # Check if the latest_tag is empty
 if [ -z "$latest_tag" ]; then
