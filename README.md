@@ -64,12 +64,6 @@ That would give for an image of an inbound agent with JDK 17 on Debian:
 make build-inbound-agent_debian_jdk17
 ```
 
-That would give for an image of an inbound agent with JDK 25 on Debian:
-
-```bash
-make build-inbound-agent_debian_jdk25
-```
-
 #### Building images supported by your current architecture
 
 Then, you can build the images supported by your current architecture by running:
