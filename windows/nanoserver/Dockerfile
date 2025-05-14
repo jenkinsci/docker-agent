@@ -65,26 +65,17 @@ FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-
 FROM mcr.microsoft.com/windows/nanoserver:"${WINDOWS_VERSION_TAG}" AS agent
 
 ARG JAVA_VERSION=17.0.15+6
+ARG JAVA_HOME=C:/openjdk-17
+ENV JAVA_VERSION=${JAVA_VERSION}
+ENV JAVA_HOME=${JAVA_HOME}
 ENV PSHOME="C:\Program Files\PowerShell"
 ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
-
-# Extract major version from JAVA_VERSION to determine JAVA_HOME path
-RUN if ($env:JAVA_VERSION -like '17*') { `
-        $javaMajorVersion = '17'; `
-    } elseif ($env:JAVA_VERSION -like '21*') { `
-        $javaMajorVersion = '21'; `
-    } elseif ($env:JAVA_VERSION -like '25*') { `
-        $javaMajorVersion = '25'; `
-    } else { `
-        throw "Unsupported Java version $env:JAVA_VERSION"; `
-    }; `
-    $env:JAVA_HOME = "C:\openjdk-$javaMajorVersion"; `
-    [Environment]::SetEnvironmentVariable('JAVA_HOME', $env:JAVA_HOME, [EnvironmentVariableTarget]::Machine)
 
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
 COPY --from=jdk-core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
 COPY --from=jdk-core /windows/system32/whoami.exe /windows/system32/whoami.exe
-COPY --from=jdk-core $env:JAVA_HOME $env:JAVA_HOME
+# Copy Java from jdk-core
+COPY --from=jdk-core ${JAVA_HOME} ${JAVA_HOME}
 COPY --from=pwsh-source $PSHOME $PSHOME
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
@@ -104,10 +95,8 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
 ENV ProgramFiles="C:\Program Files" `
     WindowsPATH="C:\Windows\system32;C:\Windows"
 
-# Update PATH to include the dynamic JAVA_HOME
-RUN $javaHome = [Environment]::GetEnvironmentVariable('JAVA_HOME', [EnvironmentVariableTarget]::Machine) ; `
-    $env:PATH = "$env:WindowsPATH;$env:ProgramFiles\PowerShell;$javaHome\bin;C:\mingit\cmd" ; `
-    [Environment]::SetEnvironmentVariable('PATH', $env:PATH, [EnvironmentVariableTarget]::Machine)
+# Update PATH to include JAVA_HOME
+ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
 ARG GIT_LFS_VERSION=3.6.1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
