@@ -31,46 +31,22 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ARG JAVA_VERSION=17.0.15+6
 RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
-    if ($env:JAVA_VERSION -like '17*') { `
-        $javaMajorVersion = '17'; `
-    } elseif ($env:JAVA_VERSION -like '21*') { `
-        $javaMajorVersion = '21'; `
-    } elseif ($env:JAVA_VERSION -like '25*') { `
-        $javaMajorVersion = '25'; `
-    } else { `
-        throw "Unsupported Java version $env:JAVA_VERSION"; `
-    }; `
-    $msiUrl = if ($javaMajorVersion -eq '25') { 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk&modules=java.base,java.logging,java.xml,java.se' -f $env:JAVA_VERSION.Replace('+', '%2B') } else { 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk' -f $env:JAVA_VERSION.Replace('+', '%2B') } ; `
+    $javaMajorVersion = $env:JAVA_VERSION.substring(0,2) ; `
+    $msiUrl = 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk' -f $env:JAVA_VERSION.Replace('+', '%2B') ; `
     Invoke-WebRequest $msiUrl -OutFile 'C:\temp\jdk.msi' ; `
     $proc = Start-Process -FilePath 'msiexec.exe' -ArgumentList '/i', 'C:\temp\jdk.msi', '/L*V', 'C:\temp\OpenJDK.log', '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome',  "INSTALLDIR=C:\openjdk-${javaMajorVersion}" -Wait -Passthru ; `
     $proc.WaitForExit() ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
 
-RUN if ($env:JAVA_VERSION -like '17*') { `
-        $javaMajorVersion = '17'; `
-        & jlink --strip-java-debug-attributes --compress=2 --add-modules ALL-MODULE-PATH --no-man-pages --no-header-files --output C:\javaruntime; `
-    } elseif ($env:JAVA_VERSION -like '21*') { `
-        $javaMajorVersion = '21'; `
-        & jlink --strip-java-debug-attributes --compress=zip-6 --add-modules ALL-MODULE-PATH --no-man-pages --no-header-files --output C:\javaruntime; `
-    } elseif ($env:JAVA_VERSION -like '25*') { `
-        $javaMajorVersion = '25'; `
-        & jlink --strip-java-debug-attributes --compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se --no-man-pages --no-header-files --output C:\javaruntime; `
-    } else { `
-        throw "Unsupported Java version $env:JAVA_VERSION"; `
-    }
-
 ## Agent image target
 FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS agent
 
-ARG JAVA_VERSION=17.0.15+6
-ARG JAVA_HOME=C:/openjdk-17
-ENV JAVA_VERSION=${JAVA_VERSION}
+ARG JAVA_HOME="C:\openjdk-17"
 ENV JAVA_HOME=${JAVA_HOME}
-ENV PSHOME="C:\Program Files\PowerShell"
 
-COPY --from=jdk-core ${JAVA_HOME} ${JAVA_HOME}
+COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
 
-SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 ARG GIT_VERSION=2.49.0
 ARG GIT_PATCH_VERSION=1
@@ -83,11 +59,10 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
     Remove-Item mingit.zip -Force
 
-ENV ProgramFiles="C:\Program Files" `
-    WindowsPATH="C:\Windows\system32;C:\Windows"
-
-# Update PATH to include JAVA_HOME
-ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
+# Add git and java in PATH
+RUN $CurrentPath = (Get-Itemproperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path).Path ; `
+    $NewPath = $CurrentPath + $(';{0}\bin;C:\mingit\cmd' -f $env:JAVA_HOME) ; `
+    Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath
 
 ARG GIT_LFS_VERSION=3.6.1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
@@ -160,4 +135,4 @@ LABEL `
     org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" `
     org.opencontainers.image.licenses="MIT"
 
-ENTRYPOINT ["pwsh.exe", "-f", "C:/ProgramData/Jenkins/jenkins-agent.ps1"]
+ENTRYPOINT ["powershell.exe", "-f", "C:/ProgramData/Jenkins/jenkins-agent.ps1"]
