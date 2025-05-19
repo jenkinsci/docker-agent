@@ -96,7 +96,7 @@ ENV ProgramFiles="C:\Program Files"
 ENV WindowsPATH="C:\Windows\system32;C:\Windows"
 
 # Update PATH to include JAVA_HOME
-ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
+ENV PATH="${WindowsPATH};${PSHOME};${JAVA_HOME}\bin;C:\mingit\cmd"
 
 ARG GIT_LFS_VERSION=3.6.1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
