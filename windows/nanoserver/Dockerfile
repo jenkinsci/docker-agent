@@ -92,8 +92,8 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
     Remove-Item mingit.zip -Force
 
-ENV ProgramFiles="C:\Program Files" `
-    WindowsPATH="C:\Windows\system32;C:\Windows"
+ENV ProgramFiles="C:\Program Files"
+ENV WindowsPATH="C:\Windows\system32;C:\Windows"
 
 # Update PATH to include JAVA_HOME
 ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
