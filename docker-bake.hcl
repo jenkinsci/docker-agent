@@ -126,6 +126,14 @@ variable "WINDOWS_AGENT_TYPE_OVERRIDE" {
   default = ""
 }
 
+variable "jdk_versions" {
+  default = {
+    17 = JAVA17_VERSION
+    21 = JAVA21_VERSION
+    25 = JAVA25_VERSION
+  }
+}
+
 ## Common functions
 # Return the registry organization and repository depending on the agent type
 function "orgrepo" {
@@ -142,13 +150,7 @@ function "is_default_jdk" {
 # Return the complete Java version corresponding to the jdk passed as parameter
 function "javaversion" {
   params = [jdk]
-  result = (equal(17, jdk)
-    ? "${JAVA17_VERSION}"
-    : (equal(21, jdk)
-      ? "${JAVA21_VERSION}"
-      : (equal(25, jdk)
-        ? "${JAVA25_VERSION}"
-        : "Unsupported JDK version")))
+  result = lookup(jdk_versions, jdk, "Unsupported JDK version")
 }
 
 ## Specific functions
