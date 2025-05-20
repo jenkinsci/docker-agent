@@ -157,9 +157,9 @@ function "javaversion" {
 # Return an array of Alpine platforms to use depending on the jdk passed as parameter
 function "alpine_platforms" {
   params = [jdk]
-  result = (equal(21, jdk) || equal(25, jdk)
-    ? ["linux/amd64", "linux/arm64"]
-  : ["linux/amd64"])
+  result = (equal(17, jdk)
+    ? ["linux/amd64"]
+  : ["linux/amd64", "linux/arm64"])
 }
 
 # Return an array of Debian platforms to use depending on the jdk passed as parameter

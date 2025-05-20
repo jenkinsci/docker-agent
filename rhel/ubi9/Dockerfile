@@ -81,7 +81,6 @@ ENV USER=${user}
 LABEL \
   org.opencontainers.image.vendor="Jenkins project" \
   org.opencontainers.image.title="Official Jenkins Agent Base container image for UBI 9" \
-  org.opencontainers.image.title="Official Jenkins Agent Base container image for UBI 9" \
   org.opencontainers.image.description="This is a base image, which provides the Jenkins agent executable (agent.jar)" \
   org.opencontainers.image.version="${VERSION}" \
   org.opencontainers.image.url="https://www.jenkins.io/" \
