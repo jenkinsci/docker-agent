@@ -48,6 +48,10 @@ variable "jdks_to_build" {
   default = [17, 21, 25]
 }
 
+variable "windows_jdks_to_build" {
+  default = [17, 21]
+}
+
 variable "default_jdk" {
   default = 17
 }
@@ -330,7 +334,7 @@ target "rhel_ubi9" {
 target "nanoserver" {
   matrix = {
     type            = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
-    jdk             = jdks_to_build
+    jdk             = windows_jdks_to_build
     windows_version = windowsversions("nanoserver")
   }
   name       = "${type}_nanoserver-${windows_version}_jdk${jdk}"
@@ -351,7 +355,7 @@ target "nanoserver" {
 target "windowsservercore" {
   matrix = {
     type            = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
-    jdk             = jdks_to_build
+    jdk             = windows_jdks_to_build
     windows_version = windowsversions("windowsservercore")
   }
   name       = "${type}_windowsservercore-${windows_version}_jdk${jdk}"
