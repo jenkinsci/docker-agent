@@ -9,7 +9,7 @@
 #  copies of the Software, and to permit persons to whom the Software is
 #  furnished to do so, subject to the following conditions:
 #
-#  The above copyright notice and this permission notice shall be included in
+#  The above copyright notice and this permission shall be included in
 #  all copies or substantial portions of the Software.
 #
 #  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -47,21 +47,19 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 # while still saving space (approx 200mb from the full distribution)
 RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
     case "$(jlink --version 2>&1)" in \
-      "17."*) set -- "--compress=2" ;; \
-      # the compression argument is different for JDK21
-      "21."*) set -- "--compress=zip-6" ;; \
-      *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
+      "17."*) options="--compress=2 --add-modules ALL-MODULE-PATH" ;; \
+      "21."*) options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
+      "25"*) options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
+      *) echo "Unsupported Java version ($(jlink --version 2>&1))" && exit 1 ;; \
     esac; \
     jlink \
       --strip-java-debug-attributes \
-      "$1" \
-      --add-modules ALL-MODULE-PATH \
+      ${options} \
+      --module-path /opt/jdk-${JAVA_VERSION}/jmods \
       --no-man-pages \
       --no-header-files \
       --output /javaruntime; \
   else \
-    # It is acceptable to have a larger image in arm/v7 (arm 32 bits) environment.
-    # Because jlink fails with the error "jmods: Value too large for defined data type" error.
     cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
   fi
 
