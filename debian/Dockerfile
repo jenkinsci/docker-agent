@@ -45,23 +45,25 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
-RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
-    case "$(jlink --version 2>&1)" in \
+RUN case "$(jlink --version 2>&1)" in \
       "17."*) options="--compress=2 --add-modules ALL-MODULE-PATH" ;; \
       "21."*) options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
       "25"*) options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
       *) echo "Unsupported Java version ($(jlink --version 2>&1))" && exit 1 ;; \
     esac; \
-    jlink \
+    # Add memory constraint for armv7 architecture
+    if [[ "${TARGETPLATFORM}" == "linux/arm/v7" ]]; then \
+      jlink_opts="-J-Xmx512M"; \
+    else \
+      jlink_opts=""; \
+    fi; \
+    jlink ${jlink_opts} \
       --strip-java-debug-attributes \
       ${options} \
       --module-path /opt/jdk-${JAVA_VERSION}/jmods \
       --no-man-pages \
       --no-header-files \
-      --output /javaruntime; \
-  else \
-    cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
-  fi
+      --output /javaruntime
 
 ## Agent image target
 FROM debian:"${DEBIAN_RELEASE}"-slim AS agent
