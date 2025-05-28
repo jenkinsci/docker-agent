@@ -32,22 +32,16 @@ If you want to see the target images (matching your current architecture) that w
 $ make list
 agent_alpine_jdk17
 agent_alpine_jdk21
-agent_alpine_jdk25
 agent_debian_jdk17
 agent_debian_jdk21
-agent_debian_jdk25
 agent_rhel_ubi9_jdk17
 agent_rhel_ubi9_jdk21
-agent_rhel_ubi9_jdk25
 inbound-agent_alpine_jdk17
 inbound-agent_alpine_jdk21
-inbound-agent_alpine_jdk25
 inbound-agent_debian_jdk17
 inbound-agent_debian_jdk21
-inbound-agent_debian_jdk25
 inbound-agent_rhel_ubi9_jdk17
 inbound-agent_rhel_ubi9_jdk21
-inbound-agent_rhel_ubi9_jdk25
 ```
 
 #### Building a specific image
@@ -113,20 +107,16 @@ $ make show
       "targets": [
         "agent_alpine_jdk17",
         "agent_alpine_jdk21",
-        "agent_alpine_jdk25",
         "inbound-agent_alpine_jdk17",
-        "inbound-agent_alpine_jdk21",
-        "inbound-agent_alpine_jdk25"
+        "inbound-agent_alpine_jdk21"
       ]
     },
     "debian": {
       "targets": [
         "agent_debian_jdk17",
         "agent_debian_jdk21",
-        "agent_debian_jdk25",
         "inbound-agent_debian_jdk17",
-        "inbound-agent_debian_jdk21",
-        "inbound-agent_debian_jdk25"
+        "inbound-agent_debian_jdk21"
       ]
     },
     "default": {
@@ -145,10 +135,8 @@ $ make show
       "targets": [
         "agent_rhel_ubi9_jdk17",
         "agent_rhel_ubi9_jdk21",
-        "agent_rhel_ubi9_jdk25",
         "inbound-agent_rhel_ubi9_jdk17",
-        "inbound-agent_rhel_ubi9_jdk21",
-        "inbound-agent_rhel_ubi9_jdk25"
+        "inbound-agent_rhel_ubi9_jdk21"
       ]
     }
   },
@@ -271,9 +259,7 @@ Add the `-DryRun` parameter to print out any build, publish or tests commands in
 
 You can build (and test) only one image type by setting `-ImageType` to a combination of Windows flavors ("nanoserver" & "windowsservercore") and Windows versions ("1809", "ltsc2019", "ltsc2022").
 
-Examples:
-- For nanoserver: `.\build.ps1 -ImageType 'nanoserver-ltsc2019'`
-- For windowsservercore: `.\build.ps1 -ImageType 'windowsservercore-ltsc2019'`
+Ex: `.\build.ps1 -ImageType 'nanoserver-ltsc2019'`
 
 Warning: trying to build `windowsservercore-1809` will fail as there is no corresponding image from Microsoft.
 
