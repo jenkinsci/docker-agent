@@ -69,7 +69,7 @@ RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
     # It is acceptable to have a larger image in arm/v7 (arm 32 bits) environment.
     # Because jlink fails with the error "jmods: Value too large for defined data type" error.
     cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
-  fi \
+  fi
 
 ## Agent image target
 FROM debian:"${DEBIAN_RELEASE}"-slim AS agent
