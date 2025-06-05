@@ -145,7 +145,7 @@ $ make show
       "context": ".",
       "dockerfile": "alpine/Dockerfile",
       "args": {
-        "ALPINE_TAG": "3.21.3",
+        "ALPINE_TAG": "3.22.0",
         "JAVA_VERSION": "17.0.15_6",
         "VERSION": "3309.v27b_9314fd1a_4"
       },
@@ -154,10 +154,10 @@ $ make show
         "docker.io/jenkins/agent:latest-alpine",
         "docker.io/jenkins/agent:alpine-jdk17",
         "docker.io/jenkins/agent:latest-alpine-jdk17",
-        "docker.io/jenkins/agent:alpine3.21",
-        "docker.io/jenkins/agent:latest-alpine3.21",
-        "docker.io/jenkins/agent:alpine3.21-jdk17",
-        "docker.io/jenkins/agent:latest-alpine3.21-jdk17"
+        "docker.io/jenkins/agent:alpine3.22",
+        "docker.io/jenkins/agent:latest-alpine3.22",
+        "docker.io/jenkins/agent:alpine3.22-jdk17",
+        "docker.io/jenkins/agent:latest-alpine3.22-jdk17"
       ],
       "target": "agent",
       "platforms": [
@@ -183,7 +183,7 @@ $ ON_TAG=true BUILD_NUMBER=3 make show
       "context": ".",
       "dockerfile": "alpine/Dockerfile",
       "args": {
-        "ALPINE_TAG": "3.21.3",
+        "ALPINE_TAG": "3.22.0",
         "JAVA_VERSION": "17.0.15_6",
         "VERSION": "3309.v27b_9314fd1a_4"
       },
@@ -194,12 +194,12 @@ $ ON_TAG=true BUILD_NUMBER=3 make show
         "docker.io/jenkins/agent:latest-alpine",
         "docker.io/jenkins/agent:alpine-jdk17",
         "docker.io/jenkins/agent:latest-alpine-jdk17",
-        "docker.io/jenkins/agent:3309.v27b_9314fd1a_4-3-alpine3.21-jdk17",
-        "docker.io/jenkins/agent:3309.v27b_9314fd1a_4-3-alpine3.21",
-        "docker.io/jenkins/agent:alpine3.21",
-        "docker.io/jenkins/agent:latest-alpine3.21",
-        "docker.io/jenkins/agent:alpine3.21-jdk17",
-        "docker.io/jenkins/agent:latest-alpine3.21-jdk17"
+        "docker.io/jenkins/agent:3309.v27b_9314fd1a_4-3-alpine3.22-jdk17",
+        "docker.io/jenkins/agent:3309.v27b_9314fd1a_4-3-alpine3.22",
+        "docker.io/jenkins/agent:alpine3.22",
+        "docker.io/jenkins/agent:latest-alpine3.22",
+        "docker.io/jenkins/agent:alpine3.22-jdk17",
+        "docker.io/jenkins/agent:latest-alpine3.22-jdk17"
       ],
       [...]
 ```
