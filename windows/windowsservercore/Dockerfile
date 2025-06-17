@@ -46,8 +46,7 @@ RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
     Invoke-WebRequest $zipUrl -OutFile 'C:\temp\jdk.zip' ;
 RUN Expand-Archive C:\temp\jdk.zip -DestinationPath C:\ ;
 RUN Get-ChildItem -Path C:\ -Directory ;
-RUN $jdkDir = Get-ChildItem -Path C:\ -Directory -Filter "jdk-*" | Select-Object -First 1 ; `
-    Move-Item $jdkDir.FullName) "C:\openjdk-${javaMajorVersion}" ; `
+RUN Move-Item -Path (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination "C:\openjdk-${javaMajorVersion}" ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
 
 ## Agent image target
