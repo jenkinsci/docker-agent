@@ -31,7 +31,7 @@ FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS jdk-core
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-# ARG JAVA_VERSION=17.0.10+7
+ARG JAVA_VERSION=17.0.15+6
 # RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
 #     $javaMajorVersion = $env:JAVA_VERSION.substring(0,2) ; `
 #     $msiUrl = 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk' -f $env:JAVA_VERSION.Replace('+', '%2B') ; `
@@ -40,9 +40,10 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 #     $proc.WaitForExit() ; `
 #     Remove-Item -Path C:\temp -Recurse | Out-Null
 
-
+# https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_windows_hotspot_17.0.15_6.zip
+# 'https://github.com/adoptium/temurin${javaMajorVersion}-binaries/releases/download/jdk-{0}/OpenJDK17U-jdk_x64_windows_hotspot_{1}.zip' -f $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
 RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
-    $zipUrl = "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-${env:JAVA_VERSION}/OpenJDK17U-jdk_x64_windows_hotspot_${env:JAVA_VERSION}.zip"; `
+    $zipUrl = 'https://github.com/adoptium/temurin${javaMajorVersion}-binaries/releases/download/jdk-{0}/OpenJDK17U-jdk_x64_windows_hotspot_{1}.zip' -f $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
     Invoke-WebRequest $zipUrl -OutFile 'C:\temp\jdk.zip' ;
 RUN Expand-Archive C:\temp\jdk.zip -DestinationPath C:\ ;
 RUN Get-ChildItem -Path C:\ -Directory ;
