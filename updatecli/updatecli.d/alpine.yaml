@@ -27,6 +27,23 @@ sources:
         pattern: "~3"
     transformers:
       - trimprefix: "v"
+  majorMinorVersion:
+    kind: githubrelease
+    name: "Extract major and minor version from latest Alpine version"
+    spec:
+      owner: "alpinelinux"
+      repository: "aports" # Its release process follows Alpine's
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versionfilter:
+        kind: semver
+        pattern: "~3"
+    transformers:
+      - trimprefix: "v"
+      - findsubmatch:
+          pattern: >-
+            ^(3.*)\..*$
+          captureindex: 1
 
 conditions:
   testDockerfileArg:
@@ -57,6 +74,7 @@ targets:
         keyword: "ARG"
         matcher: "ALPINE_TAG"
     scmid: default
+    sourceid: latestVersion
   updateDockerBake:
     name: "Update the value of the base image (ARG ALPINE_TAG) in the docker-bake.hcl"
     kind: hcl
@@ -64,6 +82,27 @@ targets:
       file: docker-bake.hcl
       path: variable.ALPINE_FULL_TAG.default
     scmid: default
+    sourceid: latestVersion
+  updateReadmeAlpineTag:
+    name: "Update the ALPINE_TAG value in the README.md file"
+    kind: file
+    spec:
+      file: README.md
+      matchpattern: '"ALPINE_TAG": "3\.[0-9]+\.[0-9]+"'
+      replacepattern: '"ALPINE_TAG": "{{ source "latestVersion" }}"'
+    scmid: default
+    sourceid: latestVersion
+  updateReadmeAlpineShortTags:
+      name: "Update the Alpine version in the image tags in the README.md file"
+      kind: file
+      spec:
+        file: README.md
+        matchpattern: >-
+          alpine3\.[0-9]+
+        replacepattern: 'alpine{{ source "majorMinorVersion" }}'
+      scmid: default
+      sourceid: majorMinorVersion
+
 actions:
   default:
     kind: github/pullrequest

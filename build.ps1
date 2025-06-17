@@ -4,7 +4,7 @@ Param(
     # Default build.ps1 target
     [String] $Target = 'build',
     # Remoting version to include
-    [String] $RemotingVersion = '3301.v4363ddcca_4e7',
+    [String] $RemotingVersion = '3309.v27b_9314fd1a_4',
     # Type of agent ("agent" or "inbound-agent")
     [String] $AgentType = '',
     # Windows flavor and windows version to build
@@ -85,7 +85,7 @@ function Test-Image {
         [String] $AgentTypeAndImageName
     )
 
-    # Ex: agent|docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019|21.0.3_9
+    # Ex: agent|docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019|21.0.7_6
     $items = $AgentTypeAndImageName.Split('|')
     $agentType = $items[0]
     $imageName = $items[1] -replace 'docker.io/', ''

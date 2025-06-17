@@ -57,15 +57,15 @@ variable "jdks_in_preview" {
 }
 
 variable "JAVA17_VERSION" {
-  default = "17.0.14_7"
+  default = "17.0.15_6"
 }
 
 variable "JAVA21_VERSION" {
-  default = "21.0.6_7"
+  default = "21.0.7_6"
 }
 
 variable "REMOTING_VERSION" {
-  default = "3301.v4363ddcca_4e7"
+  default = "3309.v27b_9314fd1a_4"
 }
 
 variable "REGISTRY" {
@@ -93,7 +93,7 @@ variable "ON_TAG" {
 }
 
 variable "ALPINE_FULL_TAG" {
-  default = "3.21.3"
+  default = "3.22.0"
 }
 
 variable "ALPINE_SHORT_TAG" {
@@ -101,11 +101,11 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20250317"
+  default = "bookworm-20250520"
 }
 
 variable "UBI9_TAG" {
-  default = "9.5-1742918310"
+  default = "9.6-1747219013"
 }
 
 # Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function

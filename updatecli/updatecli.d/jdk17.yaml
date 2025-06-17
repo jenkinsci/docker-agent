@@ -21,6 +21,16 @@ sources:
       featureversion: 17
     transformers:
       - trimprefix: "jdk-"
+  lastVersionWithUnderscore:
+    kind: temurin
+    name: Get the latest Adoptium JDK17 version via the API with + replaced by _
+    spec:
+      featureversion: 17
+    transformers:
+      - trimprefix: "jdk-"
+      - replacer:
+          from: "+"
+          to: "_"
 
 conditions:
   checkTemurinAllReleases:
@@ -41,46 +51,52 @@ targets:
   setJDK17VersionDockerBake:
     name: "Bump JDK17 version for Linux images in the docker-bake.hcl file"
     kind: hcl
-    transformers:
-      - replacer:
-          from: "+"
-          to: "_"
+    sourceid: lastVersionWithUnderscore
     spec:
       file: docker-bake.hcl
       path: variable.JAVA17_VERSION.default
     scmid: default
-  setJDK17VersionAlpine:
-    name: "Bump JDK17 default ARG version on Alpine Dockerfile"
+  ## Update Dockerfiles default JAVA_VERSION argument as JDK17 is the current default Java version
+  setJDK17VersionLinux:
+    name: "Bump JDK17 default ARG version in Linux images"
     kind: dockerfile
-    transformers:
-      - replacer:
-          from: "+"
-          to: "_"
+    sourceid: lastVersionWithUnderscore
     spec:
-      file: alpine/Dockerfile
+      files:
+        - alpine/Dockerfile
+        - debian/Dockerfile
+        - rhel/ubi9/Dockerfile
       instruction:
         keyword: ARG
         matcher: JAVA_VERSION
     scmid: default
-  setJDK17VersionDebian:
-    name: "Bump JDK17 default ARG version on Debian Dockerfile"
+  setJDK17VersionWindows:
+    name: "Bump JDK17 default ARG version in Windows images"
     kind: dockerfile
-    transformers:
-      - replacer:
-          from: "+"
-          to: "_"
+    sourceid: lastVersion
     spec:
-      file: debian/Dockerfile
+      files:
+        - windows/nanoserver/Dockerfile
+        - windows/windowsservercore/Dockerfile
       instruction:
         keyword: ARG
         matcher: JAVA_VERSION
+    scmid: default
+  setJDK17VersionReadme:
+    name: "Bump JDK17 version in README.md file"
+    kind: file
+    sourceid: lastVersionWithUnderscore
+    spec:
+      file: README.md
+      matchpattern: '"JAVA_VERSION": "17\.[0-9]+\.[0-9]+[\+_][0-9]+"'
+      replacepattern: '"JAVA_VERSION": "{{ source "lastVersionWithUnderscore" }}"'
     scmid: default
 
 actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump JDK17 version to {{ source "lastVersion" }}
+    title: Bump JDK17 version to {{ source "lastVersionWithUnderscore" }}
     spec:
       labels:
         - dependencies

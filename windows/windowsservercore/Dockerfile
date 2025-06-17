@@ -32,6 +32,7 @@ FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS jdk-core
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 ARG JAVA_VERSION=17.0.15+6
+<<<<<<< add-git-long-path-test
 # RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
 #     $javaMajorVersion = $env:JAVA_VERSION.substring(0,2) ; `
 #     $msiUrl = 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk' -f $env:JAVA_VERSION.Replace('+', '%2B') ; `
@@ -42,6 +43,8 @@ ARG JAVA_VERSION=17.0.15+6
 
 # https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_windows_hotspot_17.0.15_6.zip
 # 'https://github.com/adoptium/temurin${javaMajorVersion}-binaries/releases/download/jdk-{0}/OpenJDK17U-jdk_x64_windows_hotspot_{1}.zip' -f $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
+=======
+>>>>>>> master
 RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
     $zipUrl = 'https://github.com/adoptium/temurin${javaMajorVersion}-binaries/releases/download/jdk-{0}/OpenJDK17U-jdk_x64_windows_hotspot_{1}.zip' -f $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
     Invoke-WebRequest $zipUrl -OutFile 'C:\temp\jdk.zip' ;
@@ -105,7 +108,7 @@ ARG AGENT_WORKDIR=${AGENT_ROOT}/Work
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 
 # Get the Agent from the Jenkins Artifacts Repository
-ARG VERSION=3301.v4363ddcca_4e7
+ARG VERSION=3309.v27b_9314fd1a_4
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar' -f $env:VERSION) -OutFile $(Join-Path C:/ProgramData/Jenkins $env:AGENT_FILENAME) -UseBasicParsing ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar.sha1' -f $env:VERSION) -OutFile (Join-Path C:/ProgramData/Jenkins $env:AGENT_HASH_FILENAME) -UseBasicParsing ; `

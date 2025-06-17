@@ -29,7 +29,7 @@ FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS jdk-core
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ARG JAVA_VERSION=17.0.10+7
+ARG JAVA_VERSION=17.0.15+6
 RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
     $javaMajorVersion = $env:JAVA_VERSION.substring(0,2) ; `
     $msiUrl = 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk' -f $env:JAVA_VERSION.Replace('+', '%2B') ; `
@@ -100,7 +100,7 @@ ARG AGENT_WORKDIR=${AGENT_ROOT}/Work
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 
 # Get the Agent from the Jenkins Artifacts Repository
-ARG VERSION=3301.v4363ddcca_4e7
+ARG VERSION=3309.v27b_9314fd1a_4
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar' -f $env:VERSION) -OutFile $(Join-Path C:/ProgramData/Jenkins $env:AGENT_FILENAME) -UseBasicParsing ; `
     Invoke-WebRequest $('https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/{0}/remoting-{0}.jar.sha1' -f $env:VERSION) -OutFile (Join-Path C:/ProgramData/Jenkins $env:AGENT_HASH_FILENAME) -UseBasicParsing ; `
