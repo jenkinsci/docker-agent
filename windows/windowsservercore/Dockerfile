@@ -31,11 +31,11 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ARG JAVA_VERSION=17.0.10+7
 RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
-    $javaMajorVersion = $env:JAVA_VERSION.substring(0,2) ; `
-    $msiUrl = 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk' -f $env:JAVA_VERSION.Replace('+', '%2B') ; `
-    Invoke-WebRequest $msiUrl -OutFile 'C:\temp\jdk.msi' ; `
-    $proc = Start-Process -FilePath 'msiexec.exe' -ArgumentList '/i', 'C:\temp\jdk.msi', '/L*V', 'C:\temp\OpenJDK.log', '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome',  "INSTALLDIR=C:\openjdk-${javaMajorVersion}" -Wait -Passthru ; `
-    $proc.WaitForExit() ; `
+    $zipUrl = "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-${env:JAVA_VERSION}/OpenJDK17U-jdk_x64_windows_hotspot_${env:JAVA_VERSION}.zip"; `
+    Invoke-WebRequest $zipUrl -OutFile 'C:\temp\jdk.zip' ; `
+    Expand-Archive C:\temp\jdk.zip -DestinationPath C:\ ; `
+    $jdkDir = Get-ChildItem -Path C:\ -Directory | Where-Object { $_.Name -like "jdk-*" } | Select-Object -First 1 ; `
+    Move-Item ("C:\{0}" -f $jdkDir.Name) C:\openjdk-17 ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
 
 ## Agent image target
