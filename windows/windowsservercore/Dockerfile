@@ -51,9 +51,9 @@ RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
     Invoke-WebRequest $zipUrl -OutFile 'C:\temp\jdk.zip' ;
 RUN Expand-Archive C:\temp\jdk.zip -DestinationPath C:\ ;
 RUN Get-ChildItem -Path C:\ -Directory ;
-RUN Write-Host (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination "C:\openjdk-${javaMajorVersion}" ;
+RUN Write-Host (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination ('C:\openjdk-{0}' -f $env:JAVA_VERSION.substring(0,2)) ;
 RUN Write-Host "C:\openjdk-${javaMajorVersion}" ;
-RUN Move-Item -Path (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination "C:\openjdk-${javaMajorVersion}" ; `
+RUN Move-Item -Path (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination ('C:\openjdk-{0}' -f $env:JAVA_VERSION.substring(0,2)) ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
 RUN Get-ChildItem -Path C:\ -Directory ;
 
