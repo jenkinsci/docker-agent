@@ -34,6 +34,7 @@ RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
     $zipUrl = "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-${env:JAVA_VERSION}/OpenJDK17U-jdk_x64_windows_hotspot_${env:JAVA_VERSION}.zip"; `
     Invoke-WebRequest $zipUrl -OutFile 'C:\temp\jdk.zip' ; `
     Expand-Archive C:\temp\jdk.zip -DestinationPath C:\ ; `
+    Get-ChildItem -Path C:\ -Directory ; `
     $jdkDir = Get-ChildItem -Path C:\ -Directory | Where-Object { $_.Name -like "jdk-*" } | Select-Object -First 1 ; `
     Move-Item ("C:\{0}" -f $jdkDir.Name) C:\openjdk-17 ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
