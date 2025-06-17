@@ -51,8 +51,11 @@ RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
     Invoke-WebRequest $zipUrl -OutFile 'C:\temp\jdk.zip' ;
 RUN Expand-Archive C:\temp\jdk.zip -DestinationPath C:\ ;
 RUN Get-ChildItem -Path C:\ -Directory ;
+RUN Write-Host (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination "C:\openjdk-${javaMajorVersion}" ;
+RUN Write-Host "C:\openjdk-${javaMajorVersion}" ;
 RUN Move-Item -Path (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination "C:\openjdk-${javaMajorVersion}" ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
+RUN Get-ChildItem -Path C:\ -Directory ;
 
 ## Agent image target
 FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS agent
