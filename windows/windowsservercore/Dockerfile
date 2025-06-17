@@ -31,10 +31,11 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ARG JAVA_VERSION=17.0.15+6
 RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
-    $zipUrl = 'https://github.com/adoptium/temurin{0}-binaries/releases/download/jdk-{1}/OpenJDK{0}U-jdk_x64_windows_hotspot_{2}.zip' -f $env:JAVA_VERSION.substring(0,2), $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
+    $javaMajorVersion = $env:JAVA_VERSION.substring(0,2) ; `
+    $zipUrl = 'https://github.com/adoptium/temurin{0}-binaries/releases/download/jdk-{1}/OpenJDK{0}U-jdk_x64_windows_hotspot_{2}.zip' -f $javaMajorVersion, $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
     Invoke-WebRequest $zipUrl -OutFile 'C:\temp\jdk.zip' ; `
     Expand-Archive C:\temp\jdk.zip -DestinationPath C:\ ; `
-    Move-Item -Path (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination ('C:\openjdk-{0}' -f $env:JAVA_VERSION.substring(0,2)) ; `
+    Move-Item -Path (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination ('C:\openjdk-{0}' -f $javaMajorVersion) ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
 
 ## Agent image target
