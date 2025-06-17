@@ -43,7 +43,7 @@ ARG JAVA_VERSION=17.0.15+6
 # https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_windows_hotspot_17.0.15_6.zip
 # 'https://github.com/adoptium/temurin${javaMajorVersion}-binaries/releases/download/jdk-{0}/OpenJDK17U-jdk_x64_windows_hotspot_{1}.zip' -f $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
 RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
-    $zipUrl = 'https://github.com/adoptium/temurin${javaMajorVersion}-binaries/releases/download/jdk-{0}/OpenJDK17U-jdk_x64_windows_hotspot_{1}.zip' -f $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
+    $zipUrl = 'https://github.com/adoptium/temurin{0}-binaries/releases/download/jdk-{1}/OpenJDK17U-jdk_x64_windows_hotspot_{2}.zip' -f $env:JAVA_VERSION.substring(0,2), $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
     Invoke-WebRequest $zipUrl -OutFile 'C:\temp\jdk.zip' ;
 RUN Expand-Archive C:\temp\jdk.zip -DestinationPath C:\ ;
 RUN Get-ChildItem -Path C:\ -Directory ;
