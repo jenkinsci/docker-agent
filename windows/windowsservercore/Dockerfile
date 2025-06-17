@@ -41,9 +41,12 @@ ARG JAVA_VERSION=17.0.15+6
 #     Remove-Item -Path C:\temp -Recurse | Out-Null
 
 # https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_windows_hotspot_17.0.15_6.zip
+# https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_windows_hotspot_17.0.15_6.zip OK
+# https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.7%2B6/OpenJDK17U-jdk_x64_windows_hotspot_21.0.7_6.zip KO
+# https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.7%2B6/OpenJDK21U-jdk_x64_windows_hotspot_21.0.7_6.zip
 # 'https://github.com/adoptium/temurin${javaMajorVersion}-binaries/releases/download/jdk-{0}/OpenJDK17U-jdk_x64_windows_hotspot_{1}.zip' -f $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
 RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
-    $zipUrl = 'https://github.com/adoptium/temurin{0}-binaries/releases/download/jdk-{1}/OpenJDK17U-jdk_x64_windows_hotspot_{2}.zip' -f $env:JAVA_VERSION.substring(0,2), $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
+    $zipUrl = 'https://github.com/adoptium/temurin{0}-binaries/releases/download/jdk-{1}/OpenJDK{0}U-jdk_x64_windows_hotspot_{2}.zip' -f $env:JAVA_VERSION.substring(0,2), $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
     Write-Host "Retrieving $zipUrl..." ; `
     Invoke-WebRequest $zipUrl -OutFile 'C:\temp\jdk.zip' ;
 RUN Expand-Archive C:\temp\jdk.zip -DestinationPath C:\ ;
