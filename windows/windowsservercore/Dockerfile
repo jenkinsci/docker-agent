@@ -26,36 +26,16 @@ ARG WINDOWS_VERSION_TAG=ltsc2019
 ARG TOOLS_WINDOWS_VERSION # Empty (only used on nanoserver)
 FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS jdk-core
 
-# USER ContainerAdministrator
-
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 ARG JAVA_VERSION=17.0.15+6
-# RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
-#     $javaMajorVersion = $env:JAVA_VERSION.substring(0,2) ; `
-#     $msiUrl = 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk' -f $env:JAVA_VERSION.Replace('+', '%2B') ; `
-#     Invoke-WebRequest $msiUrl -OutFile 'C:\temp\jdk.msi' ; `
-#     $proc = Start-Process -FilePath 'msiexec.exe' -ArgumentList '/i', 'C:\temp\jdk.msi', '/L*V', 'C:\temp\OpenJDK.log', '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome',  "INSTALLDIR=C:\openjdk-${javaMajorVersion}" -Wait -Passthru ; `
-#     $proc.WaitForExit() ; `
-#     Remove-Item -Path C:\temp -Recurse | Out-Null
-
-# https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_windows_hotspot_17.0.15_6.zip
-# https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_windows_hotspot_17.0.15_6.zip OK
-# https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.7%2B6/OpenJDK17U-jdk_x64_windows_hotspot_21.0.7_6.zip KO
-# https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.7%2B6/OpenJDK21U-jdk_x64_windows_hotspot_21.0.7_6.zip
-# 'https://github.com/adoptium/temurin${javaMajorVersion}-binaries/releases/download/jdk-{0}/OpenJDK17U-jdk_x64_windows_hotspot_{1}.zip' -f $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
 RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
     $zipUrl = 'https://github.com/adoptium/temurin{0}-binaries/releases/download/jdk-{1}/OpenJDK{0}U-jdk_x64_windows_hotspot_{2}.zip' -f $env:JAVA_VERSION.substring(0,2), $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
-    Write-Host "Retrieving $zipUrl..." ; `
     Invoke-WebRequest $zipUrl -OutFile 'C:\temp\jdk.zip' ;
-RUN Expand-Archive C:\temp\jdk.zip -DestinationPath C:\ ;
-RUN Get-ChildItem -Path C:\ -Directory ;
-RUN Write-Host (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination ('C:\openjdk-{0}' -f $env:JAVA_VERSION.substring(0,2)) ;
-RUN Write-Host "C:\openjdk-${javaMajorVersion}" ;
-RUN Move-Item -Path (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination ('C:\openjdk-{0}' -f $env:JAVA_VERSION.substring(0,2)) ; `
+    Expand-Archive C:\temp\jdk.zip -DestinationPath C:\ ;
+    Move-Item -Path (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination ('C:\openjdk-{0}' -f $env:JAVA_VERSION.substring(0,2)) ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
-RUN Get-ChildItem -Path C:\ -Directory ;
 
 ## Agent image target
 FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS agent
@@ -67,7 +47,7 @@ COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ARG GIT_VERSION=2.49.0
+ARG GIT_VERSION=2.50.0
 ARG GIT_PATCH_VERSION=1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     # The patch "windows.1" always have a different URL than the subsequent patch (ZIP filename is different)

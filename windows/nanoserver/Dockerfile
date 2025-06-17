@@ -31,12 +31,11 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ARG JAVA_VERSION=17.0.15+6
 RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
-    $javaMajorVersion = $env:JAVA_VERSION.substring(0,2) ; `
-    $msiUrl = 'https://api.adoptium.net/v3/installer/version/jdk-{0}/windows/x64/jdk/hotspot/normal/eclipse?project=jdk' -f $env:JAVA_VERSION.Replace('+', '%2B') ; `
-    Invoke-WebRequest $msiUrl -OutFile 'C:\temp\jdk.msi' ; `
-    $proc = Start-Process -FilePath 'msiexec.exe' -ArgumentList '/i', 'C:\temp\jdk.msi', '/L*V', 'C:\temp\OpenJDK.log', '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome',  "INSTALLDIR=C:\openjdk-${javaMajorVersion}" -Wait -Passthru ; `
-    $proc.WaitForExit() ; `
-    Remove-Item -Path C:\temp -Recurse | Out-Null
+    $zipUrl = 'https://github.com/adoptium/temurin{0}-binaries/releases/download/jdk-{1}/OpenJDK{0}U-jdk_x64_windows_hotspot_{2}.zip' -f $env:JAVA_VERSION.substring(0,2), $env:JAVA_VERSION.Replace('+', '%2B'), $env:JAVA_VERSION.Replace('+', '_') ; `
+    Invoke-WebRequest $zipUrl -OutFile 'C:\temp\jdk.zip' ;
+    Expand-Archive C:\temp\jdk.zip -DestinationPath C:\ ;
+    Move-Item -Path (Get-ChildItem -Path C:\ -Directory -Filter "jdk-*")[0].FullName -Destination ('C:\openjdk-{0}' -f $env:JAVA_VERSION.substring(0,2)) ; `
+    Remove-Item -Path C:\temp -Recurse | Out-Null ;
 
 FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-source
 
