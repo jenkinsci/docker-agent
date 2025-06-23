@@ -109,11 +109,11 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20250520"
+  default = "bookworm-20250610"
 }
 
 variable "UBI9_TAG" {
-  default = "9.6-1747219013"
+  default = "9.6-1749542372"
 }
 
 # Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function
