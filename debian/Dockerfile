@@ -68,6 +68,8 @@ RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
 ## Agent image target
 FROM debian:"${DEBIAN_RELEASE}"-slim AS agent
 
+SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
+
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
@@ -87,7 +89,6 @@ RUN apt-get update \
     curl \
     fontconfig \
     git \
-    git-lfs \
     less \
     netbase \
     openssh-client \
@@ -100,6 +101,13 @@ ARG VERSION=3309.v27b_9314fd1a_4
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
+
+ARG GIT_LFS_VERSION=3.7.0
+RUN arch=$(uname -m | sed -e 's/x86_64/amd64/g' -e 's/aarch64/arm64/g') \
+  && curl -L -s -o git-lfs.tgz "https://github.com/git-lfs/git-lfs/releases/download/v${GIT_LFS_VERSION}/git-lfs-linux-${arch}-v${GIT_LFS_VERSION}.tar.gz" \
+  && tar xzf git-lfs.tgz \
+  && bash git-lfs-*/install.sh \
+  && rm -rf git-lfs*
 
 ENV LANG=C.UTF-8
 
