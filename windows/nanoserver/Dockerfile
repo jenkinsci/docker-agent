@@ -56,7 +56,7 @@ COPY --from=pwsh-source $PSHOME $PSHOME
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 USER ContainerAdministrator
 
-ARG GIT_VERSION=2.49.0
+ARG GIT_VERSION=2.50.0
 ARG GIT_PATCH_VERSION=2
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
     # The patch "windows.1" always have a different URL than the subsequent patch (ZIP filename is different)
