@@ -52,14 +52,7 @@ RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
       "25"*) options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
       *) echo "Unsupported Java version ($(jlink --version 2>&1))" && exit 1 ;; \
     esac; \
-    # Add memory constraint for armv7 architecture
-    if [[ "${TARGETPLATFORM}" == "linux/arm/v7" ]]; then \
-      jlink_opts="-J-Xmx512M"; \
-    else \
-      jlink_opts=""; \
-    fi; \
-    jlink ${jlink_opts} \
-      --strip-java-debug-attributes \
+    jlink --strip-java-debug-attributes \
       ${options} \
       --module-path /opt/jdk-${JAVA_VERSION}/jmods \
       --no-man-pages \
