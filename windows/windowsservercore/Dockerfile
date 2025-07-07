@@ -41,13 +41,10 @@ RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
 ## Agent image target
 FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS agent
 
-ARG JAVA_VERSION=17.0.15+6
-# Extract major version from JAVA_VERSION and set JAVA_HOME accordingly
-RUN $javaMajorVersion = $env:JAVA_VERSION.substring(0,2); `
-    $env:JAVA_HOME = "C:\openjdk-$javaMajorVersion"; `
-    [Environment]::SetEnvironmentVariable('JAVA_HOME', $env:JAVA_HOME, [EnvironmentVariableTarget]::Machine)
+ARG JAVA_HOME="C:\openjdk-17"
+ENV JAVA_HOME=${JAVA_HOME}
 
-COPY --from=jdk-core $env:JAVA_HOME $env:JAVA_HOME
+COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
 
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
@@ -64,8 +61,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
 
 # Add git and java in PATH
 RUN $CurrentPath = (Get-Itemproperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path).Path ; `
-    $javaHome = [Environment]::GetEnvironmentVariable('JAVA_HOME', [EnvironmentVariableTarget]::Machine) ; `
-    $NewPath = $CurrentPath + $(';{0}\bin;C:\mingit\cmd' -f $javaHome) ; `
+    $NewPath = $CurrentPath + $(';{0}\bin;C:\mingit\cmd' -f $env:JAVA_HOME) ; `
     Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath
 
 ARG GIT_LFS_VERSION=3.7.0
