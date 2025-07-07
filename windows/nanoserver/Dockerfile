@@ -38,6 +38,8 @@ RUN New-Item -ItemType Directory -Path C:\temp | Out-Null ; `
     $proc.WaitForExit() ; `
     Remove-Item -Path C:\temp -Recurse | Out-Null
 
+RUN powershell -Command "$javaMajorVersion = $env:JAVA_VERSION.substring(0,2); if ($javaMajorVersion -eq '17') { $options = '--compress=2 --add-modules ALL-MODULE-PATH' } elseif ($javaMajorVersion -eq '21') { $options = '--compress=zip-6 --add-modules ALL-MODULE-PATH' } elseif ($javaMajorVersion -eq '25') { $options = '--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se' } else { throw \"Unsupported Java version $env:JAVA_VERSION\" }; jlink --strip-java-debug-attributes $options --no-man-pages --no-header-files --output C:\javaruntime"
+
 FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-source
 
 ## Agent image target
