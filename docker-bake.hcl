@@ -101,7 +101,7 @@ variable "ON_TAG" {
 }
 
 variable "ALPINE_FULL_TAG" {
-  default = "3.21.3"
+  default = "3.22.0"
 }
 
 variable "ALPINE_SHORT_TAG" {
@@ -109,11 +109,11 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20250428"
+  default = "bookworm-20250630"
 }
 
 variable "UBI9_TAG" {
-  default = "9.5-1745848351"
+  default = "9.6-1751445649"
 }
 
 # Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function
@@ -167,9 +167,7 @@ function "debian_platforms" {
   params = [jdk]
   result = (equal(17, jdk)
     ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7"]
-  : (equal(25, jdk)
-    ? ["linux/amd64", "linux/arm64"]
-  : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"]))
+    : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"])
 }
 
 # Return array of Windows version(s) to build
