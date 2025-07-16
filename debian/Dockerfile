@@ -96,7 +96,7 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /tmp/* /var/cache/* /var/lib/apt/lists/*
 
-ARG VERSION=3324.vea_eda_e98cd69
+ARG VERSION=3327.v868139a_d00e0
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
