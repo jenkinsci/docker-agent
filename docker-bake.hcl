@@ -73,7 +73,7 @@ variable "JAVA25_VERSION" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "3309.v27b_9314fd1a_4"
+  default = "3327.v868139a_d00e0"
 }
 
 variable "REGISTRY" {
@@ -101,7 +101,7 @@ variable "ON_TAG" {
 }
 
 variable "ALPINE_FULL_TAG" {
-  default = "3.22.0"
+  default = "3.22.1"
 }
 
 variable "ALPINE_SHORT_TAG" {
@@ -113,7 +113,7 @@ variable "DEBIAN_RELEASE" {
 }
 
 variable "UBI9_TAG" {
-  default = "9.6-1751897624"
+  default = "9.6-1752625787"
 }
 
 # Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function
