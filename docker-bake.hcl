@@ -65,7 +65,7 @@ variable "JAVA17_VERSION" {
 }
 
 variable "JAVA21_VERSION" {
-  default = "21.0.7_6"
+  default = "21.0.8_9"
 }
 
 variable "JAVA25_VERSION" {
@@ -109,7 +109,7 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20250630"
+  default = "bookworm-20250721"
 }
 
 variable "UBI9_TAG" {
