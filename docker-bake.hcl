@@ -2,6 +2,7 @@ group "linux" {
   targets = [
     "alpine",
     "debian",
+    "debian_trixie",
     "rhel_ubi9"
   ]
 }
@@ -17,25 +18,29 @@ group "linux-arm64" {
   targets = [
     "alpine_jdk21",
     "debian",
+    "debian_trixie",
     "rhel_ubi9"
   ]
 }
 
 group "linux-arm32" {
   targets = [
-    "debian_jdk17"
+    "debian_jdk17",
+    "debian_trixie_jdk17"
   ]
 }
 
 group "linux-s390x" {
   targets = [
-    "debian_jdk21"
+    "debian_jdk21",
+    "debian_trixie_jdk21"
   ]
 }
 
 group "linux-ppc64le" {
   targets = [
     "debian",
+    "debian_trixie",
     "rhel_ubi9"
   ]
 }
@@ -102,6 +107,10 @@ variable "ALPINE_SHORT_TAG" {
 
 variable "DEBIAN_RELEASE" {
   default = "bookworm-20250811"
+}
+
+variable "DEBIAN_TRIXIE_RELEASE" {
+  default = "trixie-20250811"
 }
 
 variable "UBI9_TAG" {
@@ -298,6 +307,24 @@ target "debian" {
     JAVA_VERSION   = "${javaversion(jdk)}"
   }
   tags      = linux_tags(type, jdk, "debian")
+  platforms = debian_platforms(jdk)
+}
+
+target "debian_trixie" {
+  matrix = {
+    type = agent_types_to_build
+    jdk  = jdks_to_build
+  }
+  name       = "${type}_debian_trixie_jdk${jdk}"
+  target     = type
+  dockerfile = "debian/Dockerfile"
+  context    = "."
+  args = {
+    VERSION        = REMOTING_VERSION
+    DEBIAN_RELEASE = DEBIAN_TRIXIE_RELEASE
+    JAVA_VERSION   = "${javaversion(jdk)}"
+  }
+  tags      = linux_tags(type, jdk, "trixie")
   platforms = debian_platforms(jdk)
 }
 
