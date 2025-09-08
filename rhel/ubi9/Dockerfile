@@ -26,8 +26,9 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 RUN case "$(jlink --version 2>&1)" in \
       "17."*) options="--compress=2 --add-modules ALL-MODULE-PATH --module-path /opt/jdk-${JAVA_VERSION}/jmods" ;; \
       "21."*) options="--compress=zip-6 --add-modules ALL-MODULE-PATH --module-path /opt/jdk-${JAVA_VERSION}/jmods" ;; \
-      "25"*) options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se --module-path /opt/jdk-${JAVA_VERSION}/lib" ;; \
-      *) echo "Unsupported Java version ($(jlink --version 2>&1))" && exit 1 ;; \
+      # TODO: set to "25." when jlink JDK25 is out of beta
+      "25"*) options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
+      *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
       --strip-java-debug-attributes \
