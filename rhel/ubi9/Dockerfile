@@ -33,6 +33,7 @@ RUN case "$(jlink --version 2>&1)" in \
     jlink \
       --strip-java-debug-attributes \
       ${options} \
+      --module-path /opt/jdk-${JAVA_VERSION}/jmods \
       --no-man-pages \
       --no-header-files \
       --output /javaruntime
