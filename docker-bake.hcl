@@ -48,6 +48,8 @@ variable "jdks_to_build" {
   default = [17, 21, 25]
 }
 
+# This is a temporary modification to support JDK 25 on Linux only. It will be removed in a future pull request
+# dedicated to adding JDK 25 support for Windows.
 variable "windows_jdks_to_build" {
   default = [17, 21]
 }
@@ -336,6 +338,8 @@ target "rhel_ubi9" {
 target "nanoserver" {
   matrix = {
     type            = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
+    # This is a temporary modification to support JDK 25 on Linux only. It will be removed in a future pull request
+    # dedicated to adding JDK 25 support for Windows.
     jdk             = windows_jdks_to_build
     windows_version = windowsversions("nanoserver")
   }
@@ -357,6 +361,8 @@ target "nanoserver" {
 target "windowsservercore" {
   matrix = {
     type            = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
+    # This is a temporary modification to support JDK 25 on Linux only. It will be removed in a future pull request
+    # dedicated to adding JDK 25 support for Windows.
     jdk             = windows_jdks_to_build
     windows_version = windowsversions("windowsservercore")
   }
