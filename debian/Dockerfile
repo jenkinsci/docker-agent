@@ -47,15 +47,15 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 # while still saving space (approx 200mb from the full distribution)
 RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
     case "$(jlink --version 2>&1)" in \
-      "17."*) set -- "--compress=2" ;; \
-      # the compression argument is different for JDK21
-      "21."*) set -- "--compress=zip-6" ;; \
+      "17."*) options="--compress=2 --add-modules ALL-MODULE-PATH" ;; \
+      "21."*) options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
+      # TODO: set to "25." when jlink JDK25 is out of beta
+      "25"*) options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
       --strip-java-debug-attributes \
-      "$1" \
-      --add-modules ALL-MODULE-PATH \
+      ${options} \
       --no-man-pages \
       --no-header-files \
       --output /javaruntime; \
