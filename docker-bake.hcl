@@ -61,7 +61,7 @@ variable "jdks_in_preview" {
 }
 
 variable "JAVA17_VERSION" {
-  default = "17.0.15_6"
+  default = "17.0.16_8"
 }
 
 variable "JAVA21_VERSION" {
@@ -109,11 +109,11 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20250721"
+  default = "bookworm-20250811"
 }
 
 variable "UBI9_TAG" {
-  default = "9.6-1752625787"
+  default = "9.6-1756799158"
 }
 
 # Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function

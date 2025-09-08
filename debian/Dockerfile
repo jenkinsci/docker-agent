@@ -19,7 +19,7 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-ARG DEBIAN_RELEASE=bookworm-20250721
+ARG DEBIAN_RELEASE=bookworm-20250811
 FROM debian:"${DEBIAN_RELEASE}"-slim AS jre-build
 
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
@@ -31,7 +31,7 @@ ARG TARGETPLATFORM
 COPY adoptium-get-jdk-link.sh /usr/bin/local/adoptium-get-jdk-link.sh
 COPY adoptium-install-jdk.sh /usr/bin/local/adoptium-install-jdk.sh
 
-ARG JAVA_VERSION=17.0.15_6
+ARG JAVA_VERSION=17.0.16_8
 # hadolint ignore=DL3008
 RUN set -x; apt-get update \
   && apt-get install --no-install-recommends -y \
