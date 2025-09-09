@@ -101,7 +101,7 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20250811"
+  default = "trixie-20250811"
 }
 
 variable "UBI9_TAG" {
