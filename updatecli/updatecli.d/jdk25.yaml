@@ -48,7 +48,6 @@ conditions:
         - linux/aarch64
         - linux/ppc64le
         - linux/s390x
-        - windows/x64
 
 targets:
   setJDK25VersionDockerBake:
