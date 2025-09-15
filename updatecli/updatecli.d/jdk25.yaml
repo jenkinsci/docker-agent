@@ -66,7 +66,7 @@ actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump JDK25 version to {{ source "latestJDK25Version" }}
+    title: Bump JDK25 version on Linux to {{ source "latestJDK25Version" }}
     spec:
       labels:
         - dependencies
