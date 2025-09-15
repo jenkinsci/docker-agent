@@ -35,7 +35,7 @@ sources:
 # Architectures must match those of the targets in docker-bake.hcl
 conditions:
   checkTemurinAllReleases:
-    name: Check if the "<latestJDK25Version>" is available for all platforms
+    name: Check if the "<latestJDK25Version>" is available for all Linux platforms
     kind: temurin
     sourceid: latestJDK25Version
     spec:
