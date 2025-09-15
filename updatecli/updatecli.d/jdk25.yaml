@@ -28,7 +28,7 @@ sources:
     name: Get the latest Adoptium JDK25 version via the API
     spec:
       featureversion: 25
-      releasetype: "ea"
+      releasetype: '{{ default "ea" .jdk.releasetype }}'
     transformers:
       - trimprefix: "jdk-"
 
