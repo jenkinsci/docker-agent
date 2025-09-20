@@ -75,7 +75,7 @@ variable "JAVA25_VERSION" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "3327.v868139a_d00e0"
+  default = "3341.v0766d82b_dec0"
 }
 
 variable "REGISTRY" {
@@ -115,7 +115,7 @@ variable "DEBIAN_RELEASE" {
 }
 
 variable "UBI9_TAG" {
-  default = "9.6-1756915113"
+  default = "9.6-1758184894"
 }
 
 # Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function
@@ -169,7 +169,7 @@ function "debian_platforms" {
   params = [jdk]
   result = (equal(17, jdk)
     ? ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/arm/v7"]
-    : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"])
+  : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"])
 }
 
 # Return array of Windows version(s) to build
@@ -337,7 +337,7 @@ target "rhel_ubi9" {
 
 target "nanoserver" {
   matrix = {
-    type            = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
+    type = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
     # This is a temporary modification to support JDK 25 on Linux only. It will be removed in a future pull request
     # dedicated to adding JDK 25 support for Windows.
     jdk             = windows_jdks_to_build
@@ -360,7 +360,7 @@ target "nanoserver" {
 
 target "windowsservercore" {
   matrix = {
-    type            = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
+    type = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
     # This is a temporary modification to support JDK 25 on Linux only. It will be removed in a future pull request
     # dedicated to adding JDK 25 support for Windows.
     jdk             = windows_jdks_to_build
