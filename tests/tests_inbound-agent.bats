@@ -33,6 +33,8 @@ SUT_IMAGE="$(get_sut_image)"
 
   # Wait for the whole process to take place (in resource-constrained environments it can take 100s of milliseconds)
   sleep 5
+  docker logs "${netcat_cid}"
+  docker logs "${sut_cid}"
 
   # Capture the logs output from netcat and check the header of the first HTTP request with the expected one
   run docker logs "${netcat_cid}"
@@ -47,6 +49,8 @@ SUT_IMAGE="$(get_sut_image)"
   netcat_cid="$(docker run -d -it netcat-helper:latest /bin/sh -c "while :; do (echo 'HTTP/1.1 200 OK'; echo) | nc -l 5000; done")"
   sut_cid="$(docker run -d --link "${netcat_cid}" -e REMOTING_OPTS="-url http://${netcat_cid}:5000 -name xxx -secret xxx -webSocket -webSocketHeader \"Cookie=x=1; y=2\"" "${SUT_IMAGE}")"
   sleep 5
+  docker logs "${netcat_cid}"
+  docker logs "${sut_cid}"
   run docker logs "${netcat_cid}"
   echo "${output}" | grep 'Cookie:x=1; y=2'
   cleanup "${netcat_cid}"
