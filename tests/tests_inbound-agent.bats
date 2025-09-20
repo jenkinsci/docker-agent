@@ -42,6 +42,17 @@ SUT_IMAGE="$(get_sut_image)"
   cleanup "${sut_cid}"
 }
 
+@test "[${SUT_IMAGE}] image parses \$REMOTING_OPTS correctly (slow test)" {
+  local netcat_cid sut_cid
+  netcat_cid="$(docker run -d -it netcat-helper:latest /bin/sh -c "while :; do (echo 'HTTP/1.1 200 OK'; echo) | nc -l 5000; done")"
+  sut_cid="$(docker run -d --link "${netcat_cid}" -e REMOTING_OPTS="-url http://${netcat_cid}:5000 -name xxx -secret xxx -webSocket -webSocketHeader \"Cookie=x=1; y=2\"" "${SUT_IMAGE}")"
+  sleep 5
+  run docker logs "${netcat_cid}"
+  echo "${output}" | grep 'Cookie:x=1; y=2'
+  cleanup "${netcat_cid}"
+  cleanup "${sut_cid}"
+}
+
 @test "[${SUT_IMAGE}] use build args correctly" {
   cd "${BATS_TEST_DIRNAME}"/.. || false
 
