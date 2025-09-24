@@ -1,5 +1,5 @@
 ---
-name: Bump Debian Bookworm version
+name: Bump Debian Trixie version
 
 scms:
   default:
@@ -14,22 +14,22 @@ scms:
       branch: "{{ .github.branch }}"
 
 sources:
-  bookwormLatestVersion:
+  trixieLatestVersion:
     kind: dockerimage
-    name: "Get the latest Debian Bookworm Linux version"
+    name: "Get the latest Debian Trixie Linux version"
     spec:
       image: "debian"
-      tagfilter: "bookworm-*"
+      tagfilter: "trixie-*"
       versionfilter:
         kind: regex
         pattern: >-
-          bookworm-\d+$
+          trixie-\d+$
 
 targets:
   updateDockerfile:
     name: "Update the value of the base image (ARG DEBIAN_RELEASE) in the Dockerfile"
     kind: dockerfile
-    sourceid: bookwormLatestVersion
+    sourceid: trixieLatestVersion
     spec:
       file: debian/Dockerfile
       instruction:
@@ -39,7 +39,7 @@ targets:
   updateDockerBake:
     name: "Update the default value of the variable DEBIAN_RELEASE in the docker-bake.hcl"
     kind: hcl
-    sourceid: bookwormLatestVersion
+    sourceid: trixieLatestVersion
     spec:
       file: docker-bake.hcl
       path: variable.DEBIAN_RELEASE.default
@@ -49,8 +49,8 @@ actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump Debian Bookworm Linux version to {{ source "bookwormLatestVersion" }}
+    title: Bump Debian Trixie Linux version to {{ source "trixieLatestVersion" }}
     spec:
       labels:
         - dependencies
-        - debian-bookworm
+        - debian
