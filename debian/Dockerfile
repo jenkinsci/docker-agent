@@ -75,7 +75,7 @@ ARG gid=1000
 
 RUN groupadd -g "${gid}" "${group}" \
   && useradd -l -c "Jenkins user" -d /home/"${user}" -u "${uid}" -g "${gid}" -m "${user}" || echo "user ${user} already exists." \
-  && chmod 755 /home/"${user}"
+  && if [ -d /home/"${user}" ]; then chmod 755 /home/"${user}"; fi
 
 ARG AGENT_WORKDIR=/home/"${user}"/agent
 ENV TZ=Etc/UTC
