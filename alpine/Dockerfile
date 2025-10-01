@@ -64,7 +64,8 @@ ARG uid=1000
 ARG gid=1000
 
 RUN addgroup -g "${gid}" "${group}" \
-  && adduser -h /home/"${user}" -u "${uid}" -G "${group}" -D "${user}" || echo "user ${user} already exists."
+  && adduser -h /home/"${user}" -u "${uid}" -G "${group}" -D "${user}" || echo "user ${user} already exists." \
+  && if [ -d /home/"${user}" ]; then chmod 751 /home/"${user}"; fi
 
 ARG AGENT_WORKDIR=/home/"${user}"/agent
 
