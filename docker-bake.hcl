@@ -230,7 +230,7 @@ function distribution_suffix {
 function distribution_name {
   params = [distribution]
   result = (equal("debian", distribution)
-    ? "bookworm"
+    ? "trixie"
   : distribution)
 }
 
@@ -256,7 +256,7 @@ function "linux_tags" {
     # If the jdk is the default one, add distribution and latest short tags
     is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${distribution_name(distribution)}" : "",
     is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest${distribution_suffix(distribution)}" : "",
-    # Needed for the ":latest-bookworm" case. For other distributions, result in the same tag as above (not an issue, deduplicated at the end)
+    # Needed for the ":latest-trixie" case. For other distributions, result in the same tag as above (not an issue, deduplicated at the end)
     is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-${distribution_name(distribution)}" : "",
 
     # Tags always added
