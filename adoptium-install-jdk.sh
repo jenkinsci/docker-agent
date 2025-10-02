@@ -1,6 +1,8 @@
 #!/bin/sh
 set -x
 
+### IMPORTANT: this script is synchronized with https://github.com/jenkins-infra/shared-tools/, please modify its content in that repository only.
+
 # Check if curl and tar are installed
 if ! command -v curl >/dev/null 2>&1 || ! command -v tar >/dev/null 2>&1 ; then
     echo "curl and tar are required but not installed. Exiting with status 1." >&2
