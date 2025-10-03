@@ -231,11 +231,31 @@ foreach($agentType in $AgentTypes) {
             $configuration.CodeCoverage.Enabled = $false
 
             Write-Host "= TEST: Testing all ${agentType} images..."
-            # Only fail the run afterwards in case of any test failures
+            $jdks = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
+
+            # Run Test-Image in parallel for each JDK
+            $jobs = @()
+            foreach ($jdk in $jdks.PSObject.Properties) {
+                Write-Host "= TEST: Starting ${agentType}:${jdk} tests..."
+                $agentTypeLocal = $agentType
+                $imageLocal = $jdk.Value.image
+                $javaVersionLocal = $jdk.Value.build.args.JAVA_VERSION
+                $jobs += Start-Job -ScriptBlock {
+                    param($agentType, $image, $javaVersion)
+                    # Import-Module Pester
+                    Test-Image ("{0}|{1}|{2}" -f $agentType, $image, $javaVersion)
+                } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal
+            }
+
+            # Wait for all jobs to finish and collect results
             $testFailed = $false
-            $imageDefinitions = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
-            foreach ($imageDefinition in $imageDefinitions.PSObject.Properties) {
-                $testFailed = $testFailed -or (Test-Image ('{0}|{1}|{2}' -f $agentType, $imageDefinition.Value.image, $imageDefinition.Value.build.args.JAVA_VERSION))
+            foreach ($job in $jobs) {
+                Write-Host "= TEST: Waiting for tests completion (${job.Name})..."
+                $result = Receive-Job -Job $job -Wait
+                if ($result) {
+                    $testFailed = $true
+                }
+                Remove-Job $job
             }
 
             # Fail if any test failures
