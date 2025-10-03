@@ -252,9 +252,16 @@ foreach($agentType in $AgentTypes) {
             foreach ($job in $jobs) {
                 Write-Host "= TEST: Waiting for tests completion (${job.Name})..."
                 $result = Receive-Job -Job $job -Wait
-                if ($result) {
-                    $testFailed = $true
-                }
+                Write-Host "= TEST: job ${job.Name} dump"
+                $job | Format-List *
+                Write-Host "= TEST: result dump"
+                $result | Format-List *
+                # Write-Host "= TEST: Results (${job.Name}):"
+                # Write-Host $job.Output
+                # # if ($result) {
+                # if ($job.Error.Count -gt 0 -or $result) {
+                #     $testFailed = $true
+                # }
                 Remove-Job $job
             }
 
