@@ -28,7 +28,6 @@ sources:
     name: Get the latest Adoptium JDK25 version via the API
     spec:
       featureversion: 25
-      releasetype: '{{ default "ea" .jdk.releasetype }}'
     transformers:
       - trimprefix: "jdk-"
 
@@ -40,7 +39,6 @@ conditions:
     sourceid: latestJDK25Version
     spec:
       featureversion: 25
-      releasetype: "ea"
       platforms:
         - alpine-linux/x64
         - alpine-linux/aarch64

@@ -59,7 +59,7 @@ variable "default_jdk" {
 }
 
 variable "jdks_in_preview" {
-  default = [25]
+  default = []
 }
 
 variable "JAVA17_VERSION" {
@@ -71,7 +71,7 @@ variable "JAVA21_VERSION" {
 }
 
 variable "JAVA25_VERSION" {
-  default = "25+9-ea-beta"
+  default = "25_36"
 }
 
 variable "REMOTING_VERSION" {
