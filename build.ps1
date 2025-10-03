@@ -243,7 +243,7 @@ foreach($agentType in $AgentTypes) {
                 $javaVersionLocal = $jdk.Value.build.args.JAVA_VERSION
                 $jobs += Start-Job -ScriptBlock {
                     param($agentType, $image, $javaVersion, $testImageFunction)
-                    # Import-Module Pester
+                    Import-Module Pester
                     # Redefine Test-Image in the job session
                     Set-Item -Path Function:Test-Image -Value $testImageFunction
                     Test-Image ("{0}|{1}|{2}" -f $agentType, $image, $javaVersion)
