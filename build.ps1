@@ -220,17 +220,6 @@ foreach($agentType in $AgentTypes) {
                 Install-Module -Force -Name Pester -MaximumVersion 5.3.3
             }
 
-            Import-Module Pester
-            Write-Host '= TEST: Setting up Pester environment...'
-            $configuration = [PesterConfiguration]::Default
-            $configuration.Run.PassThru = $true
-            $configuration.Run.Path = '.\tests'
-            $configuration.Run.Exit = $true
-            $configuration.TestResult.Enabled = $true
-            $configuration.TestResult.OutputFormat = 'JUnitXml'
-            $configuration.Output.Verbosity = 'Diagnostic'
-            $configuration.CodeCoverage.Enabled = $false
-
             Write-Host "= TEST: Testing all ${agentType} images..."
             $jdks = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
 
@@ -243,7 +232,18 @@ foreach($agentType in $AgentTypes) {
                 $javaVersionLocal = $jdk.Value.build.args.JAVA_VERSION
                 $jobs += Start-Job -ScriptBlock {
                     param($agentType, $image, $javaVersion, $testImageFunction)
+
+                    Write-Host '= TEST: Setting up Pester environment...'
                     Import-Module Pester
+                    $configuration = [PesterConfiguration]::Default
+                    $configuration.Run.PassThru = $true
+                    $configuration.Run.Path = '.\tests'
+                    $configuration.Run.Exit = $true
+                    $configuration.TestResult.Enabled = $true
+                    $configuration.TestResult.OutputFormat = 'JUnitXml'
+                    $configuration.Output.Verbosity = 'Diagnostic'
+                    $configuration.CodeCoverage.Enabled = $false
+
                     # Redefine Test-Image in the job session
                     Set-Item -Path Function:Test-Image -Value $testImageFunction
                     Test-Image ("{0}|{1}|{2}" -f $agentType, $image, $javaVersion)
