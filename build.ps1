@@ -173,6 +173,7 @@ Test-CommandExists 'docker-compose'
 Test-CommandExists 'docker buildx'
 Test-CommandExists 'yq'
 
+$testImageFunction = ${function:Test-Image}
 foreach($agentType in $AgentTypes) {
     $dockerComposeFile = 'build-windows_{0}_{1}.yaml' -f $AgentType, $ImageType
     $baseDockerCmd = 'docker-compose --file={0}' -f $dockerComposeFile
@@ -241,10 +242,12 @@ foreach($agentType in $AgentTypes) {
                 $imageLocal = $jdk.Value.image
                 $javaVersionLocal = $jdk.Value.build.args.JAVA_VERSION
                 $jobs += Start-Job -ScriptBlock {
-                    param($agentType, $image, $javaVersion)
+                    param($agentType, $image, $javaVersion, $testImageFunction)
                     # Import-Module Pester
+                    # Redefine Test-Image in the job session
+                    Set-Item -Path Function:Test-Image -Value $testImageFunction
                     Test-Image ("{0}|{1}|{2}" -f $agentType, $image, $javaVersion)
-                } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal
+                } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal, $testImageFunction
             }
 
             # Wait for all jobs to finish and collect results
