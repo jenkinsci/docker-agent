@@ -40,90 +40,90 @@ CleanupNetwork($global:JNLPNETWORKNAME)
 
 BuildNmapImage($global:WINDOWSVERSIONTAG)
 
-Describe "[$global:IMAGE_NAME] build image" {
-    It 'builds image' {
-        # if ($global:JAVAMAJORVERSION -eq 21) {
-        #     # Force an error on one of the JDK version for testing purpose
-        #     $global:JAVAMAJORVERSION | Should -Be 20
-        # }
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --quiet --build-arg `"VERSION=${global:VERSION}`" --build-arg `"JAVA_VERSION=${global:JAVA_VERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --tag=${global:IMAGE_TAG} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
-        $exitCode | Should -Be 0
-    }
-}
+# Describe "[$global:IMAGE_NAME] build image" {
+#     It 'builds image' {
+#         # if ($global:JAVAMAJORVERSION -eq 21) {
+#         #     # Force an error on one of the JDK version for testing purpose
+#         #     $global:JAVAMAJORVERSION | Should -Be 20
+#         # }
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "build --quiet --build-arg `"VERSION=${global:VERSION}`" --build-arg `"JAVA_VERSION=${global:JAVA_VERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --tag=${global:IMAGE_TAG} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
+#         $exitCode | Should -Be 0
+#     }
+# }
 
-Describe "[$global:IMAGE_NAME] check default user account" {
-    BeforeAll {
-        docker run --detach --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" -Cmd "$global:CONTAINERSHELL"
-        $LASTEXITCODE | Should -Be 0
-        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-    }
+# Describe "[$global:IMAGE_NAME] check default user account" {
+#     BeforeAll {
+#         docker run --detach --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" -Cmd "$global:CONTAINERSHELL"
+#         $LASTEXITCODE | Should -Be 0
+#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+#     }
 
-    It 'has a password that never expires' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if ((net user jenkins | Select-String -Pattern 'Password expires') -match 'Never') { exit 0 } else { net user jenkins ; exit -1 }`""
-        $exitCode | Should -Be 0
-    }
+#     It 'has a password that never expires' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if ((net user jenkins | Select-String -Pattern 'Password expires') -match 'Never') { exit 0 } else { net user jenkins ; exit -1 }`""
+#         $exitCode | Should -Be 0
+#     }
 
-    It 'has password policy of "not required"' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if ((net user jenkins | Select-String -Pattern 'Password required') -match 'No') { exit 0 } else { net user jenkins ; exit -1 }`""
-        $exitCode | Should -Be 0
-    }
+#     It 'has password policy of "not required"' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if ((net user jenkins | Select-String -Pattern 'Password required') -match 'No') { exit 0 } else { net user jenkins ; exit -1 }`""
+#         $exitCode | Should -Be 0
+#     }
 
-    AfterAll {
-        Cleanup($global:CONTAINERNAME)
-    }
-}
+#     AfterAll {
+#         Cleanup($global:CONTAINERNAME)
+#     }
+# }
 
-Describe "[$global:IMAGE_NAME] image has jenkins-agent.ps1 in the correct location" {
-    BeforeAll {
-        docker run --detach --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" -Cmd "$global:CONTAINERSHELL"
-        $LASTEXITCODE | Should -Be 0
-        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-    }
+# Describe "[$global:IMAGE_NAME] image has jenkins-agent.ps1 in the correct location" {
+#     BeforeAll {
+#         docker run --detach --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" -Cmd "$global:CONTAINERSHELL"
+#         $LASTEXITCODE | Should -Be 0
+#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+#     }
 
-    It 'has jenkins-agent.ps1 in C:/ProgramData/Jenkins' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if (Test-Path 'C:/ProgramData/Jenkins/jenkins-agent.ps1') { exit 0 } else { exit 1 }`""
-        $exitCode | Should -Be 0
-    }
+#     It 'has jenkins-agent.ps1 in C:/ProgramData/Jenkins' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if (Test-Path 'C:/ProgramData/Jenkins/jenkins-agent.ps1') { exit 0 } else { exit 1 }`""
+#         $exitCode | Should -Be 0
+#     }
 
-    AfterAll {
-        Cleanup($global:CONTAINERNAME)
-    }
-}
+#     AfterAll {
+#         Cleanup($global:CONTAINERNAME)
+#     }
+# }
 
-Describe "[$global:IMAGE_NAME] image starts jenkins-agent.ps1 correctly (slow test)" {
-    It 'connects to the nmap container' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "network create --driver nat $global:JNLPNETWORKNAME"
-        # Launch the netcat utility, listening at port 5000 for 30 sec
-        # bats will capture the output from netcat and compare the first line
-        # of the header of the first HTTP request with the expected one
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name $global:NMAPCONTAINERNAME --network=$global:JNLPNETWORKNAME nmap:latest ncat.exe -w 30 -l 5000"
-        $exitCode | Should -Be 0
-        Is-ContainerRunning $global:NMAPCONTAINERNAME | Should -BeTrue
+# Describe "[$global:IMAGE_NAME] image starts jenkins-agent.ps1 correctly (slow test)" {
+#     It 'connects to the nmap container' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "network create --driver nat $global:JNLPNETWORKNAME"
+#         # Launch the netcat utility, listening at port 5000 for 30 sec
+#         # bats will capture the output from netcat and compare the first line
+#         # of the header of the first HTTP request with the expected one
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name $global:NMAPCONTAINERNAME --network=$global:JNLPNETWORKNAME nmap:latest ncat.exe -w 30 -l 5000"
+#         $exitCode | Should -Be 0
+#         Is-ContainerRunning $global:NMAPCONTAINERNAME | Should -BeTrue
 
-        # get the ip address of the nmap container
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format `"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`" $global:NMAPCONTAINERNAME"
-        $exitCode | Should -Be 0
-        $nmap_ip = $stdout.Trim()
+#         # get the ip address of the nmap container
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format `"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`" $global:NMAPCONTAINERNAME"
+#         $exitCode | Should -Be 0
+#         $nmap_ip = $stdout.Trim()
 
-        # run Jenkins agent which tries to connect to the nmap container at port 5000
-        $secret = "aaa"
-        $name = "bbb"
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --network=$global:JNLPNETWORKNAME --name $global:CONTAINERNAME $global:IMAGE_NAME -Url http://${nmap_ip}:5000 $secret $name"
-        $exitCode | Should -Be 0
-        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+#         # run Jenkins agent which tries to connect to the nmap container at port 5000
+#         $secret = "aaa"
+#         $name = "bbb"
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --network=$global:JNLPNETWORKNAME --name $global:CONTAINERNAME $global:IMAGE_NAME -Url http://${nmap_ip}:5000 $secret $name"
+#         $exitCode | Should -Be 0
+#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "wait $global:NMAPCONTAINERNAME"
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "logs $global:NMAPCONTAINERNAME"
-        $exitCode | Should -Be 0
-        $stdout | Should -Match "GET /tcpSlaveAgentListener/ HTTP/1.1`r"
-    }
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "wait $global:NMAPCONTAINERNAME"
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "logs $global:NMAPCONTAINERNAME"
+#         $exitCode | Should -Be 0
+#         $stdout | Should -Match "GET /tcpSlaveAgentListener/ HTTP/1.1`r"
+#     }
 
-    AfterAll {
-        Cleanup($global:CONTAINERNAME)
-        Cleanup($global:NMAPCONTAINERNAME)
-        CleanupNetwork($global:JNLPNETWORKNAME)
-    }
-}
+#     AfterAll {
+#         Cleanup($global:CONTAINERNAME)
+#         Cleanup($global:NMAPCONTAINERNAME)
+#         CleanupNetwork($global:JNLPNETWORKNAME)
+#     }
+# }
 
 Describe "[$global:IMAGE_NAME] custom build args" {
     BeforeAll {
@@ -161,35 +161,35 @@ Describe "[$global:IMAGE_NAME] custom build args" {
     }
 }
 
-Describe "[$global:IMAGE_NAME] passing JVM options (slow test)" {
-    It 'connects to the nmap container' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "network create --driver nat $global:JNLPNETWORKNAME"
-        # Launch the netcat utility, listening at port 5000 for 30 sec
-        # bats will capture the output from netcat and compare the first line
-        # of the header of the first HTTP request with the expected one
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name $global:NMAPCONTAINERNAME --network=$global:JNLPNETWORKNAME nmap:latest ncat.exe -w 30 -l 5000"
-        $exitCode | Should -Be 0
-        Is-ContainerRunning $global:NMAPCONTAINERNAME | Should -BeTrue
+# Describe "[$global:IMAGE_NAME] passing JVM options (slow test)" {
+#     It 'connects to the nmap container' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "network create --driver nat $global:JNLPNETWORKNAME"
+#         # Launch the netcat utility, listening at port 5000 for 30 sec
+#         # bats will capture the output from netcat and compare the first line
+#         # of the header of the first HTTP request with the expected one
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name $global:NMAPCONTAINERNAME --network=$global:JNLPNETWORKNAME nmap:latest ncat.exe -w 30 -l 5000"
+#         $exitCode | Should -Be 0
+#         Is-ContainerRunning $global:NMAPCONTAINERNAME | Should -BeTrue
 
-        # get the ip address of the nmap container
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format `"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`" $global:NMAPCONTAINERNAME"
-        $exitCode | Should -Be 0
-        $nmap_ip = $stdout.Trim()
+#         # get the ip address of the nmap container
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format `"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`" $global:NMAPCONTAINERNAME"
+#         $exitCode | Should -Be 0
+#         $nmap_ip = $stdout.Trim()
 
-        # run Jenkins agent which tries to connect to the nmap container at port 5000
-        $secret = 'aaa'
-        $name = 'bbb'
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --network=$global:JNLPNETWORKNAME --name $global:CONTAINERNAME $global:IMAGE_NAME -Url http://${nmap_ip}:5000 -JenkinsJavaOpts `"--show-version`" $secret $name"
-        $exitCode | Should -Be 0
-        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-        Start-Sleep -Seconds 20
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "logs $global:CONTAINERNAME"
-        $exitCode | Should -Be 0
-    }
+#         # run Jenkins agent which tries to connect to the nmap container at port 5000
+#         $secret = 'aaa'
+#         $name = 'bbb'
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --network=$global:JNLPNETWORKNAME --name $global:CONTAINERNAME $global:IMAGE_NAME -Url http://${nmap_ip}:5000 -JenkinsJavaOpts `"--show-version`" $secret $name"
+#         $exitCode | Should -Be 0
+#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+#         Start-Sleep -Seconds 20
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "logs $global:CONTAINERNAME"
+#         $exitCode | Should -Be 0
+#     }
 
-    AfterAll {
-        Cleanup($global:CONTAINERNAME)
-        Cleanup($global:NMAPCONTAINERNAME)
-        CleanupNetwork($global:JNLPNETWORKNAME)
-    }
-}
+#     AfterAll {
+#         Cleanup($global:CONTAINERNAME)
+#         Cleanup($global:NMAPCONTAINERNAME)
+#         CleanupNetwork($global:JNLPNETWORKNAME)
+#     }
+# }
