@@ -240,7 +240,7 @@ foreach($agentType in $AgentTypes) {
                 $image = $jdk.Value.image
                 $javaVersion = $jdk.Value.build.args.JAVA_VERSION
                 Write-Host "= [DEBUG]: docker exec java version (should match $javaVersion)"
-                Invoke-Expression "docker run $image java -version"
+                Invoke-Expression "docker run --entrypoint pwsh.exe $image java -version"
                 Write-Host "= TEST: Starting ${image} tests..."
                 $jobs += Start-Job -ScriptBlock {
                     param($anAgentType, $aRemotingVersion, $anImage, $aJavaVersion, $aTestImageFunction, $aWorkspacePath)
