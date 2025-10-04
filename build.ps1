@@ -175,7 +175,9 @@ Test-CommandExists 'docker buildx'
 Test-CommandExists 'yq'
 
 $testImageFunction = ${function:Test-Image}
+$workspacePath = (Get-Location).Path
 $testsPath = Join-Path -Path (Get-Location).Path -ChildPath 'tests'
+Write-Host "= [DEBUG] testsPath: $testsPath"
 foreach($agentType in $AgentTypes) {
     $dockerComposeFile = 'build-windows_{0}_{1}.yaml' -f $AgentType, $ImageType
     $baseDockerCmd = 'docker-compose --file={0}' -f $dockerComposeFile
@@ -225,6 +227,10 @@ foreach($agentType in $AgentTypes) {
             Write-Host "= TEST: Testing all ${agentType} images..."
             $jdks = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
 
+            Write-Host "= [DEBUG] testsPath: $testsPath"
+            Write-Host "= [DEBUG] workspacePath: $workspacePath"
+
+
             # Run Test-Image in parallel for each JDK
             $jobs = @()
             foreach ($jdk in $jdks.PSObject.Properties) {
@@ -248,6 +254,11 @@ foreach($agentType in $AgentTypes) {
                     Set-Item -Path Function:Test-Image -Value $testImageFunction
 
                     Write-Host "== [DEBUG] testsPath: $testsPath"
+                    Write-Host "== [DEBUG] workspacePath: $workspacePath"
+                    Write-Host "== [DEBUG] Get-Location:"
+                    Write-Host (Get-Location).Path
+
+                    Set-Location -Path $workspacePath
 
                     Test-Image ("{0}|{1}|{2}|{3}" -f $agentType, $image, $javaVersion, $RemotingVersion)
                 } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal, $testImageFunction, $testsPath, $RemotingVersion
