@@ -81,33 +81,31 @@ Function Test-CommandExists {
     }
 }
 
+# Ex: agent|3345.v03dee9b_f88fc|docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019|21.0.7_6
 function Test-Image {
     param (
-        [String] $typeRemotingImageJava
+        [String] $AgentType,
+        [String] $RemotingVersion,
+        [String] $ImageName,
+        [String] $JavaVersion
     )
 
-    Write-Host "= [DEBUG] typeRemotingImageJava: $typeRemotingImageJava"
-    # Ex: agent|3345.v03dee9b_f88fc|docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019|21.0.7_6
-    $items = $typeRemotingImageJava.Split('|')
-    $agentType = $items[0]
-    $remotingVersion = $items[1]
-    $imageName = $items[2] -replace 'docker.io/', ''
-    $javaVersion = $items[3]
+    $imageName = $ImageName -replace 'docker.io/', ''
     $imageNameItems = $imageName.Split(':')
     $imageTag = $imageNameItems[1]
 
     Write-Host "= TEST: Testing ${imageName} image:"
 
     $env:IMAGE_NAME = $imageName
-    $env:VERSION = "$remotingVersion"
-    $env:JAVA_VERSION = "$javaVersion"
+    $env:VERSION = "$RemotingVersion"
+    $env:JAVA_VERSION = "$JavaVersion"
 
-    $targetPath = '.\target\{0}\{1}' -f $agentType, $imageTag
+    $targetPath = '.\target\{0}\{1}' -f $AgentType, $imageTag
     if (Test-Path $targetPath) {
         Remove-Item -Recurse -Force $targetPath
     }
     New-Item -Path $targetPath -Type Directory | Out-Null
-    $configuration.Run.Path = 'tests\{0}.Tests.ps1' -f $agentType
+    $configuration.Run.Path = 'tests\{0}.Tests.ps1' -f $AgentType
     $configuration.TestResult.OutputPath = '{0}\junit-results.xml' -f $targetPath
     $TestResults = Invoke-Pester -Configuration $configuration
     $failed = $false
@@ -252,7 +250,7 @@ foreach($agentType in $AgentTypes) {
                     Set-Item -Path Function:Test-Image -Value $aTestImageFunction
                     Set-Location -Path $aWorkspacePath
 
-                    Test-Image ("{0}|{1}|{2}|{3}" -f $anAgentType, $aRemotingVersion, $anImage, $aJavaVersion)
+                    Test-Image -AgentType $anAgentType -RemotingVersion $aRemotingVersion -ImageName $anImage -JavaVersion $aJavaVersion
                 } -ArgumentList $agentType, $RemotingVersion, $image, $javaVersion, $testImageFunction, $workspacePath
             }
 
