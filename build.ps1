@@ -178,7 +178,7 @@ Test-CommandExists 'yq'
 Invoke-Expression 'docker info'
 
 # Docker warmup (TODO: proper improvement incoming to pull only the base images from docker bake/compose file)
-Invoke-Expression 'docker pull mcr.microsoft.com/windows/servercore:ltsc2019 mcr.microsoft.com/powershell:nanoserver-1809 mcr.microsoft.com/windows/nanoserver:ltsc2019'
+Invoke-Expression 'docker-compose pull --parallel --file build_warmup.yaml'
 
 $testImageFunction = ${function:Test-Image}
 $workspacePath = (Get-Location).Path
