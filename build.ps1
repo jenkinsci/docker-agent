@@ -174,6 +174,8 @@ Test-CommandExists 'docker buildx'
 Test-CommandExists 'yq'
 
 $testImageFunction = ${function:Test-Image}
+$testsPath = Join-Path -Path (Get-Location).Path -ChildPath 'tests'
+Write-Host "= [DEBUG] testsPath: $testsPath"
 foreach($agentType in $AgentTypes) {
     $dockerComposeFile = 'build-windows_{0}_{1}.yaml' -f $AgentType, $ImageType
     $baseDockerCmd = 'docker-compose --file={0}' -f $dockerComposeFile
@@ -220,9 +222,6 @@ foreach($agentType in $AgentTypes) {
                 Install-Module -Force -Name Pester -MaximumVersion 5.3.3
             }
 
-            $testsPath = Join-Path -Path (Get-Location).Path -ChildPath 'tests'
-            Write-Host "= [DEBUG] testsPath: $testsPath"
-
             Write-Host "= TEST: Testing all ${agentType} images..."
             $jdks = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
 
@@ -246,14 +245,8 @@ foreach($agentType in $AgentTypes) {
                     $configuration.TestResult.OutputFormat = 'JUnitXml'
                     $configuration.Output.Verbosity = 'Diagnostic'
                     $configuration.CodeCoverage.Enabled = $false
-
-                    if (!(Test-Path -Path $configuration.Run.Path)) {
-                        Write-Error "== TEST: The tests directory '${configuration.Run.Path}' does not exist in the workspace: $(Get-Location)"
-                        exit 1
-                    }
-
-                    # Redefine Test-Image in the job session
                     Set-Item -Path Function:Test-Image -Value $testImageFunction
+
                     Test-Image ("{0}|{1}|{2}" -f $agentType, $image, $javaVersion)
                 } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal, $testImageFunction, $testsPath
             }
