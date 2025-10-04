@@ -148,7 +148,7 @@ Describe "[$global:IMAGE_NAME] custom build args" {
         #     Write-Host '[DEBUG] env:'
         #     docker exec $global:CONTAINERNAME $global:CONTAINERSHELL -c 'Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name) = $($_.Value)" }'
             Write-Host '[DEBUG] java -version:'
-            docker exec $global:CONTAINERNAME java -version
+            Write-Host (docker exec $global:CONTAINERNAME java -version)
             Write-Host '[DEBUG] end java -version'
 
         #     Write-Host '[DEBUG] pwsh -c "java -version":'
