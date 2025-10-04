@@ -177,11 +177,22 @@ Test-CommandExists 'yq'
 # Sanity check
 Invoke-Expression 'docker info'
 
-# TODO: pull in parallel
 # Docker warmup (TODO: remove, proper improvement incoming)
-Invoke-Expression 'docker pull mcr.microsoft.com/windows/servercore:ltsc2019'
-Invoke-Expression 'docker pull mcr.microsoft.com/powershell:nanoserver-1809'
-Invoke-Expression 'docker pull mcr.microsoft.com/windows/nanoserver:ltsc2019'
+$warmupImages = @(
+    'mcr.microsoft.com/windows/servercore:ltsc2019',
+    'mcr.microsoft.com/powershell:nanoserver-1809',
+    'mcr.microsoft.com/windows/nanoserver:ltsc2019'
+)
+
+$warmupJobs = @()
+foreach ($image in $warmupImages) {
+    $warmupJobs += Start-Job -ScriptBlock {
+        param($img)
+        Invoke-Expression "docker pull $img"
+    } -ArgumentList $image
+}
+# Wait for all pulls to finish
+$warmupJobs | ForEach-Object { Receive-Job -Job $_ -Wait; Remove-Job $_ }
 
 $testImageFunction = ${function:Test-Image}
 $workspacePath = (Get-Location).Path
