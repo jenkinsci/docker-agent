@@ -220,8 +220,8 @@ foreach($agentType in $AgentTypes) {
                 Install-Module -Force -Name Pester -MaximumVersion 5.3.3
             }
 
-            Write-Host '= [DEBUG] Current location:'
-            Write-Host $(Get-Location | Out-String)
+            $testsPath = Join-Path -Path (Get-Location).Path -ChildPath 'tests'
+            Write-Host "= [DEBUG] testsPath: $testsPath"
 
             Write-Host "= TEST: Testing all ${agentType} images..."
             $jdks = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
@@ -234,28 +234,28 @@ foreach($agentType in $AgentTypes) {
                 $imageLocal = $jdk.Value.image
                 $javaVersionLocal = $jdk.Value.build.args.JAVA_VERSION
                 $jobs += Start-Job -ScriptBlock {
-                    param($agentType, $image, $javaVersion, $testImageFunction)
+                    param($agentType, $image, $javaVersion, $testImageFunction, $testsPath)
 
                     Write-Host '== TEST: Setting up Pester environment...'
-                    Write-Host '== [DEBUG] Current location:'
-                    Write-Host $(Get-Location | Out-String)
-                    Write-Host '== [DEBUG] all folders:'
-                    Get-ChildItem -Recurse | Where-Object { $_.PSIsContainer } | ForEach-Object { $_.FullName }
-                    Write-Host '== [DEBUG] end of all folders'
                     Import-Module Pester
                     $configuration = [PesterConfiguration]::Default
                     $configuration.Run.PassThru = $true
-                    $configuration.Run.Path = '.\tests'
+                    $configuration.Run.Path = $testsPath
                     $configuration.Run.Exit = $true
                     $configuration.TestResult.Enabled = $true
                     $configuration.TestResult.OutputFormat = 'JUnitXml'
                     $configuration.Output.Verbosity = 'Diagnostic'
                     $configuration.CodeCoverage.Enabled = $false
 
+                    if (!(Test-Path -Path $configuration.Run.Path)) {
+                        Write-Error "== TEST: The tests directory '${configuration.Run.Path}' does not exist in the workspace: $(Get-Location)"
+                        exit 1
+                    }
+
                     # Redefine Test-Image in the job session
                     Set-Item -Path Function:Test-Image -Value $testImageFunction
                     Test-Image ("{0}|{1}|{2}" -f $agentType, $image, $javaVersion)
-                } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal, $testImageFunction
+                } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal, $testImageFunction, $testsPath
             }
 
             # Wait for all jobs to finish and collect results
