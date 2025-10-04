@@ -177,6 +177,11 @@ Test-CommandExists 'yq'
 # Sanity check
 Invoke-Expression 'docker info'
 
+# Docker warmup (TODO: remove, proper improvement incoming)
+Invoke-Expression 'docker pull mcr.microsoft.com/windows/servercore:ltsc2019'
+Invoke-Expression 'docker pull mcr.microsoft.com/powershell:nanoserver-1809'
+Invoke-Expression 'docker pull mcr.microsoft.com/windows/nanoserver:ltsc2019'
+
 $testImageFunction = ${function:Test-Image}
 $workspacePath = (Get-Location).Path
 foreach($agentType in $AgentTypes) {
