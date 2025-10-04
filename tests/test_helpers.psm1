@@ -125,10 +125,11 @@ function Run-Program($cmd, $params) {
     return $proc.ExitCode, $stdout, $stderr
 }
 
-function BuildNmapImage($windowsVersionTag) {
-    Write-Host "Building nmap image (Windows version '${windowsVersionTag}') for testing"
-    $exitCode, $stdout, $stderr = Run-Program 'docker.exe' 'inspect --type=image nmap' $true
+function BuildNmapImage($windowsVersionTag, $nmapContainerName) {
+    Write-Host "Checking if '${nmapContainerName}' nmap container is running..."
+    $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "inspect --type=image ${nmapContainerName}" $true
     if ($exitCode -ne 0) {
+        Write-Host "Building nmap image (Windows version '${windowsVersionTag}') for testing"
         Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
         $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "build -t nmap --build-arg `"WINDOWS_VERSION_TAG=${windowsVersionTag}`" -f ./tests/netcat-helper/Dockerfile-windows ./tests/netcat-helper"
         $exitCode | Should -Be 0
