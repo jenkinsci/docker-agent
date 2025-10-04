@@ -95,7 +95,7 @@ def parallelStages = [failFast: false]
                                 // ci.jenkins.io builds (e.g. no publication)
                                 if (isUnix()) {
                                     sh './build.sh'
-                                    sh './build.sh test -TestsDebug "verbose"'
+                                    sh './build.sh test'
                                 } else {
                                     powershell '& ./build.ps1 test'
                                     archiveArtifacts artifacts: 'build-windows_*.yaml', allowEmptyArchive: true
