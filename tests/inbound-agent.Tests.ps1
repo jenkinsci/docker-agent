@@ -42,6 +42,10 @@ BuildNmapImage($global:WINDOWSVERSIONTAG)
 
 Describe "[$global:IMAGE_NAME] build image" {
     It 'builds image' {
+        # if ($global:JAVAMAJORVERSION -eq 21) {
+        #     # Force an error on one of the JDK version for testing purpose
+        #     $global:JAVAMAJORVERSION | Should -Be 20
+        # }
         $exitCode, $stdout, $stderr = Run-Program 'docker' "build --quiet --build-arg `"VERSION=${global:VERSION}`" --build-arg `"JAVA_VERSION=${global:JAVA_VERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --tag=${global:IMAGE_TAG} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
         $exitCode | Should -Be 0
     }
