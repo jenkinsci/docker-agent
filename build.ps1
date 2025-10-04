@@ -177,6 +177,7 @@ Test-CommandExists 'yq'
 # Sanity check
 Invoke-Expression 'docker info'
 
+# TODO: pull in parallel
 # Docker warmup (TODO: remove, proper improvement incoming)
 Invoke-Expression 'docker pull mcr.microsoft.com/windows/servercore:ltsc2019'
 Invoke-Expression 'docker pull mcr.microsoft.com/powershell:nanoserver-1809'
