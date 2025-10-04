@@ -134,7 +134,8 @@ FROM agent AS inbound-agent
 COPY jenkins-agent.ps1 C:/ProgramData/Jenkins
 
 # TODO: remove
-RUN java -version
+RUN Write-Host "env:JAVA_HOME = $env:JAVA_HOME" ; `
+    java -version
 
 LABEL `
     org.opencontainers.image.vendor="Jenkins project" `
