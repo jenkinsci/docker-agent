@@ -97,7 +97,7 @@ def parallelStages = [failFast: false]
                                     sh './build.sh'
                                     sh './build.sh test'
                                 } else {
-                                    powershell '& ./build.ps1 test'
+                                    powershell '& ./build.ps1 test -TestsDebug "verbose"'
                                     archiveArtifacts artifacts: 'build-windows_*.yaml', allowEmptyArchive: true
                                 }
                                 junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results*.xml')
