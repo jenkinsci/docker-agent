@@ -1,7 +1,0 @@
-services:
-  jdk-core:
-    image: mcr.microsoft.com/windows/servercore:ltsc2019
-  pwsh-source:
-    image: mcr.microsoft.com/powershell:nanoserver-1809
-  base:
-    image: mcr.microsoft.com/windows/nanoserver:ltsc2019
