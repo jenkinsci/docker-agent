@@ -176,7 +176,7 @@ Test-CommandExists 'yq'
 
 $testImageFunction = ${function:Test-Image}
 $workspacePath = (Get-Location).Path
-$testsPath = Join-Path -Path (Get-Location).Path -ChildPath 'tests'
+$testsPath = Join-Path -Path $workspacePath -ChildPath 'tests'
 Write-Host "= [DEBUG] testsPath: $testsPath"
 foreach($agentType in $AgentTypes) {
     $dockerComposeFile = 'build-windows_{0}_{1}.yaml' -f $AgentType, $ImageType
@@ -239,29 +239,23 @@ foreach($agentType in $AgentTypes) {
                 $imageLocal = $jdk.Value.image
                 $javaVersionLocal = $jdk.Value.build.args.JAVA_VERSION
                 $jobs += Start-Job -ScriptBlock {
-                    param($agentType, $image, $javaVersion, $testImageFunction, $testsPath, $workspacePath, $RemotingVersion)
+                    param($agentType, $image, $javaVersion, $testImageFunction, $RemotingVersion, $workspacePath)
 
                     Write-Host '== TEST: Setting up Pester environment...'
                     Import-Module Pester
                     $configuration = [PesterConfiguration]::Default
                     $configuration.Run.PassThru = $true
-                    $configuration.Run.Path = $testsPath
+                    $configuration.Run.Path = Join-Path -Path $workspacePath.Path -ChildPath 'tests'
                     $configuration.Run.Exit = $true
                     $configuration.TestResult.Enabled = $true
                     $configuration.TestResult.OutputFormat = 'JUnitXml'
                     $configuration.Output.Verbosity = 'Diagnostic'
                     $configuration.CodeCoverage.Enabled = $false
                     Set-Item -Path Function:Test-Image -Value $testImageFunction
-
-                    Write-Host "== [DEBUG] testsPath: $testsPath"
-                    Write-Host "== [DEBUG] workspacePath: $workspacePath"
-                    Write-Host "== [DEBUG] Get-Location:"
-                    Write-Host (Get-Location).Path
-
                     Set-Location -Path $workspacePath
 
                     Test-Image ("{0}|{1}|{2}|{3}" -f $agentType, $image, $javaVersion, $RemotingVersion)
-                } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal, $testImageFunction, $testsPath, $workspacePath, $RemotingVersion
+                } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal, $RemotingVersion, $testImageFunction, $workspacePath
             }
 
             # Wait for all jobs to finish and collect results
@@ -269,16 +263,15 @@ foreach($agentType in $AgentTypes) {
             foreach ($job in $jobs) {
                 Write-Host "= TEST: Waiting for tests completion (${job.Name})..."
                 $result = Receive-Job -Job $job -Wait
-                Write-Host "= TEST: job ${job.Name} dump"
-                $job | ConvertTo-Json -Depth 5 | Write-Host
-                Write-Host "= TEST: result dump"
+                Write-Host "= TEST: job ${job.Name} output:"
+                $job.Output | ConvertTo-Json -Depth 5 | Write-Host
+                Write-Host "= TEST: result dump:"
                 $result | ConvertTo-Json -Depth 5 | Write-Host
-                # Write-Host "= TEST: Results (${job.Name}):"
-                # Write-Host $job.Output
-                # # if ($result) {
-                # if ($job.Error.Count -gt 0 -or $result) {
-                #     $testFailed = $true
-                # }
+                Write-Host "= TEST: result tests:"
+                $result.Tests | ConvertTo-Json -Depth 5 | Write-Host
+                if ($result.Failed) {
+                    $testFailed = $true
+                }
                 Remove-Job $job
             }
 
