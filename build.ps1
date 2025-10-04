@@ -220,6 +220,9 @@ foreach($agentType in $AgentTypes) {
                 Install-Module -Force -Name Pester -MaximumVersion 5.3.3
             }
 
+            Write-Host '= [DEBUG] Current location:'
+            Write-Host $(Get-Location | Out-String)
+
             Write-Host "= TEST: Testing all ${agentType} images..."
             $jdks = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
 
@@ -233,7 +236,12 @@ foreach($agentType in $AgentTypes) {
                 $jobs += Start-Job -ScriptBlock {
                     param($agentType, $image, $javaVersion, $testImageFunction)
 
-                    Write-Host '= TEST: Setting up Pester environment...'
+                    Write-Host '== TEST: Setting up Pester environment...'
+                    Write-Host '== [DEBUG] Current location:'
+                    Write-Host $(Get-Location | Out-String)
+                    Write-Host '== [DEBUG] all folders:'
+                    Get-ChildItem -Recurse | Where-Object { $_.PSIsContainer } | ForEach-Object { $_.FullName }
+                    Write-Host '== [DEBUG] end of all folders'
                     Import-Module Pester
                     $configuration = [PesterConfiguration]::Default
                     $configuration.Run.PassThru = $true
