@@ -174,6 +174,7 @@ Test-CommandExists 'docker-compose'
 Test-CommandExists 'docker buildx'
 Test-CommandExists 'yq'
 
+# Sanity check
 Invoke-Expression 'docker info'
 
 $testImageFunction = ${function:Test-Image}
