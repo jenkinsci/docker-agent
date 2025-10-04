@@ -43,19 +43,25 @@ FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-
 ## Agent image target
 FROM mcr.microsoft.com/windows/nanoserver:"${WINDOWS_VERSION_TAG}" AS agent
 
-ENV JAVA_MAJOR_VERSION="${JAVA_VERSION:0:2}"
-ARG JAVA_HOME="C:\openjdk-${JAVA_MAJOR_VERSION}"
 ENV PSHOME="C:\Program Files\PowerShell"
-ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
+COPY --from=pwsh-source $PSHOME $PSHOME
+
+SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+USER ContainerAdministrator
+
+ARG JAVA_VERSION=17.0.16+8
+ENV ProgramFiles="C:\Program Files" `
+    WindowsPATH="C:\Windows\system32;C:\Windows"
+RUN $env:JAVA_HOME = 'C:/openjdk-{0}' -f $env:JAVA_VERSION.Substring(0,2) ; `
+    [Environment]::SetEnvironmentVariable('JAVA_HOME', $env:JAVA_HOME, [System.EnvironmentVariableTarget]::Machine) ; `
+    $env:PATH = "≈${ProgramFiles}\PowerShell;${JAVA_HOME}\bin" ; `
+    [Environment]::SetEnvironmentVariable('PATH', $env:PATH, [System.EnvironmentVariableTarget]::Machine)
 
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
 COPY --from=jdk-core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
 COPY --from=jdk-core /windows/system32/whoami.exe /windows/system32/whoami.exe
 COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
-COPY --from=pwsh-source $PSHOME $PSHOME
-
-SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-USER ContainerAdministrator
 
 ARG GIT_VERSION=2.51.0
 ARG GIT_PATCH_VERSION=2
@@ -68,10 +74,10 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
     Remove-Item mingit.zip -Force
 
-ENV ProgramFiles="C:\Program Files" `
-    WindowsPATH="C:\Windows\system32;C:\Windows" `
-    JAVA_HOME="${JAVA_HOME}"
-ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
+ENV PATH="${PATH};C:\mingit\cmd"
+
+# TODO: remove
+RUN Write-Host "env:PATH = $env:PATH"
 
 ARG GIT_LFS_VERSION=3.7.0
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
