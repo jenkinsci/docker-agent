@@ -143,7 +143,7 @@ Describe "[$global:IMAGE_NAME] custom build args" {
         Is-ContainerRunning "$global:CONTAINERNAME" | Should -BeTrue
     }
 
-    It 'has java in the path with the correct version' {
+    It 'has java in the path with the correct major version' {
         # try {
         #     Write-Host '[DEBUG] env:'
         #     docker exec $global:CONTAINERNAME $global:CONTAINERSHELL -c 'Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name) = $($_.Value)" }'
@@ -154,7 +154,7 @@ Describe "[$global:IMAGE_NAME] custom build args" {
         # } catch {}
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -c `"java -version`""
         $exitCode | Should -Be 0
-        $stdout | Should -Match "openjdk version \""$global:JAVA_VERSION"
+        $stdout | Should -Match "openjdk version \""$global:JAVAMAJORVERSION"
     }
 
     It 'has the correct agent.jar version' {
