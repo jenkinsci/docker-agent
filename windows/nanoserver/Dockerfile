@@ -65,7 +65,10 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest $url -OutFile 'mingit.zip' -UseBasicParsing ; `
     Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
-    Remove-Item mingit.zip -Force
+    Remove-Item mingit.zip -Force ; `
+    # Enable long paths in git and Windows
+    git config --system core.longpaths true ; `
+    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name LongPathsEnabled -type DWord -Value 1
 
 ENV ProgramFiles="C:\Program Files" `
     WindowsPATH="C:\Windows\system32;C:\Windows" `
@@ -111,9 +114,6 @@ USER $user
 
 RUN New-Item -Type Directory $('{0}/.jenkins' -f $env:AGENT_ROOT) | Out-Null ; `
     New-Item -Type Directory $env:AGENT_WORKDIR | Out-Null
-
-RUN git config --system core.longpaths true ; `
-    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name LongPathsEnabled -type DWord -Value 1
 
 VOLUME "${AGENT_ROOT}"/.jenkins
 VOLUME "${AGENT_WORKDIR}"
