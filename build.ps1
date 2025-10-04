@@ -88,16 +88,16 @@ function Test-Image {
     # Ex: agent|docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019|21.0.7_6
     $items = $AgentTypeAndImageName.Split('|')
     $agentType = $items[0]
-    $imageName = $items[1] -replace 'docker.io/', ''
-    $javaVersion = $items[2]
-    $RemotingVersion = $items[3]
+    $remotingVersion = $items[1]
+    $imageName = $items[2] -replace 'docker.io/', ''
+    $javaVersion = $items[3]
     $imageNameItems = $imageName.Split(':')
     $imageTag = $imageNameItems[1]
 
     Write-Host "= TEST: Testing ${imageName} image:"
 
     $env:IMAGE_NAME = $imageName
-    $env:VERSION = "$RemotingVersion"
+    $env:VERSION = "$remotingVersion"
     $env:JAVA_VERSION = "$javaVersion"
 
     $targetPath = '.\target\{0}\{1}' -f $agentType, $imageTag
@@ -230,7 +230,7 @@ foreach($agentType in $AgentTypes) {
             foreach ($jdk in $jdks.PSObject.Properties) {
                 $image = $jdk.Value.image
                 $javaVersion = $jdk.Value.build.args.JAVA_VERSION
-                Write-Host "= TEST: Starting ${agentType}:${image}:${javaVersion}:${RemotingVersion} tests..."
+                Write-Host "= TEST: Starting ${agentType}:${RemotingVersion}:${image}:${javaVersion} tests..."
                 $jobs += Start-Job -ScriptBlock {
                     param($anAgentType, $anImage, $aJavaVersion, $aRemotingVersion, $aTestImageFunction, $aWorkspacePath)
 
@@ -248,8 +248,8 @@ foreach($agentType in $AgentTypes) {
                     Set-Item -Path Function:Test-Image -Value $aTestImageFunction
                     Set-Location -Path $aWorkspacePath
 
-                    Test-Image ("{0}|{1}|{2}|{3}" -f $anAgentType, $anImage, $aJavaVersion, $aRemotingVersion)
-                } -ArgumentList $agentType, $image, $javaVersion, $RemotingVersion, $testImageFunction, $workspacePath
+                    Test-Image ("{0}|{1}|{2}|{3}" -f $anAgentType, $aRemotingVersion, $anImage, $aJavaVersion)
+                } -ArgumentList $agentType, $RemotingVersion, $image, $javaVersion, $testImageFunction, $workspacePath
             }
 
             # Wait for all jobs to finish and collect results
