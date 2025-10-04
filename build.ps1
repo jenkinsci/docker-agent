@@ -245,7 +245,8 @@ foreach($agentType in $AgentTypes) {
                     Import-Module Pester
                     $configuration = [PesterConfiguration]::Default
                     $configuration.Run.PassThru = $true
-                    $configuration.Run.Path = Join-Path -Path $workspacePath.Path -ChildPath 'tests'
+                    $configuration.Run.Path = '{0}\tests' -f $workspacePath
+                    Write-Host ('= [DEBUG] testsPath: {0}\tests' -f $workspacePath)
                     $configuration.Run.Exit = $true
                     $configuration.TestResult.Enabled = $true
                     $configuration.TestResult.OutputFormat = 'JUnitXml'
