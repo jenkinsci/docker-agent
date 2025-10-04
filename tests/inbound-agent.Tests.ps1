@@ -84,36 +84,37 @@ Describe "[$global:IMAGE_NAME] image has jenkins-agent.ps1 in the correct locati
 
 Describe "[$global:IMAGE_NAME] image starts jenkins-agent.ps1 correctly (slow test)" {
     It 'connects to the nmap container' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' 'network create --driver nat jnlp-network'
+        $randomNumber = (Get-Random -Maximum 100000)
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "network create --driver nat jnlp-network-${randomNumber}"
         # Launch the netcat utility, listening at port 5000 for 30 sec
         # bats will capture the output from netcat and compare the first line
         # of the header of the first HTTP request with the expected one
-        $exitCode, $stdout, $stderr = Run-Program 'docker' 'run --detach --tty --name nmap --network=jnlp-network nmap:latest ncat.exe -w 30 -l 5000'
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name nmap-${randomNumber} --network=jnlp-network nmap:latest ncat.exe -w 30 -l 5000"
         $exitCode | Should -Be 0
-        Is-ContainerRunning "nmap" | Should -BeTrue
+        Is-ContainerRunning "nmap-${randomNumber}" | Should -BeTrue
 
         # get the ip address of the nmap container
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format `"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`" nmap"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format `"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`" nmap-${randomNumber}"
         $exitCode | Should -Be 0
         $nmap_ip = $stdout.Trim()
 
         # run Jenkins agent which tries to connect to the nmap container at port 5000
         $secret = "aaa"
         $name = "bbb"
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --network=jnlp-network --name $global:CONTAINERNAME $global:IMAGE_NAME -Url http://${nmap_ip}:5000 $secret $name"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --network=jnlp-network-${randomNumber} --name $global:CONTAINERNAME $global:IMAGE_NAME -Url http://${nmap_ip}:5000 $secret $name"
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' 'wait nmap'
-        $exitCode, $stdout, $stderr = Run-Program 'docker' 'logs nmap'
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "wait nmap-${randomNumber}"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "logs nmap-${randomNumber}"
         $exitCode | Should -Be 0
         $stdout | Should -Match "GET /tcpSlaveAgentListener/ HTTP/1.1`r"
     }
 
     AfterAll {
         Cleanup($global:CONTAINERNAME)
-        Cleanup('nmap')
-        CleanupNetwork('jnlp-network')
+        Cleanup("nmap-${randomNumber}")
+        CleanupNetwork("jnlp-network-${randomNumber}")
     }
 }
 
