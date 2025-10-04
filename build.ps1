@@ -261,9 +261,9 @@ foreach($agentType in $AgentTypes) {
             # Wait for all jobs to finish and collect results
             $testFailed = $false
             foreach ($job in $jobs) {
-                Write-Host "= TEST: Waiting for tests completion (${job.Name})..."
+                Write-Host "= TEST: Waiting for tests completion (${job.InstanceId})..."
                 $result = Receive-Job -Job $job -Wait
-                Write-Host "= TEST: job ${job.Name} output:"
+                Write-Host "= TEST: job ${job.InstanceId} output:"
                 $job.Output | ConvertTo-Json -Depth 5 | Write-Host
                 Write-Host "= TEST: result dump:"
                 $result | ConvertTo-Json -Depth 5 | Write-Host
