@@ -20,6 +20,8 @@ $global:CONTAINERNAME = 'pester-jenkins-inbound-agent_{0}_{1}' -f $global:IMAGE_
 $global:JNLPNETWORKNAME = 'jnlp-{0}' -f $random
 $global:NMAPCONTAINERNAME = 'nmap-{0}' -f $random
 Write-Host "= TESTS: container name $global:CONTAINERNAME"
+Write-Host "= TESTS: jnlp network name $global:JNLPNETWORKNAME"
+Write-Host "= TESTS: nmap container name $global:NMAPCONTAINERNAME"
 
 $global:CONTAINERSHELL = 'powershell.exe'
 if ($global:WINDOWSFLAVOR -eq 'nanoserver') {
@@ -33,8 +35,8 @@ if ($global:WINDOWSFLAVOR -eq 'nanoserver') {
 # Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name) = $($_.Value)" }
 
 Cleanup($global:CONTAINERNAME)
-Cleanup('nmap')
-CleanupNetwork('jnlp-network')
+Cleanup($global:NMAPCONTAINERNAME)
+CleanupNetwork($global:JNLPNETWORKNAME)
 
 BuildNmapImage($global:WINDOWSVERSIONTAG, $global:NMAPCONTAINERNAME)
 
