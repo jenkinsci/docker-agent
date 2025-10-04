@@ -41,11 +41,10 @@ RUN apk add --no-cache \
 
 ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 
-RUN case "$(jlink --version 2>&1)" in \
-      "17."*) options="--compress=2 --add-modules ALL-MODULE-PATH" ;; \
-      "21."*) options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
-      # TODO: set to "25." when next patch is available
-      "25"*) options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
+RUN case "$(jlink --version 2>&1 | cut -c1-2)" in \
+      "17") options="--compress=2 --add-modules ALL-MODULE-PATH" ;; \
+      "21") options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
+      "25") options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
@@ -86,7 +85,7 @@ RUN apk add --no-cache \
       tzdata-utils \
     && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ARG VERSION=3341.v0766d82b_dec0
+ARG VERSION=3345.v03dee9b_f88fc
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
