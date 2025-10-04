@@ -256,9 +256,9 @@ foreach($agentType in $AgentTypes) {
                 Write-Host "= TEST: Waiting for tests completion (${job.Name})..."
                 $result = Receive-Job -Job $job -Wait
                 Write-Host "= TEST: job ${job.Name} dump"
-                $job | Format-List *
+                $job | ConvertTo-Json -Depth 5 | Write-Host
                 Write-Host "= TEST: result dump"
-                $result | Format-List *
+                $result | ConvertTo-Json -Depth 5 | Write-Host
                 # Write-Host "= TEST: Results (${job.Name}):"
                 # Write-Host $job.Output
                 # # if ($result) {
