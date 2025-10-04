@@ -175,6 +175,8 @@ Test-CommandExists 'docker-compose'
 Test-CommandExists 'docker buildx'
 Test-CommandExists 'yq'
 
+Invoke-Expression 'docker info'
+
 $testImageFunction = ${function:Test-Image}
 $workspacePath = (Get-Location).Path
 foreach($agentType in $AgentTypes) {
