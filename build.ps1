@@ -187,7 +187,7 @@ $workspacePath = (Get-Location).Path
 foreach($agentType in $AgentTypes) {
     $dockerComposeFile = 'build-windows_{0}_{1}.yaml' -f $AgentType, $ImageType
     $baseDockerCmd = 'docker-compose --file={0}' -f $dockerComposeFile
-    $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
+    $baseDockerBuildCmd = '{0} build --parallel' -f $baseDockerCmd
 
     # Generate the docker compose file if it doesn't exists or if the parameter OverwriteDockerComposeFile is set
     if ((Test-Path $dockerComposeFile) -and -not $OverwriteDockerComposeFile) {
