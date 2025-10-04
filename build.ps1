@@ -176,8 +176,6 @@ Test-CommandExists 'yq'
 
 $testImageFunction = ${function:Test-Image}
 $workspacePath = (Get-Location).Path
-$testsPath = Join-Path -Path $workspacePath -ChildPath 'tests'
-Write-Host "= [DEBUG] testsPath: $testsPath"
 foreach($agentType in $AgentTypes) {
     $dockerComposeFile = 'build-windows_{0}_{1}.yaml' -f $AgentType, $ImageType
     $baseDockerCmd = 'docker-compose --file={0}' -f $dockerComposeFile
@@ -227,10 +225,6 @@ foreach($agentType in $AgentTypes) {
             Write-Host "= TEST: Testing all ${agentType} images..."
             $jdks = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
 
-            Write-Host "= [DEBUG] testsPath: $testsPath"
-            Write-Host "= [DEBUG] workspacePath: $workspacePath"
-
-
             # Run Test-Image in parallel for each JDK
             $jobs = @()
             foreach ($jdk in $jdks.PSObject.Properties) {
@@ -261,10 +255,7 @@ foreach($agentType in $AgentTypes) {
             # Wait for all jobs to finish and collect results
             $testFailed = $false
             foreach ($job in $jobs) {
-                Write-Host "= TEST: Waiting for tests completion (${job.InstanceId})..."
                 $result = Receive-Job -Job $job -Wait
-                Write-Host "= TEST: job ${job.InstanceId} output:"
-                $job.Output | ConvertTo-Json -Depth 5 | Write-Host
                 Write-Host "= TEST: result dump:"
                 $result | ConvertTo-Json -Depth 5 | Write-Host
                 Write-Host "= TEST: result tests:"
