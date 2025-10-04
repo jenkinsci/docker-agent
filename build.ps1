@@ -81,7 +81,7 @@ Function Test-CommandExists {
     }
 }
 
-# Ex: agent|3345.v03dee9b_f88fc|docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019|21.0.7_6
+# Ex: Test-Image -AgentType inbound-agent -RemotingVersion 3345.v03dee9b_f88fc -ImageName docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019 -JavaVersion 21.0.7_6
 function Test-Image {
     param (
         [String] $AgentType,
