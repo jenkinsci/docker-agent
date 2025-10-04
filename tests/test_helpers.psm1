@@ -125,7 +125,7 @@ function Run-Program($cmd, $params) {
     return $proc.ExitCode, $stdout, $stderr
 }
 
-function BuildNcatImage($windowsVersionTag) {
+function BuildNmapImage($windowsVersionTag) {
     Write-Host "Building nmap image (Windows version '${windowsVersionTag}') for testing"
     $exitCode, $stdout, $stderr = Run-Program 'docker.exe' 'inspect --type=image nmap' $true
     if ($exitCode -ne 0) {

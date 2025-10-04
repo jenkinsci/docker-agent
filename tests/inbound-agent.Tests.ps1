@@ -34,7 +34,7 @@ Cleanup($global:CONTAINERNAME)
 Cleanup('nmap')
 CleanupNetwork('jnlp-network')
 
-BuildNcatImage($global:WINDOWSVERSIONTAG)
+BuildNmapImage($global:WINDOWSVERSIONTAG)
 
 Describe "[$global:IMAGE_NAME] build image" {
     It 'builds image' {
