@@ -31,7 +31,8 @@ if (![String]::IsNullOrWhiteSpace($env:AGENT_TYPE)) {
     $AgentType = $env:AGENT_TYPE
 }
 
-$AgentTypes = @('agent', 'inbound-agent')
+# $AgentTypes = @('agent', 'inbound-agent')
+$AgentTypes = @('inbound-agent')
 if ($AgentType -ne '' -and $AgentType -in $AgentTypes) {
     $AgentTypes = @($AgentType)
 }
