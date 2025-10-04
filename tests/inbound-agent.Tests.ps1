@@ -144,10 +144,14 @@ Describe "[$global:IMAGE_NAME] custom build args" {
     }
 
     It 'has java in the path with the correct version' {
-        docker exec $global:CONTAINERNAME $global:CONTAINERSHELL -c 'Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name) = $($_.Value)" }' || true
-        docker exec $global:CONTAINERNAME java -version || true
-        docker exec $global:CONTAINERNAME $global:CONTAINERSHELL -c "java -version" || true
-        docker exec $global:CONTAINERNAME $global:CONTAINERSHELL -c `"java -version`" || true
+        try {
+            Write-Host '[DEBUG] env:'
+            docker exec $global:CONTAINERNAME $global:CONTAINERSHELL -c 'Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name) = $($_.Value)" }'
+            Write-Host '[DEBUG] java -version:'
+            docker exec $global:CONTAINERNAME java -version
+            Write-Host '[DEBUG] pwsh -c "java -version":'
+            docker exec $global:CONTAINERNAME $global:CONTAINERSHELL -c "java -version"
+        } catch {}
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -c `"java -version`""
         $exitCode | Should -Be 0
         $stdout | Should -Match "OpenJDK Runtime Environment Temurin-${global:JAVAMAJORVERSION}"
