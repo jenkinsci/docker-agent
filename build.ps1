@@ -234,29 +234,28 @@ foreach($agentType in $AgentTypes) {
             # Run Test-Image in parallel for each JDK
             $jobs = @()
             foreach ($jdk in $jdks.PSObject.Properties) {
-                Write-Host "= TEST: Starting ${agentType}:${jdk} tests..."
-                $agentTypeLocal = $agentType
-                $imageLocal = $jdk.Value.image
-                $javaVersionLocal = $jdk.Value.build.args.JAVA_VERSION
+                $image = $jdk.Value.image
+                $javaVersion = $jdk.Value.build.args.JAVA_VERSION
+                Write-Host "= TEST: Starting ${agentType}:${image}:${javaVersion} tests..."
                 $jobs += Start-Job -ScriptBlock {
-                    param($agentType, $image, $javaVersion, $testImageFunction, $RemotingVersion, $workspacePath)
+                    param($anAgentType, $anImage, $aJavaVersion, $aTestImageFunction, $aRemotingVersion, $aWorkspacePath)
 
                     Write-Host '== TEST: Setting up Pester environment...'
                     Import-Module Pester
                     $configuration = [PesterConfiguration]::Default
                     $configuration.Run.PassThru = $true
-                    $configuration.Run.Path = '{0}\tests' -f $workspacePath
-                    Write-Host ('= [DEBUG] testsPath: {0}\tests' -f $workspacePath)
+                    $configuration.Run.Path = '{0}\tests' -f $aWorkspacePath
+                    Write-Host ('= [DEBUG] testsPath: {0}\tests' -f $aWorkspacePath)
                     $configuration.Run.Exit = $true
                     $configuration.TestResult.Enabled = $true
                     $configuration.TestResult.OutputFormat = 'JUnitXml'
                     $configuration.Output.Verbosity = 'Diagnostic'
                     $configuration.CodeCoverage.Enabled = $false
-                    Set-Item -Path Function:Test-Image -Value $testImageFunction
-                    Set-Location -Path $workspacePath
+                    Set-Item -Path Function:Test-Image -Value $aTestImageFunction
+                    Set-Location -Path $aWorkspacePath
 
-                    Test-Image ("{0}|{1}|{2}|{3}" -f $agentType, $image, $javaVersion, $RemotingVersion)
-                } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal, $RemotingVersion, $testImageFunction, $workspacePath
+                    Test-Image ("{0}|{1}|{2}|{3}" -f $anAgentType, $anImage, $aJavaVersion, $aRemotingVersion)
+                } -ArgumentList $agentType, $image, $javaVersion, $RemotingVersion, $testImageFunction, $workspacePath
             }
 
             # Wait for all jobs to finish and collect results
