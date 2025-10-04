@@ -82,11 +82,12 @@ Function Test-CommandExists {
 
 function Test-Image {
     param (
-        [String] $AgentTypeAndImageName
+        [String] $typeRemotingImageJava
     )
 
-    # Ex: agent|docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019|21.0.7_6
-    $items = $AgentTypeAndImageName.Split('|')
+    Write-Host "= [DEBUG] typeRemotingImageJava: $typeRemotingImageJava"
+    # Ex: agent|3345.v03dee9b_f88fc|docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019|21.0.7_6
+    $items = $typeRemotingImageJava.Split('|')
     $agentType = $items[0]
     $remotingVersion = $items[1]
     $imageName = $items[2] -replace 'docker.io/', ''
