@@ -90,6 +90,7 @@ function Test-Image {
     $agentType = $items[0]
     $imageName = $items[1] -replace 'docker.io/', ''
     $javaVersion = $items[2]
+    $RemotingVersion = $items[3]
     $imageNameItems = $imageName.Split(':')
     $imageTag = $imageNameItems[1]
 
@@ -238,7 +239,7 @@ foreach($agentType in $AgentTypes) {
                 $imageLocal = $jdk.Value.image
                 $javaVersionLocal = $jdk.Value.build.args.JAVA_VERSION
                 $jobs += Start-Job -ScriptBlock {
-                    param($agentType, $image, $javaVersion, $testImageFunction, $testsPath, $workspacePath)
+                    param($agentType, $image, $javaVersion, $testImageFunction, $testsPath, $RemotingVersion)
 
                     Write-Host '== TEST: Setting up Pester environment...'
                     Import-Module Pester
@@ -259,8 +260,8 @@ foreach($agentType in $AgentTypes) {
 
                     Set-Location -Path $workspacePath
 
-                    Test-Image ("{0}|{1}|{2}" -f $agentType, $image, $javaVersion)
-                } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal, $testImageFunction, $testsPath, $workspacePath
+                    Test-Image ("{0}|{1}|{2}|{3}" -f $agentType, $image, $javaVersion, $RemotingVersion)
+                } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal, $testImageFunction, $testsPath, $RemotingVersion
             }
 
             # Wait for all jobs to finish and collect results
