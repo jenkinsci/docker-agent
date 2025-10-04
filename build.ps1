@@ -236,9 +236,9 @@ foreach($agentType in $AgentTypes) {
             foreach ($jdk in $jdks.PSObject.Properties) {
                 $image = $jdk.Value.image
                 $javaVersion = $jdk.Value.build.args.JAVA_VERSION
-                Write-Host "= TEST: Starting ${agentType}:${image}:${javaVersion} tests..."
+                Write-Host "= TEST: Starting ${agentType}:${image}:${javaVersion}:${RemotingVersion} tests..."
                 $jobs += Start-Job -ScriptBlock {
-                    param($anAgentType, $anImage, $aJavaVersion, $aTestImageFunction, $aRemotingVersion, $aWorkspacePath)
+                    param($anAgentType, $anImage, $aJavaVersion, $aRemotingVersion, $aTestImageFunction, $aWorkspacePath)
 
                     Write-Host '== TEST: Setting up Pester environment...'
                     Import-Module Pester
