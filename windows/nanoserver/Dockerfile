@@ -43,8 +43,7 @@ FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-
 ## Agent image target
 FROM mcr.microsoft.com/windows/nanoserver:"${WINDOWS_VERSION_TAG}" AS agent
 
-ENV JAVA_MAJOR_VERSION="${JAVA_VERSION:0:2}"
-ARG JAVA_HOME="C:\openjdk-${JAVA_MAJOR_VERSION}"
+ARG JAVA_HOME="C:\openjdk-17"
 ENV PSHOME="C:\Program Files\PowerShell"
 ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
 

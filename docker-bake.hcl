@@ -338,7 +338,7 @@ target "nanoserver" {
   dockerfile = "windows/nanoserver/Dockerfile"
   context    = "."
   args = {
-    # JAVA_HOME             = "C:/openjdk-${jdk}"
+    JAVA_HOME             = "C:/openjdk-${jdk}"
     JAVA_VERSION          = "${replace(javaversion(jdk), "_", "+")}"
     TOOLS_WINDOWS_VERSION = "${toolsversion(windows_version)}"
     VERSION               = REMOTING_VERSION
