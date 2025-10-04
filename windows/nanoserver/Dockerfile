@@ -133,6 +133,9 @@ FROM agent AS inbound-agent
 
 COPY jenkins-agent.ps1 C:/ProgramData/Jenkins
 
+# TODO: remove
+RUN java -version
+
 LABEL `
     org.opencontainers.image.vendor="Jenkins project" `
     org.opencontainers.image.title="Official Jenkins Inbound Agent Base Docker image" `
