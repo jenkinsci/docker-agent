@@ -94,7 +94,7 @@ function Test-Image {
     $imageNameItems = $imageName.Split(':')
     $imageTag = $imageNameItems[1]
 
-    Write-Host "= TEST: Testing ${imageName} image:"
+    Write-Host "=== TEST: Testing ${imageName} image:"
 
     $env:IMAGE_NAME = $imageName
     $env:VERSION = "$RemotingVersion"
@@ -232,16 +232,15 @@ foreach($agentType in $AgentTypes) {
             foreach ($jdk in $jdks.PSObject.Properties) {
                 $image = $jdk.Value.image
                 $javaVersion = $jdk.Value.build.args.JAVA_VERSION
-                Write-Host "= TEST: Starting ${agentType}:${RemotingVersion}:${image}:${javaVersion} tests..."
+                Write-Host "= TEST: Starting ${image} tests..."
                 $jobs += Start-Job -ScriptBlock {
                     param($anAgentType, $aRemotingVersion, $anImage, $aJavaVersion, $aTestImageFunction, $aWorkspacePath)
 
-                    Write-Host '== TEST: Setting up Pester environment...'
+                    Write-Host "== TEST: Setting up Pester environment for $anImage testing..."
                     Import-Module Pester
                     $configuration = [PesterConfiguration]::Default
                     $configuration.Run.PassThru = $true
                     $configuration.Run.Path = '{0}\tests' -f $aWorkspacePath
-                    Write-Host ('= [DEBUG] testsPath: {0}\tests' -f $aWorkspacePath)
                     $configuration.Run.Exit = $true
                     $configuration.TestResult.Enabled = $true
                     $configuration.TestResult.OutputFormat = 'JUnitXml'
@@ -259,9 +258,9 @@ foreach($agentType in $AgentTypes) {
             foreach ($job in $jobs) {
                 $result = Receive-Job -Job $job -Wait
                 Write-Host "= TEST: result dump:"
-                $result | ConvertTo-Json -Depth 5 | Write-Host
+                $result | ConvertTo-Json -Depth 3 | Write-Host
                 Write-Host "= TEST: result tests:"
-                $result.Tests | ConvertTo-Json -Depth 5 | Write-Host
+                $result.Tests | ConvertTo-Json | Write-Host
                 if ($result.Failed) {
                     $testFailed = $true
                 }
