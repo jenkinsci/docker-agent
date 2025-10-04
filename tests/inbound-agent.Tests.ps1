@@ -143,8 +143,8 @@ Describe "[$global:IMAGE_NAME] custom build args" {
         Is-ContainerRunning "$global:CONTAINERNAME" | Should -BeTrue
     }
 
-    It 'has the correct java version' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -c `"Invoke-Expression 'java -version'`""
+    It 'has java in the path with the correct version' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME java -version"
         $exitCode | Should -Be 0
         $stdout | Should -Match "OpenJDK Runtime Environment Temurin-${global:JAVAMAJORVERSION}"
     }
