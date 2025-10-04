@@ -257,8 +257,6 @@ foreach($agentType in $AgentTypes) {
             $testFailed = $false
             foreach ($job in $jobs) {
                 $result = Receive-Job -Job $job -Wait
-                Write-Host "= TEST: result dump:"
-                $result | ConvertTo-Json -Depth 3 | Write-Host
                 Write-Host "= TEST: result tests:"
                 $result.Tests | ConvertTo-Json | Write-Host
                 if ($result.Failed) {
