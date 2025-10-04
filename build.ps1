@@ -239,7 +239,7 @@ foreach($agentType in $AgentTypes) {
                 $imageLocal = $jdk.Value.image
                 $javaVersionLocal = $jdk.Value.build.args.JAVA_VERSION
                 $jobs += Start-Job -ScriptBlock {
-                    param($agentType, $image, $javaVersion, $testImageFunction, $testsPath, $RemotingVersion)
+                    param($agentType, $image, $javaVersion, $testImageFunction, $testsPath, $workspacePath, $RemotingVersion)
 
                     Write-Host '== TEST: Setting up Pester environment...'
                     Import-Module Pester
@@ -261,7 +261,7 @@ foreach($agentType in $AgentTypes) {
                     Set-Location -Path $workspacePath
 
                     Test-Image ("{0}|{1}|{2}|{3}" -f $agentType, $image, $javaVersion, $RemotingVersion)
-                } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal, $testImageFunction, $testsPath, $RemotingVersion
+                } -ArgumentList $agentTypeLocal, $imageLocal, $javaVersionLocal, $testImageFunction, $testsPath, $workspacePath, $RemotingVersion
             }
 
             # Wait for all jobs to finish and collect results
