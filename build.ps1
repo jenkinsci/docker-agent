@@ -245,6 +245,7 @@ if ($target -eq 'test') {
                     $configuration.Run.Exit = $true
                     $configuration.TestResult.Enabled = $true
                     $configuration.TestResult.OutputFormat = 'JUnitXml'
+                    $PesterConfig.TestResult.OutputPath = 'junit-results_{1}-{2}.xml' -f $javaVersion.Substring(0,2), $i
                     $configuration.Output.Verbosity = 'Diagnostic'
                     $configuration.CodeCoverage.Enabled = $false
                     Set-Item -Path Function:Test-Image -Value $aTestImageFunction
