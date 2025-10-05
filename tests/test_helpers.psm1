@@ -112,6 +112,11 @@ function Run-Program($cmd, $params) {
     $stdout = $proc.StandardOutput.ReadToEnd()
     $stderr = $proc.StandardError.ReadToEnd()
     $proc.WaitForExit()
+    # TODO: use https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.5#debugpreference
+    # $DebugPreference = "Continue"
+    # Write-Debug -Message "Hello, World"
+    # use also https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.5#informationpreference
+    # or https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.5#verbosepreference
     if (($env:TESTS_DEBUG -eq 'debug') -or ($env:TESTS_DEBUG -eq 'verbose')) {
         Write-Host -ForegroundColor DarkBlue "[cmd] $cmd $params"
         if ($env:TESTS_DEBUG -eq 'verbose') {
