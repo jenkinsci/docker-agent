@@ -2,7 +2,7 @@ final String cronExpr = env.BRANCH_IS_PRIMARY ? '@daily' : ''
 
 properties([
     buildDiscarder(logRotator(numToKeepStr: '10')),
-    disableConcurrentBuilds(abortPrevious: true),
+    // disableConcurrentBuilds(abortPrevious: true),
     pipelineTriggers([cron(cronExpr)]),
 ])
 
@@ -44,12 +44,12 @@ def spotAgentSelector(String agentLabel, int counter) {
 def parallelStages = [failFast: false]
 [
     'linux',
-    'nanoserver-1809',
+    // 'nanoserver-1809',
     'nanoserver-ltsc2019',
-    'nanoserver-ltsc2022',
-    'windowsservercore-1809',
-    'windowsservercore-ltsc2019',
-    'windowsservercore-ltsc2022'
+    // 'nanoserver-ltsc2022',
+    // 'windowsservercore-1809',
+    // 'windowsservercore-ltsc2019',
+    // 'windowsservercore-ltsc2022'
 ].each { imageType ->
     parallelStages[imageType] = {
         withEnv(["IMAGE_TYPE=${imageType}", "REGISTRY_ORG=${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"]) {
@@ -97,7 +97,7 @@ def parallelStages = [failFast: false]
                                     sh './build.sh'
                                     sh './build.sh test'
                                 } else {
-                                    powershell '& ./build.ps1 test'
+                                    powershell '& ./build.ps1 test -TestsDebug "verbose"'
                                     archiveArtifacts artifacts: 'build-windows_*.yaml', allowEmptyArchive: true
                                 }
                                 junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results*.xml')

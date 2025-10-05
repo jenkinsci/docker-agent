@@ -112,6 +112,11 @@ function Run-Program($cmd, $params) {
     $stdout = $proc.StandardOutput.ReadToEnd()
     $stderr = $proc.StandardError.ReadToEnd()
     $proc.WaitForExit()
+    # TODO: use https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.5#debugpreference
+    # $DebugPreference = "Continue"
+    # Write-Debug -Message "Hello, World"
+    # use also https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.5#informationpreference
+    # or https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.5#verbosepreference
     if (($env:TESTS_DEBUG -eq 'debug') -or ($env:TESTS_DEBUG -eq 'verbose')) {
         Write-Host -ForegroundColor DarkBlue "[cmd] $cmd $params"
         if ($env:TESTS_DEBUG -eq 'verbose') {
@@ -125,10 +130,11 @@ function Run-Program($cmd, $params) {
     return $proc.ExitCode, $stdout, $stderr
 }
 
-function BuildNcatImage($windowsVersionTag) {
-    Write-Host "Building nmap image (Windows version '${windowsVersionTag}') for testing"
-    $exitCode, $stdout, $stderr = Run-Program 'docker.exe' 'inspect --type=image nmap' $true
+function BuildNmapImage($windowsVersionTag) {
+    Write-Host "Inspecting nmap image..."
+    $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "inspect --type=image nmap" $true
     if ($exitCode -ne 0) {
+        Write-Host "Building nmap image (Windows version '${windowsVersionTag}') for testing"
         Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
         $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "build -t nmap --build-arg `"WINDOWS_VERSION_TAG=${windowsVersionTag}`" -f ./tests/netcat-helper/Dockerfile-windows ./tests/netcat-helper"
         $exitCode | Should -Be 0
