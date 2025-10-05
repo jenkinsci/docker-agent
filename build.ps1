@@ -178,6 +178,7 @@ Test-CommandExists 'yq'
 Invoke-Expression 'docker info'
 
 # Docker warmup (TODO: proper improvement incoming to pull only the base images from docker bake/compose file)
+Write-Host '= PREPARE: Docker warmup (pull base images)'
 $warmupImages = @(
     'mcr.microsoft.com/windows/servercore:ltsc2019',
     'mcr.microsoft.com/powershell:nanoserver-1809',
