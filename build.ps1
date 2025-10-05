@@ -21,6 +21,7 @@ Param(
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
+$LogCommandLifecycleEvent = $true
 
 if (![String]::IsNullOrWhiteSpace($env:TESTS_DEBUG)) {
     $TestsDebug = $env:TESTS_DEBUG
