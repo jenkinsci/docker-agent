@@ -124,7 +124,6 @@ function Test-Image {
 
 function Initialize-DockerComposeFile {
     param (
-        [String] $AgentType,
         [String] $ImageType,
         [String] $DockerComposeFile
     )
@@ -137,9 +136,6 @@ function Initialize-DockerComposeFile {
 
     # Override the list of Windows versions taken defined in docker-bake.hcl by the version from image type
     $env:WINDOWS_VERSION_OVERRIDE = $windowsVersion
-
-    # Override the list of agent types defined in docker-bake.hcl by the specified agent type
-    $env:WINDOWS_AGENT_TYPE_OVERRIDE = $AgentType
 
     # Retrieve the targets from docker buildx bake --print output
     # Remove the 'output' section (unsupported by docker compose)
@@ -165,7 +161,6 @@ function Initialize-DockerComposeFile {
 
     # Remove override
     Remove-Item env:\WINDOWS_VERSION_OVERRIDE
-    Remove-Item env:\WINDOWS_AGENT_TYPE_OVERRIDE
 }
 
 Test-CommandExists 'docker'
@@ -175,117 +170,117 @@ Test-CommandExists 'yq'
 
 $testImageFunction = ${function:Test-Image}
 $workspacePath = (Get-Location).Path
-foreach($agentType in $AgentTypes) {
-    $dockerComposeFile = 'build-windows_{0}_{1}.yaml' -f $AgentType, $ImageType
-    $baseDockerCmd = 'docker-compose --file={0}' -f $dockerComposeFile
-    $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
+$dockerComposeFile = 'build-windows_{0}.yaml' -f $ImageType
+$baseDockerCmd = 'docker-compose --file={0}' -f $dockerComposeFile
+$baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
-    # Generate the docker compose file if it doesn't exists or if the parameter OverwriteDockerComposeFile is set
-    if ((Test-Path $dockerComposeFile) -and -not $OverwriteDockerComposeFile) {
-        Write-Host "= PREPARE: The docker compose file '$dockerComposeFile' containing the image definitions already exists."
+# Generate the docker compose file if it doesn't exists or if the parameter OverwriteDockerComposeFile is set
+if ((Test-Path $dockerComposeFile) -and -not $OverwriteDockerComposeFile) {
+    Write-Host "= PREPARE: The docker compose file '$dockerComposeFile' containing the image definitions already exists."
+} else {
+    Write-Host "= PREPARE: Initialize the docker compose file '$dockerComposeFile' containing the image definitions."
+    Initialize-DockerComposeFile -ImageType $ImageType -DockerComposeFile $dockerComposeFile
+}
+
+Write-Host '= PREPARE: List of images and tags to be processed:'
+Invoke-Expression "$baseDockerCmd config"
+
+Write-Host '= BUILD: Building all images...'
+switch ($DryRun) {
+    $true { Write-Host "(dry-run) $baseDockerBuildCmd" }
+    $false { Invoke-Expression $baseDockerBuildCmd }
+}
+Write-Host "= BUILD: Finished building all images."
+
+if ($lastExitCode -ne 0) {
+    exit $lastExitCode
+}
+
+if ($target -eq 'test') {
+    if ($DryRun) {
+        Write-Host '= TEST: (dry-run) test harness'
     } else {
-        Write-Host "= PREPARE: Initialize the docker compose file '$dockerComposeFile' containing the image definitions."
-        Initialize-DockerComposeFile -AgentType $AgentType -ImageType $ImageType -DockerComposeFile $dockerComposeFile
-    }
+        Write-Host '= TEST: Starting test harness'
 
-    Write-Host '= PREPARE: List of images and tags to be processed:'
-    Invoke-Expression "$baseDockerCmd config"
-
-    Write-Host '= BUILD: Building all images...'
-    switch ($DryRun) {
-        $true { Write-Host "(dry-run) $baseDockerBuildCmd" }
-        $false { Invoke-Expression $baseDockerBuildCmd }
-    }
-    Write-Host '= BUILD: Finished building all images.'
-
-    if ($lastExitCode -ne 0) {
-        exit $lastExitCode
-    }
-
-    if ($target -eq 'test') {
-        if ($DryRun) {
-            Write-Host '= TEST: (dry-run) test harness'
-        } else {
-            Write-Host '= TEST: Starting test harness'
-
-            $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.3.0 -MaximumVersion 5.3.3 -ErrorAction SilentlyContinue
-            if ($null -eq $mod) {
-                Write-Host '= TEST: Pester 5.3.x not found: installing...'
-                $module = 'C:\Program Files\WindowsPowerShell\Modules\Pester'
-                if (Test-Path $module) {
-                    takeown /F $module /A /R
-                    icacls $module /reset
-                    icacls $module /grant Administrators:'F' /inheritance:d /T
-                    Remove-Item -Path $module -Recurse -Force -Confirm:$false
-                }
-                Install-Module -Force -Name Pester -MaximumVersion 5.3.3
+        $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.3.0 -MaximumVersion 5.3.3 -ErrorAction SilentlyContinue
+        if ($null -eq $mod) {
+            Write-Host '= TEST: Pester 5.3.x not found: installing...'
+            $module = 'C:\Program Files\WindowsPowerShell\Modules\Pester'
+            if (Test-Path $module) {
+                takeown /F $module /A /R
+                icacls $module /reset
+                icacls $module /grant Administrators:'F' /inheritance:d /T
+                Remove-Item -Path $module -Recurse -Force -Confirm:$false
             }
-
-            Write-Host "= TEST: Testing all ${agentType} images..."
-            $jdks = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
-
-            # Run Test-Image in parallel for each JDK
-            $jobs = @()
-            foreach ($jdk in $jdks.PSObject.Properties) {
-                $image = $jdk.Value.image
-                $javaVersion = $jdk.Value.build.args.JAVA_VERSION
-                Write-Host "= TEST: Starting ${image} tests in parallel..."
-                $jobs += Start-Job -ScriptBlock {
-                    param($anAgentType, $aRemotingVersion, $anImage, $aJavaVersion, $aTestImageFunction, $aWorkspacePath)
-
-                    Write-Host "== TEST: Setting up Pester environment for $anImage testing..."
-                    Import-Module Pester
-                    $configuration = [PesterConfiguration]::Default
-                    $configuration.Run.PassThru = $true
-                    $configuration.Run.Path = '{0}\tests' -f $aWorkspacePath
-                    $configuration.Run.Exit = $true
-                    $configuration.TestResult.Enabled = $true
-                    $configuration.TestResult.OutputFormat = 'JUnitXml'
-                    $configuration.Output.Verbosity = 'Diagnostic'
-                    $configuration.CodeCoverage.Enabled = $false
-                    Set-Item -Path Function:Test-Image -Value $aTestImageFunction
-                    Set-Location -Path $aWorkspacePath
-
-                    Test-Image -AgentType $anAgentType -RemotingVersion $aRemotingVersion -ImageName $anImage -JavaVersion $aJavaVersion
-                } -ArgumentList $agentType, $RemotingVersion, $image, $javaVersion, $testImageFunction, $workspacePath
-            }
-
-            # Wait for all jobs to finish and collect results
-            $testFailed = $false
-            foreach ($job in $jobs) {
-                $result = Receive-Job -Job $job -Wait
-                if ($result.Failed) {
-                    Write-Host "= TEST: Error(s), see the results below"
-                    $result.Tests | ConvertTo-Json | Write-Host
-                    $testFailed = $true
-                }
-                Remove-Job $job
-            }
-
-            # Fail if any test failures
-            if ($testFailed -ne $false) {
-                Write-Error "Test stage failed for ${agentType}!"
-                exit 1
-            } else {
-                Write-Host "= TEST: stage passed for ${agentType}!"
-            }
-        }
-    }
-
-    if ($target -eq 'publish') {
-        Write-Host '= PUBLISH: push all images and tags'
-        switch($DryRun) {
-            $true { Write-Host "(dry-run) $baseDockerCmd push" }
-            $false { Invoke-Expression "$baseDockerCmd push" }
+            Install-Module -Force -Name Pester -MaximumVersion 5.3.3
         }
 
-        # Fail if any issues when publising the docker images
-        if ($lastExitCode -ne 0) {
-            Write-Error '= PUBLISH: failed!'
+        Write-Host '= TEST: Testing all images...'
+        $imageDefinitions = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
+
+        # Run Test-Image in parallel for each image definition
+        $jobs = @()
+        foreach ($imageDefinition in $imageDefinitions.PSObject.Properties) {
+            $image = $imageDefinition.Value.image
+            $agentType = $imageDefinition.Value.build.target
+            $javaVersion = $imageDefinition.Value.build.args.JAVA_VERSION
+            Write-Host "= TEST: Starting ${image} tests in parallel..."
+            $jobs += Start-Job -ScriptBlock {
+                param($anAgentType, $aRemotingVersion, $anImage, $aJavaVersion, $aTestImageFunction, $aWorkspacePath)
+
+                Write-Host "== TEST: Setting up Pester environment for $anImage testing..."
+                Import-Module Pester
+                $configuration = [PesterConfiguration]::Default
+                $configuration.Run.PassThru = $true
+                $configuration.Run.Path = '{0}\tests' -f $aWorkspacePath
+                $configuration.Run.Exit = $true
+                $configuration.TestResult.Enabled = $true
+                $configuration.TestResult.OutputFormat = 'JUnitXml'
+                $configuration.Output.Verbosity = 'Diagnostic'
+                $configuration.CodeCoverage.Enabled = $false
+                Set-Item -Path Function:Test-Image -Value $aTestImageFunction
+                Set-Location -Path $aWorkspacePath
+
+                Test-Image -AgentType $anAgentType -RemotingVersion $aRemotingVersion -ImageName $anImage -JavaVersion $aJavaVersion
+            } -ArgumentList $agentType, $RemotingVersion, $image, $javaVersion, $testImageFunction, $workspacePath
+        }
+
+        # Wait for all jobs to finish and collect results
+        $testFailed = $false
+        foreach ($job in $jobs) {
+            $result = Receive-Job -Job $job -Wait
+            if ($result.Failed) {
+                Write-Host "= TEST: Error(s), see the results below"
+                $result.Tests | ConvertTo-Json | Write-Host
+                $testFailed = $true
+            }
+            Remove-Job $job
+        }
+
+        # Fail if any test failures
+        if ($testFailed -ne $false) {
+            Write-Error '= TEST: stage failed'
             exit 1
+        } else {
+            Write-Host '= TEST: stage passed'
         }
     }
 }
+
+if ($target -eq 'publish') {
+    Write-Host '= PUBLISH: push all images and tags'
+    switch($DryRun) {
+        $true { Write-Host "(dry-run) $baseDockerCmd push" }
+        $false { Invoke-Expression "$baseDockerCmd push" }
+    }
+
+    # Fail if any issues when publising the docker images
+    if ($lastExitCode -ne 0) {
+        Write-Error '= PUBLISH: failed!'
+        exit 1
+    }
+}
+# }
 
 if ($lastExitCode -ne 0) {
     Write-Error 'Build failed!'
