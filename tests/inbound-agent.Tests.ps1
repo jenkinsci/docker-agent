@@ -159,7 +159,7 @@ Describe "[$global:IMAGE_NAME] custom build args" {
         # } catch {}
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -c `"java -version`""
         $exitCode | Should -Be 0
-        $stdout | Should -Match $global:JAVA_VERSION
+        $stdout | Should -Match $global:JAVAMAJORVERSION
     }
 
     It 'has the correct agent.jar version' {
