@@ -259,10 +259,9 @@ if ($target -eq 'test') {
         $testFailed = $false
         foreach ($job in $jobs) {
             $result = Receive-Job -Job $job -Wait
-            Write-Host "= [DEBUG] result dump:"
-            $result | ConvertTo-Json -Depth 3 | Write-Host
+            Write-Host '== TEST: {0} finished' -f $job.Name
             if ($result.Failed) {
-                Write-Host '= TEST: Error(s) with {0}, see the results below' -f $job.Name
+                Write-Host '== TEST: Error(s), see the results below'
                 $result.Tests | ConvertTo-Json | Write-Host
                 $testFailed = $true
             }
