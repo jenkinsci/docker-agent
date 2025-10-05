@@ -189,6 +189,7 @@ $warmupJobs = @()
 foreach ($image in $warmupImages) {
     $warmupJobs += Start-Job -ScriptBlock {
         param($img)
+        Write-Host "== PREPARE: pulling $img"
         Invoke-Expression "docker pull $img"
     } -ArgumentList $image
 }
