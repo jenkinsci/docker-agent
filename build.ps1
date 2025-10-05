@@ -87,7 +87,7 @@ function Test-Image {
         [String] $RemotingVersion,
         [String] $ImageName,
         [String] $JavaVersion,
-        [Integer] $TestNumber
+        [int] $TestNumber
     )
 
     $imageName = $ImageName -replace 'docker.io/', ''
