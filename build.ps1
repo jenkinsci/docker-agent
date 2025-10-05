@@ -186,15 +186,17 @@ if ((Test-Path $dockerComposeFile) -and -not $OverwriteDockerComposeFile) {
 Write-Host '= PREPARE: List of images and tags to be processed:'
 Invoke-Expression "$baseDockerCmd config"
 
-Write-Host '= BUILD: Building all images...'
-switch ($DryRun) {
-    $true { Write-Host "(dry-run) $baseDockerBuildCmd" }
-    $false { Invoke-Expression $baseDockerBuildCmd }
-}
-Write-Host "= BUILD: Finished building all images."
+if ($target -eq 'build') {
+    Write-Host '= BUILD: Building all images...'
+    switch ($DryRun) {
+        $true { Write-Host "(dry-run) $baseDockerBuildCmd" }
+        $false { Invoke-Expression $baseDockerBuildCmd }
+    }
+    Write-Host "= BUILD: Finished building all images."
 
-if ($lastExitCode -ne 0) {
-    exit $lastExitCode
+    if ($lastExitCode -ne 0) {
+        exit $lastExitCode
+    }
 }
 
 if ($target -eq 'test') {

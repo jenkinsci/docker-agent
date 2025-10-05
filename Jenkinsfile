@@ -91,14 +91,21 @@ def parallelStages = [failFast: false]
                                 }
                             }
                         } else {
-                            stage('Build and Test') {
+                            stage('Build') {
                                 // ci.jenkins.io builds (e.g. no publication)
                                 if (isUnix()) {
                                     sh './build.sh'
+                                } else {
+                                    powershell '& ./build.ps1 build'
+                                    archiveArtifacts artifacts: 'build-windows_*.yaml', allowEmptyArchive: true
+                                }
+                            }
+                            stage('Test') {
+                                // ci.jenkins.io builds (e.g. no publication)
+                                if (isUnix()) {
                                     sh './build.sh test'
                                 } else {
                                     powershell '& ./build.ps1 test'
-                                    archiveArtifacts artifacts: 'build-windows_*.yaml', allowEmptyArchive: true
                                 }
                                 junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results*.xml')
                             }
