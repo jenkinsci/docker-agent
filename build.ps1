@@ -21,6 +21,7 @@ Param(
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downloads
+$pesterVersion = '5.3.3'
 
 if (![String]::IsNullOrWhiteSpace($env:TESTS_DEBUG)) {
     $TestsDebug = $env:TESTS_DEBUG
@@ -207,15 +208,17 @@ if ($target -eq 'test') {
 
         $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.3.0 -MaximumVersion 5.3.3 -ErrorAction SilentlyContinue
         if ($null -eq $mod) {
-            Write-Host '= TEST: Pester 5.3.x not found: installing...'
+            Write-Host "= TEST: Pester $pesterVersion not found"
             $module = 'C:\Program Files\WindowsPowerShell\Modules\Pester'
             if (Test-Path $module) {
-                takeown /F $module /A /R
-                icacls $module /reset
-                icacls $module /grant Administrators:'F' /inheritance:d /T
-                Remove-Item -Path $module -Recurse -Force -Confirm:$false
+                Write-Output '= TEST: taking ownership of existing Pester module to remove it...'
+                takeown /F $module /A /R | Out-Null
+                icacls $module /reset | Out-Null
+                icacls $module /grant Administrators:'F' /inheritance:d /T | Out-Null
+                Remove-Item -Path $module -Recurse -Force -Confirm:$false | Out-Null
             }
-            Install-Module -Force -Name Pester -MaximumVersion 5.3.3
+            Write-Host '= TEST: Installing Pester'
+            Install-Module -Force -Name Pester -MaximumVersion $pesterVersion
         }
 
         Write-Host '= TEST: Testing all images...'
