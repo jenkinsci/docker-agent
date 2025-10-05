@@ -157,7 +157,7 @@ Describe "[$global:IMAGE_NAME] custom build args" {
         #     Write-Host '[DEBUG] pwsh -c "java -version":'
         #     docker exec $global:CONTAINERNAME $global:CONTAINERSHELL -c "java -version"
         # } catch {}
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -c `"java -version`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -c `"Invoke-Expression 'java -version'`""
         $exitCode | Should -Be 0
         $stdout | Should -Match $global:JAVAMAJORVERSION
     }
