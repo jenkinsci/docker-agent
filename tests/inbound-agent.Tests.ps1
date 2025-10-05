@@ -17,6 +17,8 @@ $global:WINDOWSVERSIONTAG = $items[2]
 
 $random = Get-Random
 $global:CONTAINERNAME = 'pester-jenkins-inbound-agent_{0}_{1}' -f $global:IMAGE_TAG, $random
+$global:JNLPNETWORKNAME = 'jnlp-{0}' -f $random
+$global:NMAPCONTAINERNAME = 'nmap-{0}' -f $random
 Write-Host "= TESTS: container name $global:CONTAINERNAME"
 
 $global:CONTAINERSHELL = 'powershell.exe'
@@ -31,8 +33,8 @@ if ($global:WINDOWSFLAVOR -eq 'nanoserver') {
 # Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name) = $($_.Value)" }
 
 Cleanup($global:CONTAINERNAME)
-Cleanup('nmap')
-CleanupNetwork('jnlp-network')
+Cleanup($global:NMAPCONTAINERNAME)
+CleanupNetwork($global:JNLPNETWORKNAME)
 
 BuildNcatImage($global:WINDOWSVERSIONTAG)
 
@@ -84,36 +86,36 @@ Describe "[$global:IMAGE_NAME] image has jenkins-agent.ps1 in the correct locati
 
 Describe "[$global:IMAGE_NAME] image starts jenkins-agent.ps1 correctly (slow test)" {
     It 'connects to the nmap container' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' 'network create --driver nat jnlp-network'
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "network create --driver nat $global:JNLPNETWORKNAME"
         # Launch the netcat utility, listening at port 5000 for 30 sec
         # bats will capture the output from netcat and compare the first line
         # of the header of the first HTTP request with the expected one
-        $exitCode, $stdout, $stderr = Run-Program 'docker' 'run --detach --tty --name nmap --network=jnlp-network nmap:latest ncat.exe -w 30 -l 5000'
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name $global:NMAPCONTAINERNAME --network=$global:JNLPNETWORKNAME nmap:latest ncat.exe -w 30 -l 5000"
         $exitCode | Should -Be 0
-        Is-ContainerRunning "nmap" | Should -BeTrue
+        Is-ContainerRunning $global:NMAPCONTAINERNAME | Should -BeTrue
 
         # get the ip address of the nmap container
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format `"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`" nmap"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format `"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`" $global:NMAPCONTAINERNAME"
         $exitCode | Should -Be 0
         $nmap_ip = $stdout.Trim()
 
         # run Jenkins agent which tries to connect to the nmap container at port 5000
         $secret = "aaa"
         $name = "bbb"
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --network=jnlp-network --name $global:CONTAINERNAME $global:IMAGE_NAME -Url http://${nmap_ip}:5000 $secret $name"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --network=$global:JNLPNETWORKNAME --name $global:CONTAINERNAME $global:IMAGE_NAME -Url http://${nmap_ip}:5000 $secret $name"
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' 'wait nmap'
-        $exitCode, $stdout, $stderr = Run-Program 'docker' 'logs nmap'
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "wait $global:NMAPCONTAINERNAME"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "logs $global:NMAPCONTAINERNAME"
         $exitCode | Should -Be 0
         $stdout | Should -Match "GET /tcpSlaveAgentListener/ HTTP/1.1`r"
     }
 
     AfterAll {
         Cleanup($global:CONTAINERNAME)
-        Cleanup('nmap')
-        CleanupNetwork('jnlp-network')
+        Cleanup($global:NMAPCONTAINERNAME)
+        CleanupNetwork($global:JNLPNETWORKNAME)
     }
 }
 
@@ -148,24 +150,24 @@ Describe "[$global:IMAGE_NAME] custom build args" {
 }
 
 Describe "[$global:IMAGE_NAME] passing JVM options (slow test)" {
-    It "shows the java version ${global:JAVAMAJORVERSION} with --show-version" {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' 'network create --driver nat jnlp-network'
+    It "connects to the nmap container and shows the java version ${global:JAVAMAJORVERSION} with --show-version" {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "network create --driver nat $global:JNLPNETWORKNAME"
         # Launch the netcat utility, listening at port 5000 for 30 sec
         # bats will capture the output from netcat and compare the first line
         # of the header of the first HTTP request with the expected one
-        $exitCode, $stdout, $stderr = Run-Program 'docker' 'run --detach --tty --name nmap --network=jnlp-network nmap:latest ncat.exe -w 30 -l 5000'
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name $global:NMAPCONTAINERNAME --network=$global:JNLPNETWORKNAME nmap:latest ncat.exe -w 30 -l 5000"
         $exitCode | Should -Be 0
-        Is-ContainerRunning 'nmap' | Should -BeTrue
+        Is-ContainerRunning $global:NMAPCONTAINERNAME | Should -BeTrue
 
         # get the ip address of the nmap container
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format `"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`" nmap"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format `"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`" $global:NMAPCONTAINERNAME"
         $exitCode | Should -Be 0
         $nmap_ip = $stdout.Trim()
 
         # run Jenkins agent which tries to connect to the nmap container at port 5000
         $secret = 'aaa'
         $name = 'bbb'
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --network=jnlp-network --name $global:CONTAINERNAME $global:IMAGE_NAME -Url http://${nmap_ip}:5000 -JenkinsJavaOpts `"--show-version`" $secret $name"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --network=$global:JNLPNETWORKNAME --name $global:CONTAINERNAME $global:IMAGE_NAME -Url http://${nmap_ip}:5000 -JenkinsJavaOpts `"--show-version`" $secret $name"
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
         Start-Sleep -Seconds 20
@@ -176,7 +178,7 @@ Describe "[$global:IMAGE_NAME] passing JVM options (slow test)" {
 
     AfterAll {
         Cleanup($global:CONTAINERNAME)
-        Cleanup('nmap')
-        CleanupNetwork('jnlp-network')
+        Cleanup($global:NMAPCONTAINERNAME)
+        CleanupNetwork($global:JNLPNETWORKNAME)
     }
 }

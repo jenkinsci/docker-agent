@@ -80,31 +80,31 @@ Function Test-CommandExists {
     }
 }
 
+# Ex: Test-Image -AgentType inbound-agent -RemotingVersion 3345.v03dee9b_f88fc -ImageName docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019 -JavaVersion 21.0.7_6
 function Test-Image {
     param (
-        [String] $AgentTypeAndImageName
+        [String] $AgentType,
+        [String] $RemotingVersion,
+        [String] $ImageName,
+        [String] $JavaVersion
     )
 
-    # Ex: agent|docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019|21.0.7_6
-    $items = $AgentTypeAndImageName.Split('|')
-    $agentType = $items[0]
-    $imageName = $items[1] -replace 'docker.io/', ''
-    $javaVersion = $items[2]
+    $imageName = $ImageName -replace 'docker.io/', ''
     $imageNameItems = $imageName.Split(':')
     $imageTag = $imageNameItems[1]
 
-    Write-Host "= TEST: Testing ${imageName} image:"
+    Write-Host "=== TEST: Testing ${imageName} image:"
 
     $env:IMAGE_NAME = $imageName
     $env:VERSION = "$RemotingVersion"
-    $env:JAVA_VERSION = "$javaVersion"
+    $env:JAVA_VERSION = "$JavaVersion"
 
-    $targetPath = '.\target\{0}\{1}' -f $agentType, $imageTag
+    $targetPath = '.\target\{0}\{1}' -f $AgentType, $imageTag
     if (Test-Path $targetPath) {
         Remove-Item -Recurse -Force $targetPath
     }
     New-Item -Path $targetPath -Type Directory | Out-Null
-    $configuration.Run.Path = 'tests\{0}.Tests.ps1' -f $agentType
+    $configuration.Run.Path = 'tests\{0}.Tests.ps1' -f $AgentType
     $configuration.TestResult.OutputPath = '{0}\junit-results.xml' -f $targetPath
     $TestResults = Invoke-Pester -Configuration $configuration
     $failed = $false
@@ -173,6 +173,8 @@ Test-CommandExists 'docker-compose'
 Test-CommandExists 'docker buildx'
 Test-CommandExists 'yq'
 
+$testImageFunction = ${function:Test-Image}
+$workspacePath = (Get-Location).Path
 foreach($agentType in $AgentTypes) {
     $dockerComposeFile = 'build-windows_{0}_{1}.yaml' -f $AgentType, $ImageType
     $baseDockerCmd = 'docker-compose --file={0}' -f $dockerComposeFile
@@ -219,23 +221,45 @@ foreach($agentType in $AgentTypes) {
                 Install-Module -Force -Name Pester -MaximumVersion 5.3.3
             }
 
-            Import-Module Pester
-            Write-Host '= TEST: Setting up Pester environment...'
-            $configuration = [PesterConfiguration]::Default
-            $configuration.Run.PassThru = $true
-            $configuration.Run.Path = '.\tests'
-            $configuration.Run.Exit = $true
-            $configuration.TestResult.Enabled = $true
-            $configuration.TestResult.OutputFormat = 'JUnitXml'
-            $configuration.Output.Verbosity = 'Diagnostic'
-            $configuration.CodeCoverage.Enabled = $false
-
             Write-Host "= TEST: Testing all ${agentType} images..."
-            # Only fail the run afterwards in case of any test failures
+            $jdks = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
+
+            # Run Test-Image in parallel for each JDK
+            $jobs = @()
+            foreach ($jdk in $jdks.PSObject.Properties) {
+                $image = $jdk.Value.image
+                $javaVersion = $jdk.Value.build.args.JAVA_VERSION
+                Write-Host "= TEST: Starting ${image} tests in parallel..."
+                $jobs += Start-Job -ScriptBlock {
+                    param($anAgentType, $aRemotingVersion, $anImage, $aJavaVersion, $aTestImageFunction, $aWorkspacePath)
+
+                    Write-Host "== TEST: Setting up Pester environment for $anImage testing..."
+                    Import-Module Pester
+                    $configuration = [PesterConfiguration]::Default
+                    $configuration.Run.PassThru = $true
+                    $configuration.Run.Path = '{0}\tests' -f $aWorkspacePath
+                    $configuration.Run.Exit = $true
+                    $configuration.TestResult.Enabled = $true
+                    $configuration.TestResult.OutputFormat = 'JUnitXml'
+                    $configuration.Output.Verbosity = 'Diagnostic'
+                    $configuration.CodeCoverage.Enabled = $false
+                    Set-Item -Path Function:Test-Image -Value $aTestImageFunction
+                    Set-Location -Path $aWorkspacePath
+
+                    Test-Image -AgentType $anAgentType -RemotingVersion $aRemotingVersion -ImageName $anImage -JavaVersion $aJavaVersion
+                } -ArgumentList $agentType, $RemotingVersion, $image, $javaVersion, $testImageFunction, $workspacePath
+            }
+
+            # Wait for all jobs to finish and collect results
             $testFailed = $false
-            $imageDefinitions = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
-            foreach ($imageDefinition in $imageDefinitions.PSObject.Properties) {
-                $testFailed = $testFailed -or (Test-Image ('{0}|{1}|{2}' -f $agentType, $imageDefinition.Value.image, $imageDefinition.Value.build.args.JAVA_VERSION))
+            foreach ($job in $jobs) {
+                $result = Receive-Job -Job $job -Wait
+                if ($result.Failed) {
+                    Write-Host "= TEST: Error(s), see the results below"
+                    $result.Tests | ConvertTo-Json | Write-Host
+                    $testFailed = $true
+                }
+                Remove-Job $job
             }
 
             # Fail if any test failures
