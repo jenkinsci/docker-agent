@@ -1,8 +1,8 @@
 group "linux" {
   targets = [
-    "alpine",
+    # "alpine",
     "debian",
-    "rhel_ubi9"
+    # "rhel_ubi9"
   ]
 }
 
