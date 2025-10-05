@@ -91,8 +91,8 @@ def parallelStages = [failFast: false]
                                 }
                             }
                         } else {
+                            // ci.jenkins.io builds (e.g. no publication)
                             stage('Build') {
-                                // ci.jenkins.io builds (e.g. no publication)
                                 if (isUnix()) {
                                     sh './build.sh'
                                 } else {
@@ -101,7 +101,6 @@ def parallelStages = [failFast: false]
                                 }
                             }
                             stage('Test') {
-                                // ci.jenkins.io builds (e.g. no publication)
                                 if (isUnix()) {
                                     sh './build.sh test'
                                 } else {

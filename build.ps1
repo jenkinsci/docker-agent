@@ -194,8 +194,9 @@ if ($target -eq 'build') {
     }
     Write-Host "= BUILD: Finished building all images."
 
-    if ($lastExitCode -ne 0) {
-        exit $lastExitCode
+        if ($lastExitCode -ne 0) {
+            exit $lastExitCode
+        }
     }
 }
 
