@@ -274,7 +274,21 @@ function "windows_tags" {
   ]
 }
 
+target "_common" {
+  annotations = [
+    "org.opencontainers.image.vendor=Jenkins project",
+    "org.opencontainers.image.url=https://www.jenkins.io/",
+    "org.opencontainers.image.source=https://github.com/jenkinsci/docker-agent",
+    "org.opencontainers.image.licenses=MIT"
+  ]
+  # attest = [
+  #   "type=provenance,mode=max",
+  #   "type=sbom"
+  # ]
+}
+
 target "alpine" {
+  inherits = ["_common"]
   matrix = {
     type = agent_types_to_build
     jdk  = jdks_to_build
@@ -293,6 +307,7 @@ target "alpine" {
 }
 
 target "debian" {
+  inherits = ["_common"]
   matrix = {
     type = agent_types_to_build
     jdk  = jdks_to_build
@@ -311,6 +326,7 @@ target "debian" {
 }
 
 target "rhel_ubi9" {
+  inherits = ["_common"]
   matrix = {
     type = agent_types_to_build
     jdk  = jdks_to_build
@@ -329,6 +345,7 @@ target "rhel_ubi9" {
 }
 
 target "nanoserver" {
+  inherits = ["_common"]
   matrix = {
     type            = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
     jdk             = jdks_to_build
@@ -350,6 +367,7 @@ target "nanoserver" {
 }
 
 target "windowsservercore" {
+  inherits = ["_common"]
   matrix = {
     type            = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
     jdk             = jdks_to_build
