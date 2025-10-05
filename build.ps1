@@ -292,7 +292,6 @@ if ($target -eq 'publish') {
         exit 1
     }
 }
-# }
 
 if ($lastExitCode -ne 0) {
     Write-Error 'Build failed!'
