@@ -86,7 +86,8 @@ function Test-Image {
         [String] $AgentType,
         [String] $RemotingVersion,
         [String] $ImageName,
-        [String] $JavaVersion
+        [String] $JavaVersion,
+        [Integer] $TestNumber
     )
 
     $imageName = $ImageName -replace 'docker.io/', ''
@@ -104,7 +105,7 @@ function Test-Image {
         Remove-Item -Recurse -Force $targetPath
     }
     New-Item -Path $targetPath -Type Directory | Out-Null
-    $configuration.Run.Path = 'tests\{0}.Tests.ps1' -f $AgentType
+    $configuration.Run.Path = 'tests\{0}.{1}.Tests.ps1' -f $AgentType, $TestNumber
     $configuration.TestResult.OutputPath = '{0}\junit-results.xml' -f $targetPath
     $TestResults = Invoke-Pester -Configuration $configuration
     $failed = $false
@@ -224,33 +225,42 @@ if ($target -eq 'test') {
             $image = $imageDefinition.Value.image
             $agentType = $imageDefinition.Value.build.target
             $javaVersion = $imageDefinition.Value.build.args.JAVA_VERSION
-            Write-Host "= TEST: Starting ${image} tests in parallel..."
-            $jobs += Start-Job -ScriptBlock {
-                param($anAgentType, $aRemotingVersion, $anImage, $aJavaVersion, $aTestImageFunction, $aWorkspacePath)
+            $testCount = 1
+            if ($AgentType -eq 'inbound-agent') {
+                $testCount = 5
+            }
+            Write-Host "= TEST: Starting ${testCount} ${image} test(s) in parallel..."
+            for ($i = 0; $i -lt $testCount; $i++) {
+                $jobName = "{0}-{1}-{2}" -f $agentType, $javaVersion.Substring(0,2), $i
+                $jobs += Start-Job -Name $jobName -ScriptBlock {
+                    param($anAgentType, $aRemotingVersion, $anImage, $aJavaVersion, $aTestImageFunction, $aWorkspacePath, $aTestNumber)
 
-                Write-Host "== TEST: Setting up Pester environment for $anImage testing..."
-                Import-Module Pester
-                $configuration = [PesterConfiguration]::Default
-                $configuration.Run.PassThru = $true
-                $configuration.Run.Path = '{0}\tests' -f $aWorkspacePath
-                $configuration.Run.Exit = $true
-                $configuration.TestResult.Enabled = $true
-                $configuration.TestResult.OutputFormat = 'JUnitXml'
-                $configuration.Output.Verbosity = 'Diagnostic'
-                $configuration.CodeCoverage.Enabled = $false
-                Set-Item -Path Function:Test-Image -Value $aTestImageFunction
-                Set-Location -Path $aWorkspacePath
+                    Write-Host "== TEST: Setting up Pester environment for $anImage test #$aTestNumber..."
+                    Import-Module Pester
+                    $configuration = [PesterConfiguration]::Default
+                    $configuration.Run.PassThru = $true
+                    $configuration.Run.Path = '{0}\tests' -f $aWorkspacePath
+                    $configuration.Run.Exit = $true
+                    $configuration.TestResult.Enabled = $true
+                    $configuration.TestResult.OutputFormat = 'JUnitXml'
+                    $configuration.Output.Verbosity = 'Diagnostic'
+                    $configuration.CodeCoverage.Enabled = $false
+                    Set-Item -Path Function:Test-Image -Value $aTestImageFunction
+                    Set-Location -Path $aWorkspacePath
 
-                Test-Image -AgentType $anAgentType -RemotingVersion $aRemotingVersion -ImageName $anImage -JavaVersion $aJavaVersion
-            } -ArgumentList $agentType, $RemotingVersion, $image, $javaVersion, $testImageFunction, $workspacePath
+                    Test-Image -AgentType $anAgentType -RemotingVersion $aRemotingVersion -ImageName $anImage -JavaVersion $aJavaVersion -TestNumber $aTestNumber
+                } -ArgumentList $agentType, $RemotingVersion, $image, $javaVersion, $testImageFunction, $workspacePath, $i
+            }
         }
 
         # Wait for all jobs to finish and collect results
         $testFailed = $false
         foreach ($job in $jobs) {
             $result = Receive-Job -Job $job -Wait
+            Write-Host "= [DEBUG] result dump:"
+            $result | ConvertTo-Json -Depth 3 | Write-Host
             if ($result.Failed) {
-                Write-Host "= TEST: Error(s), see the results below"
+                Write-Host '= TEST: Error(s) with {0}, see the results below' -f $job.Name
                 $result.Tests | ConvertTo-Json | Write-Host
                 $testFailed = $true
             }

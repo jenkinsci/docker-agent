@@ -1,0 +1,99 @@
+Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
+
+$global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' '' # Ex: jenkins/agent:jdk17-nanoserver-1809
+$global:VERSION = Get-EnvOrDefault 'VERSION' ''
+$global:JAVA_VERSION = Get-EnvOrDefault 'JAVA_VERSION' ''
+
+Write-Host "= TESTS: Preparing $global:IMAGE_NAME with Remoting $global:VERSION and Java $global:JAVA_VERSION"
+
+$imageItems = $global:IMAGE_NAME.Split(':')
+$GLOBAL:IMAGE_TAG = $imageItems[1]
+
+$items = $global:IMAGE_TAG.Split('-')
+# Remove the 'jdk' prefix
+$global:JAVAMAJORVERSION = $items[0].Remove(0,3)
+$global:WINDOWSFLAVOR = $items[1]
+$global:WINDOWSVERSIONTAG = $items[2]
+$global:WINDOWSVERSIONFALLBACKTAG = $items[2]
+if ($items[2] -eq 'ltsc2019') {
+    $global:WINDOWSVERSIONFALLBACKTAG = '1809'
+}
+
+$random = Get-Random
+$global:CONTAINERNAME = 'pester-jenkins-agent_{0}_{1}' -f $global:IMAGE_TAG, $random
+Write-Host "= TESTS: container name $global:CONTAINERNAME"
+
+$global:CONTAINERSHELL = 'powershell.exe'
+if ($global:WINDOWSFLAVOR -eq 'nanoserver') {
+    $global:CONTAINERSHELL = 'pwsh.exe'
+}
+
+$global:GITLFSVERSION = '3.7.0'
+
+# # Uncomment to help debugging when working on this script
+# Write-Host "= DEBUG: global vars"
+# Get-Variable -Scope Global | ForEach-Object { Write-Host "$($_.Name) = $($_.Value)" }
+# Write-Host "= DEBUG: env vars"
+# Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name) = $($_.Value)" }
+
+Cleanup($global:CONTAINERNAME)
+
+$global:TEST_VERSION = '4.0'
+$global:TEST_USER = 'test-user'
+$global:TEST_AGENT_WORKDIR = 'C:/test-user/something'
+
+Describe "[$global:IMAGE_NAME] can be built with custom build arguments" {
+    BeforeAll {
+        Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
+
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --target agent --build-arg `"VERSION=${global:TEST_VERSION}`" --build-arg `"JAVA_VERSION=${global:JAVA_VERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:WINDOWSVERSIONFALLBACKTAG}`" --build-arg `"user=${global:TEST_USER}`" --build-arg `"AGENT_WORKDIR=${global:TEST_AGENT_WORKDIR}`" --tag ${global:IMAGE_NAME} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
+        $exitCode | Should -Be 0
+
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run -d -it --name $global:CONTAINERNAME -P $global:IMAGE_NAME $global:CONTAINERSHELL"
+        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+    }
+
+    It 'has the correct version of remoting' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$global:VERSION = java -jar C:/ProgramData/Jenkins/agent.jar -version ; Write-Host `$global:VERSION`""
+        $exitCode | Should -Be 0
+        $stdout.Trim() | Should -Match $global:TEST_VERSION
+    }
+
+    It 'has correct user' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"(Get-ChildItem env:\ | Where-Object { `$_.Name -eq 'USERNAME' }).Value`""
+        $exitCode | Should -Be 0
+        $stdout.Trim() | Should -Match $global:TEST_USER
+    }
+
+    It 'has correct AGENT_WORKDIR' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"Get-ChildItem env:`""
+        $exitCode | Should -Be 0
+        $stdout | Should -Match "AGENT_WORKDIR.*${global:TEST_AGENT_WORKDIR}"
+    }
+
+    It 'can write to HOME' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path C:/Users/${TEST_USER}/a.txt | Out-Null ; if (Test-Path C:/Users/${TEST_USER}/a.txt) { exit 0 } else { exit -1 }`""
+        $exitCode | Should -Be 0
+    }
+
+    It 'can write to HOME/.jenkins' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path C:/Users/${TEST_USER}/.jenkins/a.txt | Out-Null ; if (Test-Path C:/Users/${TEST_USER}/.jenkins/a.txt) { exit 0 } else { exit -1 }`""
+        $exitCode | Should -Be 0
+    }
+
+    It 'can write to HOME/Work' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType File -Path ${TEST_AGENT_WORKDIR}/a.txt | Out-Null ; if (Test-Path ${TEST_AGENT_WORKDIR}/a.txt) { exit 0 } else { exit -1 }`""
+        $exitCode | Should -Be 0
+    }
+
+    It 'version in docker metadata' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format=`"{{index .Config.Labels \`"org.opencontainers.image.version\`"}}`" $global:IMAGE_NAME"
+        $exitCode | Should -Be 0
+        $stdout.Trim() | Should -Match $global:sTEST_VERSION
+    }
+
+    AfterAll {
+        Pop-Location -StackName 'agent'
+        Cleanup($global:CONTAINERNAME)
+    }
+}
