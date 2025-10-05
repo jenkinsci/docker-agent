@@ -102,12 +102,36 @@ def parallelStages = [failFast: false]
                                 }
                                 junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results*.xml')
                             }
-                            // If the tests are passing for Linux AMD64, then we can build all the CPU architectures
-                            if (isUnix()) {
-                                stage('Multi-Arch Build') {
-
-                                    sh 'make every-build'
-                                }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    parallelStages['multi-arch'] = {
+        imageType = 'linux'
+        withEnv(["IMAGE_TYPE=${imageType}", "REGISTRY_ORG=${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"]) {
+            int retryCounter = 0
+            retry(count: 2, conditions: [agent(), nonresumable()]) {
+                // Use local variable to manage concurrency and increment BEFORE spinning up any agent
+                final String resolvedAgentLabel = spotAgentSelector(agentSelector(imageType), retryCounter)
+                retryCounter++
+                node(resolvedAgentLabel) {
+                    timeout(time: 60, unit: 'MINUTES') {
+                        checkout scm
+                        stage('Prepare Docker') {
+                            if (infra.isTrusted()) {
+                                echo 'INFO:Running on trusted.ci.jenkins.io, skipping'
+                            } else {
+                                sh 'make docker-init'
+                            }
+                        }
+                        // Publication of multi-arch images is already taken care of with `make publish`
+                        stage('Multi-Arch Build') {
+                            if (infra.isTrusted()) {
+                                echo 'INFO: Running on trusted.ci.jenkins.io, skipping'
+                            } else {
+                                sh 'make every-build'
                             }
                         }
                     }
