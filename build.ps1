@@ -233,7 +233,7 @@ if ($target -eq 'test') {
             }
             Write-Host "= TEST: Starting ${testCount} ${image} test(s) in parallel..."
             for ($i = 0; $i -lt $testCount; $i++) {
-                $jobName = "{0}-{1}-{2}" -f $agentType, $javaVersion.Substring(0,2), $i
+                $jobName = '{0}-{1}-{2}' -f $agentType, $javaVersion.Substring(0,2), $i
                 $jobs += Start-Job -Name $jobName -ScriptBlock {
                     param($anAgentType, $aRemotingVersion, $anImage, $aJavaVersion, $aTestImageFunction, $aWorkspacePath, $aTestNumber)
 
@@ -259,7 +259,9 @@ if ($target -eq 'test') {
         $testFailed = $false
         foreach ($job in $jobs) {
             $result = Receive-Job -Job $job -Wait
-            Write-Host '== TEST: {0} finished' -f $job.Name
+            Write-Host "== [DEBUG] job dump:"
+            $job | ConvertTo-Json -Depth 3 | Write-Host
+            Write-Host "== [DEBUG] end of job dump"
             if ($result.Failed) {
                 Write-Host '== TEST: Error(s), see the results below'
                 $result.Tests | ConvertTo-Json | Write-Host
