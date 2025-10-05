@@ -136,7 +136,7 @@ parallelStages['multi-arch'] = {
                         }
                     }
                     // Publication of multi-arch images is already taken care of with `make publish`
-                    stage('Multi-Arch Build') {
+                    stage('Build') {
                         if (infra.isTrusted()) {
                             echo 'INFO: Running on trusted.ci.jenkins.io, skipping'
                         } else {
