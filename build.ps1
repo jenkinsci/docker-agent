@@ -101,13 +101,13 @@ function Test-Image {
     $env:VERSION = "$RemotingVersion"
     $env:JAVA_VERSION = "$JavaVersion"
 
-    $targetPath = '.\target\{0}\{1}' -f $AgentType, $imageTag
+    $targetPath = '.\target\{0}' -f $aJavaVersion.Substring(0,2)
     if (Test-Path $targetPath) {
         Remove-Item -Recurse -Force $targetPath
     }
     New-Item -Path $targetPath -Type Directory | Out-Null
     $configuration.Run.Path = 'tests\{0}.{1}.Tests.ps1' -f $AgentType, $TestNumber
-    $configuration.TestResult.OutputPath = '{0}\junit-results.xml' -f $targetPath
+    $configuration.TestResult.OutputPath = '{0}\junit-results_{1}_{2}.xml' -f $targetPath, $AgentType, $TestNumber
     $TestResults = Invoke-Pester -Configuration $configuration
     $failed = $false
     if ($TestResults.FailedCount -gt 0) {
@@ -248,7 +248,6 @@ if ($target -eq 'test') {
                     $configuration.Run.Exit = $true
                     $configuration.TestResult.Enabled = $true
                     $configuration.TestResult.OutputFormat = 'JUnitXml'
-                    $configuration.TestResult.OutputPath = 'junit-results_{0}-{1}.xml' -f $aJavaVersion.Substring(0,2), $aTestNumber
                     $configuration.Output.Verbosity = 'Diagnostic'
                     $configuration.CodeCoverage.Enabled = $false
                     Set-Item -Path Function:Test-Image -Value $aTestImageFunction
