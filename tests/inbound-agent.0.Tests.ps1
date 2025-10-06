@@ -4,7 +4,7 @@ $global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' '' # Ex: jenkins/inbound-agen
 $global:VERSION = Get-EnvOrDefault 'VERSION' ''
 $global:JAVA_VERSION = Get-EnvOrDefault 'JAVA_VERSION' ''
 
-Write-Host "= TESTS: Preparing $global:IMAGE_NAME with Remoting $global:VERSION and Java $global:JAVA_VERSION"
+Write-Host "==== TESTS: Preparing $global:IMAGE_NAME with Remoting $global:VERSION and Java $global:JAVA_VERSION"
 
 $imageItems = $global:IMAGE_NAME.Split(':')
 $GLOBAL:IMAGE_TAG = $imageItems[1]

@@ -4,7 +4,7 @@ $global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' '' # Ex: jenkins/inbound-agen
 $global:VERSION = Get-EnvOrDefault 'VERSION' ''
 $global:JAVA_VERSION = Get-EnvOrDefault 'JAVA_VERSION' ''
 
-Write-Host "= TESTS: Preparing $global:IMAGE_NAME with Remoting $global:VERSION and Java $global:JAVA_VERSION"
+Write-Host "==== TESTS: Preparing $global:IMAGE_NAME with Remoting $global:VERSION and Java $global:JAVA_VERSION"
 
 $imageItems = $global:IMAGE_NAME.Split(':')
 $GLOBAL:IMAGE_TAG = $imageItems[1]
@@ -17,7 +17,7 @@ $global:WINDOWSVERSIONTAG = $items[2]
 
 $random = Get-Random
 $global:CONTAINERNAME = 'pester-jenkins-inbound-agent_{0}_{1}' -f $global:IMAGE_TAG, $random
-Write-Host "= TESTS: container name $global:CONTAINERNAME"
+Write-Host "==== TESTS: container name $global:CONTAINERNAME"
 
 $global:CONTAINERSHELL = 'powershell.exe'
 if ($global:WINDOWSFLAVOR -eq 'nanoserver') {

@@ -81,7 +81,7 @@ Function Test-CommandExists {
     }
 }
 
-# Ex: Test-Image -AgentType inbound-agent -RemotingVersion 3345.v03dee9b_f88fc -ImageName docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019 -JavaVersion 21.0.7_6
+# Ex: Test-Image -AgentType inbound-agent -RemotingVersion 3345.v03dee9b_f88fc -ImageName docker.io/jenkins/agent:jdk21-windowsservercore-ltsc2019 -JavaVersion 21.0.7_6 -TestNumber 0
 function Test-Image {
     param (
         [String] $AgentType,
@@ -95,7 +95,7 @@ function Test-Image {
     $imageNameItems = $imageName.Split(':')
     $imageTag = $imageNameItems[1]
 
-    Write-Host "=== TEST: Testing ${imageName} image:"
+    Write-Host "=== TEST: Test-Image -AgentType $AgentType -RemotingVersion $RemotingVersion -ImageName $ImageName -JavaVersion $JavaVersion -TestNumber $TestNumber"
 
     $env:IMAGE_NAME = $imageName
     $env:VERSION = "$RemotingVersion"
@@ -263,9 +263,7 @@ if ($target -eq 'test') {
         $testFailed = $false
         foreach ($job in $jobs) {
             $result = Receive-Job -Job $job -Wait
-            Write-Host "== [DEBUG] job dump:"
-            $job | ConvertTo-Json -Depth 3 | Write-Host
-            Write-Host "== [DEBUG] end of job dump"
+            Write-Host ('== TEST: End of {0}' -f $job.Name)
             if ($result.Failed) {
                 Write-Host '== TEST: Error(s), see the results below'
                 $result.Tests | ConvertTo-Json | Write-Host
