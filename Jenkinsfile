@@ -123,6 +123,48 @@ def parallelStages = [failFast: false]
     }
 }
 
-// Execute parallel stages
-parallel parallelStages
+// Regular expression to match files irrelevant to the Docker images or the pipeline
+def irrelevantRegexp = '^\\.github|^updatecli|^images|^LICENSE$|\\.md$|\\.adoc$'
+def skipBuild = false
+
+node {
+    stage('Check changes') {
+        checkout scm
+        withEnv(["IRRELEVANT_REGEXP=${irrelevantRegexp}"]) {
+            // Skip build if there are only irrelevant changes
+            skipBuild = sh(returnStatus: true, script: '''
+                #!/bin/bash
+                set +x
+
+                echo "INFO: Irrelevant changes regexp: ${IRRELEVANT_REGEXP}"
+
+                all_changed_files=''
+                if [ -z "${CHANGE_TARGET}" ]; then
+                    all_changed_files="$(git diff --name-only HEAD^)"
+                    echo "INFO: List of file(s) changed in the last commit on ${BRANCH_NAME}:"
+                else
+                    all_changed_files="$(git diff --name-only "origin/${CHANGE_TARGET}..origin/${BRANCH_NAME}")"
+                    echo "INFO: List of file(s) changed in this pull request, comparing ${BRANCH_NAME} to ${CHANGE_TARGET}:"
+                fi
+                echo "${all_changed_files}"
+                irrelevant_changes=$(echo "${all_changed_files}" | grep -E "${IRRELEVANT_REGEXP}" | wc -l)
+                all_change=$(echo "${all_changed_files}" | wc -l)
+                [ $irrelevant_changes -gt 0 ] && [ $irrelevant_changes -eq $all_change ]
+            ''') == 0
+        }
+    }
+}
+
+// Execute parallel stages if changes are relevant
+if (skipBuild) {
+    echo 'INFO: Changes are irrelevant to the Docker images or the pipeline, skipping build and test stages'
+    if (env.CHANGE_TARGET) {
+        echo 'INFO: marking the pull request build as SUCCESS'
+    } else {
+        // Mark the build as not built on branches so we know at a glance no images were built
+        currentBuild.result = 'NOT_BUILT'
+    }
+} else {
+    parallel parallelStages
+}
 // // vim: ft=groovy
