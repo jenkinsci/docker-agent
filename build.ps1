@@ -101,13 +101,13 @@ function Test-Image {
     $env:VERSION = "$RemotingVersion"
     $env:JAVA_VERSION = "$JavaVersion"
 
-    $targetPath = '.\target\{0}\{1}\{2}' -f $AgentType, $imageTag, $aJavaVersion.Substring(0,2)
+    $targetPath = '.\target\{0}\{1}\{2}\{3}' -f $AgentType, $imageTag, $aJavaVersion.Substring(0,2), $TestNumber
     if (Test-Path $targetPath) {
         Remove-Item -Recurse -Force $targetPath
     }
     New-Item -Path $targetPath -Type Directory | Out-Null
     $configuration.Run.Path = 'tests\{0}.{1}.Tests.ps1' -f $AgentType, $TestNumber
-    $configuration.TestResult.OutputPath = '{0}\junit-results_{1}.xml' -f $targetPath, $TestNumber
+    $configuration.TestResult.OutputPath = '{0}\junit-results.xml' -f $targetPath
     $TestResults = Invoke-Pester -Configuration $configuration
     $failed = $false
     if ($TestResults.FailedCount -gt 0) {
