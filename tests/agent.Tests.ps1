@@ -91,7 +91,7 @@ Describe "[$global:IMAGE_NAME] image has correct applications in the PATH" {
     It 'can use git with a long path' {
         $longPath = 'C:\source\temp\' + ('a' * 260) + '\repo'
         $repository = 'https://github.com/jenkinsci/pipeline-model-definition-plugin.git'
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType Directory -Path ${longPath} ; cd ${longPath} ; git init ; git remote add origin $repository ; git fetch origin ; git checkout master`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"New-Item -ItemType Directory -Path ${longPath} ; cd ${longPath} ; & git init ; & git remote add origin $repository ; & git fetch origin ; & git checkout master`""
         $exitCode | Should -Be 0
     }
 
