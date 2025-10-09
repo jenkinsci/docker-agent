@@ -1,4 +1,4 @@
-ARG UBI9_TAG=9.6-1747219013
+ARG UBI9_TAG=9.6-1758184894
 FROM registry.access.redhat.com/ubi9/ubi:"${UBI9_TAG}" AS jre-build
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
 
@@ -9,7 +9,7 @@ ARG TARGETPLATFORM
 COPY adoptium-get-jdk-link.sh /usr/bin/local/adoptium-get-jdk-link.sh
 COPY adoptium-install-jdk.sh /usr/bin/local/adoptium-install-jdk.sh
 
-ARG JAVA_VERSION=17.0.15_6
+ARG JAVA_VERSION=17.0.16_8
 
 RUN dnf install --disableplugin=subscription-manager --setopt=install_weak_deps=0 --setopt=tsflags=nodocs --allowerasing -y \
     ca-certificates \
@@ -23,16 +23,15 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
-RUN case "$(jlink --version 2>&1)" in \
-      "17."*) set -- "--compress=2" ;; \
-      # the compression argument is different for JDK21
-      "21."*) set -- "--compress=zip-6" ;; \
+RUN case "$(jlink --version 2>&1 | cut -c1-2)" in \
+      "17") options="--compress=2 --add-modules ALL-MODULE-PATH --module-path /opt/jdk-${JAVA_VERSION}/jmods" ;; \
+      "21") options="--compress=zip-6 --add-modules ALL-MODULE-PATH --module-path /opt/jdk-${JAVA_VERSION}/jmods" ;; \
+      "25") options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
       --strip-java-debug-attributes \
-      "$1" \
-      --add-modules ALL-MODULE-PATH \
+      ${options} \
       --no-man-pages \
       --no-header-files \
       --output /javaruntime

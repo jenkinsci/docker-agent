@@ -97,7 +97,12 @@ test-%: prepare-test
 	@echo "== testing $*"
 	set -x
 # Each type of image ("agent" or "inbound-agent") has its own tests suite
+ifeq ($(CI), true)
+# Execute the test harness and write result to a TAP file
 	IMAGE=$* bats/bin/bats $(CURDIR)/tests/tests_$(shell echo $* |  cut -d "_" -f 1).bats $(bats_flags) --formatter junit | tee target/junit-results-$*.xml
+else
+	IMAGE=$* bats/bin/bats $(CURDIR)/tests/tests_$(shell echo $* |  cut -d "_" -f 1).bats $(bats_flags)
+endif
 
 test: prepare-test
 	@make --silent list | while read image; do make --silent "test-$${image}"; done
