@@ -145,7 +145,7 @@ $ make show
       "context": ".",
       "dockerfile": "alpine/Dockerfile",
       "args": {
-        "ALPINE_TAG": "3.22.1",
+        "ALPINE_TAG": "3.22.2",
         "JAVA_VERSION": "17.0.16_8",
         "VERSION": "3345.v03dee9b_f88fc"
       },
@@ -183,7 +183,7 @@ $ ON_TAG=true BUILD_NUMBER=3 make show
       "context": ".",
       "dockerfile": "alpine/Dockerfile",
       "args": {
-        "ALPINE_TAG": "3.22.1",
+        "ALPINE_TAG": "3.22.2",
         "JAVA_VERSION": "17.0.16_8",
         "VERSION": "3345.v03dee9b_f88fc"
       },
