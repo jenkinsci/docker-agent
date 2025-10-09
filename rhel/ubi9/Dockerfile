@@ -38,8 +38,6 @@ RUN case "$(jlink --version 2>&1 | cut -c1-2)" in \
 
 FROM registry.access.redhat.com/ubi9/ubi:"${UBI9_TAG}" AS agent
 
-SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
-
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000

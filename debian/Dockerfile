@@ -67,8 +67,6 @@ RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
 ## Agent image target
 FROM debian:"${DEBIAN_RELEASE}"-slim AS agent
 
-SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
-
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000

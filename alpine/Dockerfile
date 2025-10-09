@@ -57,8 +57,6 @@ RUN case "$(jlink --version 2>&1 | cut -c1-2)" in \
 ## Agent image target
 FROM alpine:"${ALPINE_TAG}" AS agent
 
-SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
-
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
