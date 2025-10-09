@@ -83,7 +83,7 @@ Describe "[$global:IMAGE_NAME] image has correct applications in the PATH" {
     }
 
     It 'has git-lfs (and thus git) installed' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$global:GIT_LFS_VERSION = git lfs version 2>&1 ; Write-Host `$global:GIT_LFS_VERSION`""
         $exitCode | Should -Be 0
         $stdout.Trim() | Should -Match "git-lfs/${global:GITLFSVERSION}"
     }
