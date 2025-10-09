@@ -19,7 +19,7 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-ARG DEBIAN_RELEASE=bookworm-20250610
+ARG DEBIAN_RELEASE=trixie-20250929
 FROM debian:"${DEBIAN_RELEASE}"-slim AS jre-build
 
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
@@ -31,7 +31,7 @@ ARG TARGETPLATFORM
 COPY adoptium-get-jdk-link.sh /usr/bin/local/adoptium-get-jdk-link.sh
 COPY adoptium-install-jdk.sh /usr/bin/local/adoptium-install-jdk.sh
 
-ARG JAVA_VERSION=17.0.15_6
+ARG JAVA_VERSION=17.0.16_8
 # hadolint ignore=DL3008
 RUN set -x; apt-get update \
   && apt-get install --no-install-recommends -y \
@@ -46,16 +46,15 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
 RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
-    case "$(jlink --version 2>&1)" in \
-      "17."*) set -- "--compress=2" ;; \
-      # the compression argument is different for JDK21
-      "21."*) set -- "--compress=zip-6" ;; \
+    case "$(jlink --version 2>&1 | cut -c1-2)" in \
+      "17") options="--compress=2 --add-modules ALL-MODULE-PATH" ;; \
+      "21") options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
+      "25") options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
       --strip-java-debug-attributes \
-      "$1" \
-      --add-modules ALL-MODULE-PATH \
+      ${options} \
       --no-man-pages \
       --no-header-files \
       --output /javaruntime; \
@@ -97,7 +96,7 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /tmp/* /var/cache/* /var/lib/apt/lists/*
 
-ARG VERSION=3309.v27b_9314fd1a_4
+ARG VERSION=3345.v03dee9b_f88fc
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar

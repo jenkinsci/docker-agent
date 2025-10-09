@@ -4,7 +4,7 @@ Param(
     # Default build.ps1 target
     [String] $Target = 'build',
     # Remoting version to include
-    [String] $RemotingVersion = '3309.v27b_9314fd1a_4',
+    [String] $RemotingVersion = '3345.v03dee9b_f88fc',
     # Type of agent ("agent" or "inbound-agent")
     [String] $AgentType = '',
     # Windows flavor and windows version to build
@@ -189,15 +189,17 @@ foreach($agentType in $AgentTypes) {
     Write-Host '= PREPARE: List of images and tags to be processed:'
     Invoke-Expression "$baseDockerCmd config"
 
-    Write-Host '= BUILD: Building all images...'
-    switch ($DryRun) {
-        $true { Write-Host "(dry-run) $baseDockerBuildCmd" }
-        $false { Invoke-Expression $baseDockerBuildCmd }
-    }
-    Write-Host '= BUILD: Finished building all images.'
+    if ($target -eq 'build') {
+        Write-Host '= BUILD: Building all images...'
+        switch ($DryRun) {
+            $true { Write-Host "(dry-run) $baseDockerBuildCmd" }
+            $false { Invoke-Expression $baseDockerBuildCmd }
+        }
+        Write-Host '= BUILD: Finished building all images.'
 
-    if ($lastExitCode -ne 0) {
-        exit $lastExitCode
+        if ($lastExitCode -ne 0) {
+            exit $lastExitCode
+        }
     }
 
     if ($target -eq 'test') {

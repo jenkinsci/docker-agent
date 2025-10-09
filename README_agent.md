@@ -52,12 +52,12 @@ The image has several supported configurations, which can be accessed via the fo
 
 * Linux Images:
   * Java 17 (default):
-    * `jenkins/agent:latest`: Based on `debian:bookworm-${builddate}`
+    * `jenkins/agent:latest`: Based on `debian:trixie-${builddate}`
       * Also tagged as: 
         * `jenkins/agent:jdk17`
-        * `jenkins/agent:bookworm-jdk17`
-        * `jenkins/agent:latest-bookworm`
-        * `jenkins/agent:latest-bookworm-jdk17`
+        * `jenkins/agent:trixie-jdk17`
+        * `jenkins/agent:latest-trixie`
+        * `jenkins/agent:latest-trixie-jdk17`
         * `jenkins/agent:latest-jdk17`
     * alpine (Small image based on Alpine Linux, based on `alpine:${version}`):
       * `jenkins/agent:jenkins/agent:alpine` 
@@ -70,11 +70,11 @@ The image has several supported configurations, which can be accessed via the fo
       * `jenkins/agent:latest-rhel-ubi9`
       * `jenkins/agent:latest-rhel-ubi9-jdk17`
   * Java 21:
-    * bookworm (Based on `debian:bookworm-${builddate}`):
-      * `jenkins/agent:bookworm`
-      * `jenkins/agent:bookworm-jdk21`
+    * trixie (Based on `debian:trixie-${builddate}`):
+      * `jenkins/agent:trixie`
+      * `jenkins/agent:trixie-jdk21`
       * `jenkins/agent:jdk21`
-      * `jenkins/agent:latest-bookworm-jdk21`
+      * `jenkins/agent:latest-trixie-jdk21`
     * alpine (Small image based on Alpine Linux, based on `alpine:${version}`):
       * `jenkins/agent:alpine` 
       * `jenkins/agent:alpine-jdk21`

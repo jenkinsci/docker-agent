@@ -45,27 +45,30 @@ variable "agent_types_to_build" {
 }
 
 variable "jdks_to_build" {
-  default = [17, 21]
+  default = [17, 21, 25]
 }
-
 variable "default_jdk" {
   default = 17
 }
 
 variable "jdks_in_preview" {
-  default = [25]
+  default = []
 }
 
 variable "JAVA17_VERSION" {
-  default = "17.0.15_6"
+  default = "17.0.16_8"
 }
 
 variable "JAVA21_VERSION" {
-  default = "21.0.7_6"
+  default = "21.0.8_9"
+}
+
+variable "JAVA25_VERSION" {
+  default = "25_36"
 }
 
 variable "REMOTING_VERSION" {
-  default = "3309.v27b_9314fd1a_4"
+  default = "3345.v03dee9b_f88fc"
 }
 
 variable "REGISTRY" {
@@ -93,7 +96,7 @@ variable "ON_TAG" {
 }
 
 variable "ALPINE_FULL_TAG" {
-  default = "3.22.0"
+  default = "3.22.2"
 }
 
 variable "ALPINE_SHORT_TAG" {
@@ -101,11 +104,11 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20250610"
+  default = "trixie-20250929"
 }
 
 variable "UBI9_TAG" {
-  default = "9.6-1750786174"
+  default = "9.6-1758184894"
 }
 
 # Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function
@@ -116,6 +119,14 @@ variable "WINDOWS_VERSION_OVERRIDE" {
 # Set this value to a specific agent type to override agent type to build returned by windowsagenttypes function
 variable "WINDOWS_AGENT_TYPE_OVERRIDE" {
   default = ""
+}
+
+variable "jdk_versions" {
+  default = {
+    17 = JAVA17_VERSION
+    21 = JAVA21_VERSION
+    25 = JAVA25_VERSION
+  }
 }
 
 ## Common functions
@@ -134,18 +145,16 @@ function "is_default_jdk" {
 # Return the complete Java version corresponding to the jdk passed as parameter
 function "javaversion" {
   params = [jdk]
-  result = (equal(17, jdk)
-    ? "${JAVA17_VERSION}"
-  : "${JAVA21_VERSION}")
+  result = lookup(jdk_versions, jdk, "Unsupported JDK version")
 }
 
 ## Specific functions
 # Return an array of Alpine platforms to use depending on the jdk passed as parameter
 function "alpine_platforms" {
   params = [jdk]
-  result = (equal(21, jdk)
-    ? ["linux/amd64", "linux/arm64"]
-  : ["linux/amd64"])
+  result = (equal(17, jdk)
+    ? ["linux/amd64"]
+  : ["linux/amd64", "linux/arm64"])
 }
 
 # Return an array of Debian platforms to use depending on the jdk passed as parameter
@@ -214,7 +223,7 @@ function distribution_suffix {
 function distribution_name {
   params = [distribution]
   result = (equal("debian", distribution)
-    ? "bookworm"
+    ? "trixie"
   : distribution)
 }
 
@@ -240,7 +249,7 @@ function "linux_tags" {
     # If the jdk is the default one, add distribution and latest short tags
     is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${distribution_name(distribution)}" : "",
     is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest${distribution_suffix(distribution)}" : "",
-    # Needed for the ":latest-bookworm" case. For other distributions, result in the same tag as above (not an issue, deduplicated at the end)
+    # Needed for the ":latest-trixie" case. For other distributions, result in the same tag as above (not an issue, deduplicated at the end)
     is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-${distribution_name(distribution)}" : "",
 
     # Tags always added
