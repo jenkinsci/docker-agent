@@ -16,7 +16,7 @@ Param(
     # Print the build and publish command instead of executing them if set
     [switch] $DryRun = $false,
     # Output debug info for tests: 'empty' (no additional test output), 'debug' (test cmd & stderr outputed), 'verbose' (test cmd, stderr, stdout outputed)
-    [String] $TestsDebug = ''
+    [String] $TestsDebug = 'verbose'
 )
 
 $ErrorActionPreference = 'Stop'
