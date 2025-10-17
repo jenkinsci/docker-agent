@@ -1,4 +1,4 @@
-name: Bump `git-lfs` version on Windows
+name: Bump `git-lfs` version
 
 scms:
   default:
@@ -15,7 +15,7 @@ scms:
 sources:
   lastVersion:
     kind: githubrelease
-    name: Get the latest `git-lfs` version
+    name: Get latest `git-lfs` version
     spec:
       owner: git-lfs
       repository: git-lfs
@@ -27,26 +27,32 @@ sources:
       - trimprefix: "v"
 
 targets:
-  setGitLfsVersionWindowsNanoserver:
-    name: Update the `git-lfs` Windows version for Windows Nanoserver
+  setGitLfsVersion:
+    name: Update `git-lfs` version in Dockerfiles
     kind: dockerfile
     spec:
-      file: windows/nanoserver/Dockerfile
+      files:
+        - alpine/Dockerfile
+        - debian/Dockerfile
+        - rhel/ubi9/Dockerfile
+        - windows/nanoserver/Dockerfile
+        - windows/windowsservercore/Dockerfile
       instruction:
         keyword: ARG
         matcher: GIT_LFS_VERSION
     scmid: default
-  setGitLfsVersionWindowsServer:
-    name: Update the `git-lfs` Windows version for Windows Core Server
-    kind: dockerfile
+  setGitLfsVersionLinuxTests:
+    name: Update `git-lfs` version in Linux tests
+    kind: file
     spec:
-      file: windows/windowsservercore/Dockerfile
-      instruction:
-        keyword: ARG
-        matcher: GIT_LFS_VERSION
+      file: tests/tests_agent.bats
+      matchpattern: >
+        GIT_LFS_VERSION=(.*)
+      replacepattern: >
+        GIT_LFS_VERSION='{{ source "lastVersion" }}'
     scmid: default
-  setGitLfsVersionTests:
-    name: Update the `git-lfs` Windows version in tests
+  setGitLfsVersionWindowsTests:
+    name: Update `git-lfs` version in Windows tests
     kind: file
     spec:
       file: tests/agent.Tests.ps1
@@ -59,10 +65,9 @@ targets:
 actions:
   default:
     kind: github/pullrequest
-    title: Bump `git-lfs` version on Windows to {{ source "lastVersion" }}
+    title: Bump `git-lfs` version to {{ source "lastVersion" }}
     scmid: default
     spec:
       labels:
         - enhancement
         - git-lfs
-        - windows
