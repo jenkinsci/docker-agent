@@ -63,7 +63,7 @@ GIT_LFS_VERSION='3.7.1'
 
   run docker exec "${cid}" sh -c "command -v git"
   assert_success
-  run docker exec "${cid}" git lfs version
+  run docker exec "${cid}" git lfs env
   assert_output --partial "${GIT_LFS_VERSION}"
 
   run docker exec "${cid}" sh -c "printenv | grep AGENT_WORKDIR"
