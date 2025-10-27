@@ -82,6 +82,7 @@ def parallelStages = [failFast: false]
                                             if (isUnix()) {
                                                 sh 'make publish'
                                             } else {
+                                                powershell '& ./build.ps1 build'
                                                 powershell '& ./build.ps1 publish'
                                             }
                                         }
