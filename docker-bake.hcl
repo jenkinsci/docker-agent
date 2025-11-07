@@ -56,7 +56,7 @@ variable "jdks_in_preview" {
 }
 
 variable "JAVA17_VERSION" {
-  default = "17.0.16_8"
+  default = "17.0.17_10"
 }
 
 variable "JAVA21_VERSION" {
