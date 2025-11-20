@@ -68,7 +68,7 @@ variable "JAVA25_VERSION" {
 }
 
 variable "REMOTING_VERSION" {
-  default = "3345.v03dee9b_f88fc"
+  default = "3352.v17a_fb_4b_2773f"
 }
 
 variable "REGISTRY" {
