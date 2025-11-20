@@ -4,7 +4,7 @@ Param(
     # Default build.ps1 target
     [String] $Target = 'build',
     # Remoting version to include
-    [String] $RemotingVersion = '3345.v03dee9b_f88fc',
+    [String] $RemotingVersion = '3352.v17a_fb_4b_2773f',
     # Type of agent ("agent" or "inbound-agent")
     [String] $AgentType = '',
     # Windows flavor and windows version to build
