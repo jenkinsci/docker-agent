@@ -9,6 +9,8 @@ SUT_IMAGE=$(get_sut_image)
 
 ARCH=${ARCH:-x86_64}
 
+GIT_LFS_VERSION='3.7.1'
+
 @test "[${SUT_IMAGE}] test version in docker metadata" {
   local expected_version
   expected_version=$(get_remoting_version)
@@ -32,7 +34,7 @@ ARCH=${ARCH:-x86_64}
   assert_equal "${output}" "UTF-8"
 }
 
-@test "[${SUT_IMAGE}] image has bash, curl, ssh and java installed and in the PATH" {
+@test "[${SUT_IMAGE}] image has bash, curl, ssh, java and git-lfs (and thus git) installed and in the PATH" {
   local cid
   cid="$(docker run -d -it -P "${SUT_IMAGE}" /bin/bash)"
 
@@ -58,6 +60,11 @@ ARCH=${ARCH:-x86_64}
   assert_success
   run docker exec "${cid}" ssh -V
   assert_success
+
+  run docker exec "${cid}" sh -c "command -v git"
+  assert_success
+  run docker exec "${cid}" git lfs env
+  assert_output --partial "${GIT_LFS_VERSION}"
 
   run docker exec "${cid}" sh -c "printenv | grep AGENT_WORKDIR"
   assert_equal "${output}" "AGENT_WORKDIR=/home/jenkins/agent"

@@ -82,6 +82,7 @@ def parallelStages = [failFast: false]
                                             if (isUnix()) {
                                                 sh 'make publish'
                                             } else {
+                                                powershell '& ./build.ps1 build'
                                                 powershell '& ./build.ps1 publish'
                                             }
                                         }
@@ -91,14 +92,20 @@ def parallelStages = [failFast: false]
                                 }
                             }
                         } else {
-                            stage('Build and Test') {
-                                // ci.jenkins.io builds (e.g. no publication)
+                            // ci.jenkins.io builds (e.g. no publication)
+                            stage('Build') {
                                 if (isUnix()) {
                                     sh './build.sh'
+                                } else {
+                                    powershell '& ./build.ps1 build'
+                                    archiveArtifacts artifacts: 'build-windows_*.yaml', allowEmptyArchive: true
+                                }
+                            }
+                            stage('Test') {
+                                if (isUnix()) {
                                     sh './build.sh test'
                                 } else {
                                     powershell '& ./build.ps1 test'
-                                    archiveArtifacts artifacts: 'build-windows_*.yaml', allowEmptyArchive: true
                                 }
                                 junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'target/**/junit-results*.xml')
                             }

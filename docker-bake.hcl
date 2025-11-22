@@ -47,35 +47,28 @@ variable "agent_types_to_build" {
 variable "jdks_to_build" {
   default = [17, 21, 25]
 }
-
-# This is a temporary modification to support JDK 25 on Linux only. It will be removed in a future pull request
-# dedicated to adding JDK 25 support for Windows.
-variable "windows_jdks_to_build" {
-  default = [17, 21]
-}
-
 variable "default_jdk" {
   default = 17
 }
 
 variable "jdks_in_preview" {
-  default = [25]
+  default = []
 }
 
 variable "JAVA17_VERSION" {
-  default = "17.0.16_8"
+  default = "17.0.17_10"
 }
 
 variable "JAVA21_VERSION" {
-  default = "21.0.8_9"
+  default = "21.0.9_10"
 }
 
 variable "JAVA25_VERSION" {
-  default = "25+9-ea-beta"
+  default = "25.0.1_8"
 }
 
 variable "REMOTING_VERSION" {
-  default = "3341.v0766d82b_dec0"
+  default = "3352.v17a_fb_4b_2773f"
 }
 
 variable "REGISTRY" {
@@ -103,7 +96,7 @@ variable "ON_TAG" {
 }
 
 variable "ALPINE_FULL_TAG" {
-  default = "3.22.1"
+  default = "3.22.2"
 }
 
 variable "ALPINE_SHORT_TAG" {
@@ -111,11 +104,11 @@ variable "ALPINE_SHORT_TAG" {
 }
 
 variable "DEBIAN_RELEASE" {
-  default = "bookworm-20250908"
+  default = "trixie-20251117"
 }
 
 variable "UBI9_TAG" {
-  default = "9.6-1758184894"
+  default = "9.7-1763340522"
 }
 
 # Set this value to a specific Windows version to override Windows versions to build returned by windowsversions function
@@ -230,7 +223,7 @@ function distribution_suffix {
 function distribution_name {
   params = [distribution]
   result = (equal("debian", distribution)
-    ? "bookworm"
+    ? "trixie"
   : distribution)
 }
 
@@ -256,7 +249,7 @@ function "linux_tags" {
     # If the jdk is the default one, add distribution and latest short tags
     is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:${distribution_name(distribution)}" : "",
     is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest${distribution_suffix(distribution)}" : "",
-    # Needed for the ":latest-bookworm" case. For other distributions, result in the same tag as above (not an issue, deduplicated at the end)
+    # Needed for the ":latest-trixie" case. For other distributions, result in the same tag as above (not an issue, deduplicated at the end)
     is_default_jdk(jdk) ? "${REGISTRY}/${orgrepo(type)}:latest-${distribution_name(distribution)}" : "",
 
     # Tags always added
@@ -337,10 +330,8 @@ target "rhel_ubi9" {
 
 target "nanoserver" {
   matrix = {
-    type = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
-    # This is a temporary modification to support JDK 25 on Linux only. It will be removed in a future pull request
-    # dedicated to adding JDK 25 support for Windows.
-    jdk             = windows_jdks_to_build
+    type            = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
+    jdk             = jdks_to_build
     windows_version = windowsversions("nanoserver")
   }
   name       = "${type}_nanoserver-${windows_version}_jdk${jdk}"
@@ -360,10 +351,8 @@ target "nanoserver" {
 
 target "windowsservercore" {
   matrix = {
-    type = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
-    # This is a temporary modification to support JDK 25 on Linux only. It will be removed in a future pull request
-    # dedicated to adding JDK 25 support for Windows.
-    jdk             = windows_jdks_to_build
+    type            = windowsagenttypes(WINDOWS_AGENT_TYPE_OVERRIDE)
+    jdk             = jdks_to_build
     windows_version = windowsversions("windowsservercore")
   }
   name       = "${type}_windowsservercore-${windows_version}_jdk${jdk}"

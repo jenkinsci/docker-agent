@@ -1,5 +1,5 @@
 ---
-name: Bump Debian Bookworm version
+name: Bump Debian Trixie version
 
 scms:
   default:
@@ -14,22 +14,36 @@ scms:
       branch: "{{ .github.branch }}"
 
 sources:
-  bookwormLatestVersion:
+  trixieLatestVersion:
     kind: dockerimage
-    name: "Get the latest Debian Bookworm Linux version"
+    name: "Get latest Debian trixie Linux version"
     spec:
       image: "debian"
-      tagfilter: "bookworm-*"
+      tagfilter: "trixie-*"
       versionfilter:
         kind: regex
         pattern: >-
-          bookworm-\d+$
+          trixie-\d+$
+
+conditions:
+  checkArchitecturesAvailability:
+    kind: dockerimage
+    name: Check if container image is available for all architectures
+    sourceid: trixieLatestVersion
+    spec:
+      image: "debian"
+      architectures:
+        - linux/amd64
+        - linux/arm64
+        - linux/arm/v7
+        - linux/s390x
+        - linux/ppc64le
 
 targets:
   updateDockerfile:
-    name: "Update the value of the base image (ARG DEBIAN_RELEASE) in the Dockerfile"
+    name: "Update value of base image (ARG DEBIAN_RELEASE) in Dockerfile"
     kind: dockerfile
-    sourceid: bookwormLatestVersion
+    sourceid: trixieLatestVersion
     spec:
       file: debian/Dockerfile
       instruction:
@@ -37,9 +51,9 @@ targets:
         matcher: "DEBIAN_RELEASE"
     scmid: default
   updateDockerBake:
-    name: "Update the default value of the variable DEBIAN_RELEASE in the docker-bake.hcl"
+    name: "Update default value of variable DEBIAN_RELEASE in docker-bake.hcl"
     kind: hcl
-    sourceid: bookwormLatestVersion
+    sourceid: trixieLatestVersion
     spec:
       file: docker-bake.hcl
       path: variable.DEBIAN_RELEASE.default
@@ -49,8 +63,8 @@ actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump Debian Bookworm Linux version to {{ source "bookwormLatestVersion" }}
+    title: Bump Debian trixie Linux version to {{ source "trixieLatestVersion" }}
     spec:
       labels:
         - dependencies
-        - debian-bookworm
+        - debian

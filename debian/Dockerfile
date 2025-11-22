@@ -19,7 +19,7 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-ARG DEBIAN_RELEASE=bookworm-20250908
+ARG DEBIAN_RELEASE=trixie-20251117
 FROM debian:"${DEBIAN_RELEASE}"-slim AS jre-build
 
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
@@ -31,7 +31,7 @@ ARG TARGETPLATFORM
 COPY adoptium-get-jdk-link.sh /usr/bin/local/adoptium-get-jdk-link.sh
 COPY adoptium-install-jdk.sh /usr/bin/local/adoptium-install-jdk.sh
 
-ARG JAVA_VERSION=17.0.16_8
+ARG JAVA_VERSION=17.0.17_10
 # hadolint ignore=DL3008
 RUN set -x; apt-get update \
   && apt-get install --no-install-recommends -y \
@@ -46,11 +46,10 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
 RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
-    case "$(jlink --version 2>&1)" in \
-      "17."*) options="--compress=2 --add-modules ALL-MODULE-PATH" ;; \
-      "21."*) options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
-      # TODO: set to "25." when jlink JDK25 is out of beta
-      "25"*) options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
+    case "$(jlink --version 2>&1 | cut -c1-2)" in \
+      "17") options="--compress=2 --add-modules ALL-MODULE-PATH" ;; \
+      "21") options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
+      "25") options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
@@ -87,7 +86,6 @@ RUN apt-get update \
     curl \
     fontconfig \
     git \
-    git-lfs \
     less \
     netbase \
     openssh-client \
@@ -96,10 +94,17 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /tmp/* /var/cache/* /var/lib/apt/lists/*
 
-ARG VERSION=3341.v0766d82b_dec0
+ARG VERSION=3352.v17a_fb_4b_2773f
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
+
+ARG GIT_LFS_VERSION=3.7.1
+RUN arch=$(uname -m | sed -e 's/x86_64/amd64/g' -e 's/aarch64/arm64/g' -e 's/armv7l/arm/g') \
+  && curl -L -s -o git-lfs.tgz "https://github.com/git-lfs/git-lfs/releases/download/v${GIT_LFS_VERSION}/git-lfs-linux-${arch}-v${GIT_LFS_VERSION}.tar.gz" \
+  && tar xzf git-lfs.tgz \
+  && bash git-lfs-*/install.sh \
+  && rm -rf git-lfs*
 
 ENV LANG=C.UTF-8
 

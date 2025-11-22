@@ -28,7 +28,7 @@ if ($global:WINDOWSFLAVOR -eq 'nanoserver') {
     $global:CONTAINERSHELL = 'pwsh.exe'
 }
 
-$global:GITLFSVERSION = '3.7.0'
+$global:GITLFSVERSION = '3.7.1'
 
 # # Uncomment to help debugging when working on this script
 # Write-Host "= DEBUG: global vars"
@@ -83,9 +83,12 @@ Describe "[$global:IMAGE_NAME] image has correct applications in the PATH" {
     }
 
     It 'has git-lfs (and thus git) installed' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs env`""
         $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match "git-lfs/${global:GITLFSVERSION}"
+        $r = [regex] "^git-lfs/(?<version>\d+\.\d+\.\d+)"
+        $m = $r.Match($stdout)
+        $m | Should -Not -Be $null
+        $m.Groups['version'].ToString() | Should -Be "$global:GITLFSVERSION"
     }
 
     It 'does not include jenkins-agent.ps1 (inbound-agent)' {

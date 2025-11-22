@@ -1,5 +1,5 @@
 ---
-name: Bump JDK25 version for all Linux images
+name: Bump JDK25 version
 
 scms:
   default:
@@ -28,19 +28,17 @@ sources:
     name: Get the latest Adoptium JDK25 version via the API
     spec:
       featureversion: 25
-      releasetype: '{{ default "ea" .jdk.releasetype }}'
     transformers:
       - trimprefix: "jdk-"
 
 # Architectures must match those of the targets in docker-bake.hcl
 conditions:
   checkTemurinAllReleases:
-    name: Check if the "<latestJDK25Version>" is available for all Linux platforms
+    name: Check if the "<latestJDK25Version>" is available for all platforms
     kind: temurin
     sourceid: latestJDK25Version
     spec:
       featureversion: 25
-      releasetype: "ea"
       platforms:
         - alpine-linux/x64
         - alpine-linux/aarch64
@@ -48,10 +46,11 @@ conditions:
         - linux/aarch64
         - linux/ppc64le
         - linux/s390x
+        - windows/x64
 
 targets:
   setJDK25VersionDockerBake:
-    name: "Bump JDK25 version for Linux images in the docker-bake.hcl file"
+    name: "Bump JDK25 version in the docker-bake.hcl file"
     kind: hcl
     transformers:
       - replacer:
@@ -66,7 +65,7 @@ actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Bump JDK25 version on Linux to {{ source "latestJDK25Version" }}
+    title: Bump JDK25 version to {{ source "latestJDK25Version" }}
     spec:
       labels:
         - dependencies

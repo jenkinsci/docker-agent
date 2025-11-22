@@ -1,6 +1,8 @@
 #!/bin/sh
 set -x
 
+### IMPORTANT: this script is synchronized with https://github.com/jenkins-infra/shared-tools/, please modify its content in that repository only.
+
 # Check if curl and tar are installed
 if ! command -v curl >/dev/null 2>&1 || ! command -v tar >/dev/null 2>&1 ; then
     echo "curl and tar are required but not installed. Exiting with status 1." >&2
@@ -43,9 +45,11 @@ fi
 EXTRACTED_DIR=$(tar -tzf /tmp/jdk.tar.gz | head -n 1 | cut -f1 -d"/")
 
 # Rename the extracted directory to /opt/jdk-${JAVA_VERSION}
-if ! mv "/opt/${EXTRACTED_DIR}" "/opt/jdk-${JAVA_VERSION}"; then
-    echo "Error: Failed to rename the extracted directory. Exiting with status 1." >&2
-    exit 1
+if [ "${EXTRACTED_DIR}" != "jdk-${JAVA_VERSION}" ]; then
+    if ! mv "/opt/${EXTRACTED_DIR}" "/opt/jdk-${JAVA_VERSION}"; then
+        echo "Error: Failed to rename the extracted directory. Exiting with status 1." >&2
+        exit 1
+    fi
 fi
 
 # Remove the downloaded archive
