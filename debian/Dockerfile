@@ -19,7 +19,7 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
-ARG DEBIAN_RELEASE=trixie-20250929
+ARG DEBIAN_RELEASE=trixie-20251117
 FROM debian:"${DEBIAN_RELEASE}"-slim AS jre-build
 
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
@@ -31,7 +31,7 @@ ARG TARGETPLATFORM
 COPY adoptium-get-jdk-link.sh /usr/bin/local/adoptium-get-jdk-link.sh
 COPY adoptium-install-jdk.sh /usr/bin/local/adoptium-install-jdk.sh
 
-ARG JAVA_VERSION=17.0.16_8
+ARG JAVA_VERSION=17.0.17_10
 # hadolint ignore=DL3008
 RUN set -x; apt-get update \
   && apt-get install --no-install-recommends -y \
@@ -86,7 +86,6 @@ RUN apt-get update \
     curl \
     fontconfig \
     git \
-    git-lfs \
     less \
     netbase \
     openssh-client \
@@ -95,10 +94,17 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /tmp/* /var/cache/* /var/lib/apt/lists/*
 
-ARG VERSION=3345.v03dee9b_f88fc
+ARG VERSION=3352.v17a_fb_4b_2773f
 ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
 RUN chmod 0644 /usr/share/jenkins/agent.jar \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
+
+ARG GIT_LFS_VERSION=3.7.1
+RUN arch=$(uname -m | sed -e 's/x86_64/amd64/g' -e 's/aarch64/arm64/g' -e 's/armv7l/arm/g') \
+  && curl -L -s -o git-lfs.tgz "https://github.com/git-lfs/git-lfs/releases/download/v${GIT_LFS_VERSION}/git-lfs-linux-${arch}-v${GIT_LFS_VERSION}.tar.gz" \
+  && tar xzf git-lfs.tgz \
+  && bash git-lfs-*/install.sh \
+  && rm -rf git-lfs*
 
 ENV LANG=C.UTF-8
 
