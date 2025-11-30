@@ -27,3 +27,33 @@ Describe "[$global:IMAGE_NAME] build image" {
         $exitCode | Should -Be 0
     }
 }
+
+Describe "[$global:IMAGE_NAME] custom build args" {
+    BeforeAll {
+        Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
+        # Old version used to test overriding the build arguments.
+        # This old version must have the same tag suffixes as the current windows images (`-jdk17-nanoserver` etc.), and the same Windows version (2019, 2022, etc.)
+        $TEST_VERSION = '3206.vb_15dcf73f6a_9'
+        $customImageName = "custom-${global:IMAGE_NAME}"
+    }
+
+    It 'builds image with arguments' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"VERSION=${TEST_VERSION}`" --build-arg `"JAVA_VERSION=${global:JAVA_VERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg WINDOWS_FLAVOR=${global:WINDOWSFLAVOR} --build-arg CONTAINER_SHELL=${global:CONTAINERSHELL} --tag=${customImageName} --file=./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
+        $exitCode | Should -Be 0
+
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name $global:CONTAINERNAME $customImageName -Cmd $global:CONTAINERSHELL"
+        $exitCode | Should -Be 0
+        Is-ContainerRunning "$global:CONTAINERNAME" | Should -BeTrue
+    }
+
+    It 'has the correct agent.jar version' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -c `"java -jar C:/ProgramData/Jenkins/agent.jar -version`""
+        $exitCode | Should -Be 0
+        $stdout | Should -Match $TEST_VERSION
+    }
+
+    AfterAll {
+        Cleanup($global:CONTAINERNAME)
+        Pop-Location -StackName 'agent'
+    }
+}
