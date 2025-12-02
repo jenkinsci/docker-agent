@@ -147,7 +147,7 @@ $ make show
       "args": {
         "ALPINE_TAG": "3.22.2",
         "JAVA_VERSION": "17.0.17_10",
-        "VERSION": "3352.v17a_fb_4b_2773f"
+        "VERSION": "3355.v388858a_47b_33"
       },
       "tags": [
         "docker.io/jenkins/agent:alpine",
@@ -185,7 +185,7 @@ $ ON_TAG=true BUILD_NUMBER=3 make show
       "args": {
         "ALPINE_TAG": "3.22.2",
         "JAVA_VERSION": "17.0.17_10",
-        "VERSION": "3352.v17a_fb_4b_2773f"
+        "VERSION": "3355.v388858a_47b_33"
       },
       "tags": [
         "docker.io/jenkins/agent:3309.v27b_9314fd1a_4-3-alpine-jdk17",
