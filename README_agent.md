@@ -60,7 +60,7 @@ The image has several supported configurations, which can be accessed via the fo
         * `jenkins/agent:latest-trixie-jdk17`
         * `jenkins/agent:latest-jdk17`
     * alpine (Small image based on Alpine Linux, based on `alpine:${version}`):
-      * `jenkins/agent:jenkins/agent:alpine` 
+      * `jenkins/agent:alpine` 
       * `jenkins/agent:alpine-jdk17`
       * `jenkins/agent:latest-alpine`
       * `jenkins/agent:latest-alpine-jdk17`
@@ -76,7 +76,6 @@ The image has several supported configurations, which can be accessed via the fo
       * `jenkins/agent:jdk21`
       * `jenkins/agent:latest-trixie-jdk21`
     * alpine (Small image based on Alpine Linux, based on `alpine:${version}`):
-      * `jenkins/agent:alpine` 
       * `jenkins/agent:alpine-jdk21`
       * `jenkins/agent:latest-alpine`
       * `jenkins/agent:latest-alpine-jdk21`
