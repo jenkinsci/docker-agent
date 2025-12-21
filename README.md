@@ -176,33 +176,126 @@ $ make show
 
 To view all tags, set `ON_TAG` (and eventually `BUILD_NUMBER`):
 ```bash
-$ ON_TAG=true BUILD_NUMBER=3 make show
-[...]
-  "target": {
-    "agent_alpine_jdk17": {
-      "context": ".",
-      "dockerfile": "alpine/Dockerfile",
-      "args": {
-        "ALPINE_TAG": "3.23.2",
-        "JAVA_VERSION": "17.0.17_10",
-        "VERSION": "3355.v388858a_47b_33"
-      },
-      "tags": [
-        "docker.io/jenkins/agent:3309.v27b_9314fd1a_4-3-alpine-jdk17",
-        "docker.io/jenkins/agent:3309.v27b_9314fd1a_4-3-alpine",
-        "docker.io/jenkins/agent:alpine",
-        "docker.io/jenkins/agent:latest-alpine",
-        "docker.io/jenkins/agent:alpine-jdk17",
-        "docker.io/jenkins/agent:latest-alpine-jdk17",
-        "docker.io/jenkins/agent:3309.v27b_9314fd1a_4-3-alpine3.23-jdk17",
-        "docker.io/jenkins/agent:3309.v27b_9314fd1a_4-3-alpine3.23",
-        "docker.io/jenkins/agent:alpine3.23",
-        "docker.io/jenkins/agent:latest-alpine3.23",
-        "docker.io/jenkins/agent:alpine3.23-jdk17",
-        "docker.io/jenkins/agent:latest-alpine3.23-jdk17"
-      ],
-      [...]
+$ ON_TAG=true BUILD_NUMBER=3 make tags
 ```
+<details><summary>Output</summary>
+
+```
+docker.io/jenkins/agent:3355.v388858a_47b_33-3
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-alpine
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-alpine-jdk17
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-alpine-jdk21
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-alpine-jdk25
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-alpine3.23
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-alpine3.23-jdk17
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-alpine3.23-jdk21
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-alpine3.23-jdk25
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-jdk17
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-jdk21
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-jdk25
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-rhel-ubi9
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-rhel-ubi9-jdk17
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-rhel-ubi9-jdk21
+docker.io/jenkins/agent:3355.v388858a_47b_33-3-rhel-ubi9-jdk25
+docker.io/jenkins/agent:alpine
+docker.io/jenkins/agent:alpine-jdk17
+docker.io/jenkins/agent:alpine-jdk21
+docker.io/jenkins/agent:alpine-jdk25
+docker.io/jenkins/agent:alpine3.23
+docker.io/jenkins/agent:alpine3.23-jdk17
+docker.io/jenkins/agent:alpine3.23-jdk21
+docker.io/jenkins/agent:alpine3.23-jdk25
+docker.io/jenkins/agent:jdk17
+docker.io/jenkins/agent:jdk21
+docker.io/jenkins/agent:jdk25
+docker.io/jenkins/agent:latest
+docker.io/jenkins/agent:latest-alpine
+docker.io/jenkins/agent:latest-alpine-jdk17
+docker.io/jenkins/agent:latest-alpine-jdk21
+docker.io/jenkins/agent:latest-alpine-jdk25
+docker.io/jenkins/agent:latest-alpine3.23
+docker.io/jenkins/agent:latest-alpine3.23-jdk17
+docker.io/jenkins/agent:latest-alpine3.23-jdk21
+docker.io/jenkins/agent:latest-alpine3.23-jdk25
+docker.io/jenkins/agent:latest-jdk17
+docker.io/jenkins/agent:latest-jdk21
+docker.io/jenkins/agent:latest-jdk25
+docker.io/jenkins/agent:latest-rhel-ubi9
+docker.io/jenkins/agent:latest-rhel-ubi9-jdk17
+docker.io/jenkins/agent:latest-rhel-ubi9-jdk21
+docker.io/jenkins/agent:latest-rhel-ubi9-jdk25
+docker.io/jenkins/agent:latest-trixie
+docker.io/jenkins/agent:latest-trixie-jdk17
+docker.io/jenkins/agent:latest-trixie-jdk21
+docker.io/jenkins/agent:latest-trixie-jdk25
+docker.io/jenkins/agent:rhel-ubi9
+docker.io/jenkins/agent:rhel-ubi9-jdk17
+docker.io/jenkins/agent:rhel-ubi9-jdk21
+docker.io/jenkins/agent:rhel-ubi9-jdk25
+docker.io/jenkins/agent:trixie
+docker.io/jenkins/agent:trixie-jdk17
+docker.io/jenkins/agent:trixie-jdk21
+docker.io/jenkins/agent:trixie-jdk25
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-alpine
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-alpine-jdk17
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-alpine-jdk21
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-alpine-jdk25
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-alpine3.23
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-alpine3.23-jdk17
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-alpine3.23-jdk21
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-alpine3.23-jdk25
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-jdk17
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-jdk21
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-jdk25
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-rhel-ubi9
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-rhel-ubi9-jdk17
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-rhel-ubi9-jdk21
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-3-rhel-ubi9-jdk25
+docker.io/jenkins/inbound-agent:alpine
+docker.io/jenkins/inbound-agent:alpine-jdk17
+docker.io/jenkins/inbound-agent:alpine-jdk21
+docker.io/jenkins/inbound-agent:alpine-jdk25
+docker.io/jenkins/inbound-agent:alpine3.23
+docker.io/jenkins/inbound-agent:alpine3.23-jdk17
+docker.io/jenkins/inbound-agent:alpine3.23-jdk21
+docker.io/jenkins/inbound-agent:alpine3.23-jdk25
+docker.io/jenkins/inbound-agent:jdk17
+docker.io/jenkins/inbound-agent:jdk21
+docker.io/jenkins/inbound-agent:jdk25
+docker.io/jenkins/inbound-agent:latest
+docker.io/jenkins/inbound-agent:latest-alpine
+docker.io/jenkins/inbound-agent:latest-alpine-jdk17
+docker.io/jenkins/inbound-agent:latest-alpine-jdk21
+docker.io/jenkins/inbound-agent:latest-alpine-jdk25
+docker.io/jenkins/inbound-agent:latest-alpine3.23
+docker.io/jenkins/inbound-agent:latest-alpine3.23-jdk17
+docker.io/jenkins/inbound-agent:latest-alpine3.23-jdk21
+docker.io/jenkins/inbound-agent:latest-alpine3.23-jdk25
+docker.io/jenkins/inbound-agent:latest-jdk17
+docker.io/jenkins/inbound-agent:latest-jdk21
+docker.io/jenkins/inbound-agent:latest-jdk25
+docker.io/jenkins/inbound-agent:latest-rhel-ubi9
+docker.io/jenkins/inbound-agent:latest-rhel-ubi9-jdk17
+docker.io/jenkins/inbound-agent:latest-rhel-ubi9-jdk21
+docker.io/jenkins/inbound-agent:latest-rhel-ubi9-jdk25
+docker.io/jenkins/inbound-agent:latest-trixie
+docker.io/jenkins/inbound-agent:latest-trixie-jdk17
+docker.io/jenkins/inbound-agent:latest-trixie-jdk21
+docker.io/jenkins/inbound-agent:latest-trixie-jdk25
+docker.io/jenkins/inbound-agent:rhel-ubi9
+docker.io/jenkins/inbound-agent:rhel-ubi9-jdk17
+docker.io/jenkins/inbound-agent:rhel-ubi9-jdk21
+docker.io/jenkins/inbound-agent:rhel-ubi9-jdk25
+docker.io/jenkins/inbound-agent:trixie
+docker.io/jenkins/inbound-agent:trixie-jdk17
+docker.io/jenkins/inbound-agent:trixie-jdk21
+docker.io/jenkins/inbound-agent:trixie-jdk25
+```
+
+</details>
+
+You can also call `make tags-windows` to show Windows image tags.
 
 `bats` is a dependency target. It will update the [`bats` submodule](https://github.com/bats-core/bats-core) and run the tests.
 
@@ -250,6 +343,43 @@ You can set it to `'verbose'` to also get stdout of every test command.
 Note that instead of passing `-TestsDebug` parameter to build.ps1, you can set the  $env:TESTS_DEBUG environment variable to the desired value.
 
 Also note that contrary to the Linux part, you have to build the images before testing them.
+
+#### Golden files
+
+A golden file (sometimes called a snapshot) is a file that contains the expected output of a program or function.
+Tests compare the current output of the code against this "golden" reference to detect regressions or unintended changes.
+They are treated as contract artifacts, not test fixtures.
+
+Golden files may be updated only when:
+- Output behavior is intentionally changed
+- A bug fix corrects previously incorrect output
+- A new test case is added
+
+Golden updates must be reviewed like code.
+
+If your work implies golden file changes, those changes must be committed:
+- In the same commit as the behavior change
+- With a commit message explaining why output changed
+
+Golden updates must never be automatic.
+
+##### How to update a golden file
+- Reproduce output manually
+- Inspect output
+- Update the golden file explicitly
+- Run tests
+
+To update a golden file, you can use the dedicated ./tests/update-golden-file.sh helper script.
+
+Example:
+```
+./tests/update-golden-file.sh expected_tags_linux make tags-linux
+```
+
+Then ensure corresponding tests are passing with:
+```
+bats ./tests/tags.bats
+```
 
 #### Dry run
 

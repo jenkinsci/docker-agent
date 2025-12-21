@@ -24,6 +24,26 @@ function assert {
     fi
 }
 
+# Assert that golden file $1 matches the output of a command $2
+assert_matches_golden() {
+    local golden="$1"
+    shift
+    local golden_path="tests/golden/${golden}.txt"
+
+    if [[ ! -f "${golden_path}" ]]; then
+        echo "Golden file '${golden_path}' does not exist"
+        return 1
+    fi
+
+    # Run the command passed as arguments and capture its output
+    local output
+    output="$(mktemp)"
+    "$@" > "${output}"
+
+    # Compare with golden file
+    diff -u "${golden_path}" <(cat "${output}")
+}
+
 function get_sut_image {
     test -n "${IMAGE:?"[sut_image] Please set the variable 'IMAGE' to the name of the image to test in 'docker-bake.hcl'."}"
     ## Retrieve the SUT image name from buildx
