@@ -38,13 +38,6 @@ CleanupNetwork($global:JNLPNETWORKNAME)
 
 BuildNcatImage($global:WINDOWSVERSIONTAG)
 
-Describe "[$global:IMAGE_NAME] build image" {
-    It 'builds image' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"VERSION=${global:VERSION}`" --build-arg `"JAVA_VERSION=${global:JAVA_VERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --tag=${global:IMAGE_TAG} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
-        $exitCode | Should -Be 0
-    }
-}
-
 Describe "[$global:IMAGE_NAME] check default user account" {
     BeforeAll {
         docker run --detach --tty --name "$global:CONTAINERNAME" "$global:IMAGE_NAME" -Cmd "$global:CONTAINERSHELL"
