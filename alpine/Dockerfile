@@ -115,7 +115,7 @@ LABEL \
     org.opencontainers.image.description="This is a base image, which provides the Jenkins agent executable (agent.jar)" \
     org.opencontainers.image.version="${VERSION}" \
     org.opencontainers.image.url="https://www.jenkins.io/" \
-    org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
+    org.opencontainers.image.source="https://github.com/jenkinsci/docker-agents" \
     org.opencontainers.image.licenses="MIT"
 
 ## Inbound Agent image target
@@ -135,7 +135,7 @@ LABEL \
     org.opencontainers.image.description="This is an image for Jenkins agents using TCP or WebSockets to establish inbound connection to the Jenkins controller" \
     org.opencontainers.image.version="${VERSION}" \
     org.opencontainers.image.url="https://www.jenkins.io/" \
-    org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
+    org.opencontainers.image.source="https://github.com/jenkinsci/docker-agents" \
     org.opencontainers.image.licenses="MIT"
 
 ENTRYPOINT ["/usr/local/bin/jenkins-agent"]

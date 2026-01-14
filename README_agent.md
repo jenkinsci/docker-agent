@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/jenkinsci/docker](https://badges.gitter.im/jenkinsci/docker.svg)](https://gitter.im/jenkinsci/docker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Docker Pulls](https://img.shields.io/docker/pulls/jenkins/agent.svg)](https://hub.docker.com/r/jenkins/agent/)
-[![GitHub release](https://img.shields.io/github/release/jenkinsci/docker-agent.svg?label=changelog)](https://github.com/jenkinsci/docker-agent/releases/latest)
+[![GitHub release](https://img.shields.io/github/release/jenkinsci/docker-agent.svg?label=changelog)](https://github.com/jenkinsci/docker-agents/releases/latest)
 
 This is a base image for Docker, which includes Java and the Jenkins agent executable (agent.jar).
 This executable is an instance of the [Jenkins Remoting library](https://github.com/jenkinsci/remoting).
@@ -10,7 +10,7 @@ Java version depends on the image and the platform, see the _Configurations_ sec
 
 ## Usage
 
-This image is used as the basis for the [Docker Inbound Agent](https://github.com/jenkinsci/docker-agent/tree/master/README_inbound-agent.md) image.
+This image is used as the basis for the [Docker Inbound Agent](https://github.com/jenkinsci/docker-agents/tree/master/README_inbound-agent.md) image.
 In that image, the container is launched externally and attaches to Jenkins.
 
 This image may instead be used to launch an agent using the **Launch method** of **Launch agent via execution of command on the controller**. For example on Linux you can try
@@ -99,7 +99,7 @@ The image has several supported configurations, which can be accessed via the fo
       * `jenkins/agent:jdk21-windowsservercore-ltsc2019`
       * `jenkins/agent:jdk21-windowsservercore-ltsc2022`
 
-The file [docker-bake.hcl](https://github.com/jenkinsci/docker-agent/blob/master/docker-bake.hcl) defines all the configuration for Linux images and their associated tags.
+The file [docker-bake.hcl](https://github.com/jenkinsci/docker-agents/blob/master/docker-bake.hcl) defines all the configuration for Linux images and their associated tags.
 
 There are also versioned tags in DockerHub, and they are recommended for production use.
 See the full list at [https://hub.docker.com/r/jenkins/agent/tags](https://hub.docker.com/r/jenkins/agent/tags)
@@ -139,7 +139,7 @@ RUN ln -snf /usr/share/zoneinfo/"${TZ}" /etc/localtime && echo "${TZ}" > /etc/ti
 
 ## Changelog
 
-See [GitHub releases](https://github.com/jenkinsci/docker-agent/releases) for versions `3.35-1` and above.
+See [GitHub releases](https://github.com/jenkinsci/docker-agents/releases) for versions `3.35-1` and above.
 There is no changelog for previous versions, see the commit history.
 
 Jenkins remoting changelogs are available at [https://github.com/jenkinsci/remoting/releases](https://github.com/jenkinsci/remoting/releases).
