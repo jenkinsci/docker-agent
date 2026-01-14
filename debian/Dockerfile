@@ -45,11 +45,17 @@ ENV PATH="/opt/jdk-${JAVA_VERSION}/bin:${PATH}"
 # Generate smaller java runtime without unneeded files
 # for now we include the full module path to maintain compatibility
 # while still saving space (approx 200mb from the full distribution)
-RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
+RUN java_major_version="$(jlink --version 2>&1 | cut -c1-2)"; \
+  if [[ "${TARGETPLATFORM}" == "linux/arm/v7" || "${java_major_version}" == 25 ]]; then \
+    # It is acceptable to have a larger image in arm/v7 (arm 32 bits) environment
+    # because jlink fails with the error "jmods: Value too large for defined data type" error.
+    # For JDK25, we need to have a proper test and validation process first cf https://github.com/jenkinsci/docker-agents/issues/1124)
+    # Noting there isn't any JMODs shipped anymore since https://adoptium.net/en-GB/news/2025/08/eclipse-temurin-jdk24-JEP493-enabled
+    cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
+  else \
     case "$(jlink --version 2>&1 | cut -c1-2)" in \
       "17") options="--compress=2 --add-modules ALL-MODULE-PATH" ;; \
       "21") options="--compress=zip-6 --add-modules ALL-MODULE-PATH" ;; \
-      "25") options="--compress=zip-6 --add-modules java.base,java.logging,java.xml,java.se" ;; \
       *) echo "ERROR: unmanaged jlink version pattern" && exit 1 ;; \
     esac; \
     jlink \
@@ -58,10 +64,6 @@ RUN if [[ "${TARGETPLATFORM}" != "linux/arm/v7" ]]; then \
       --no-man-pages \
       --no-header-files \
       --output /javaruntime; \
-  else \
-    # It is acceptable to have a larger image in arm/v7 (arm 32 bits) environment.
-    # Because jlink fails with the error "jmods: Value too large for defined data type" error.
-    cp -r "/opt/jdk-${JAVA_VERSION}" /javaruntime; \
   fi
 
 ## Agent image target
