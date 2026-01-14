@@ -82,6 +82,9 @@ prepare-test: bats check-reqs
 publish:
 	@set -x; $(bake_base_cli) linux --push
 
+# Strip experimental prefix if present
+strip_experimental = $(patsubst experimental-jlink_%,%,$(1))
+
 ## Define bats options based on environment
 # common flags for all tests
 bats_flags := ""
@@ -105,9 +108,9 @@ test-%: prepare-test
 # Each type of image ("agent" or "inbound-agent") has its own tests suite
 ifeq ($(CI), true)
 # Execute the test harness and write result to a TAP file
-	IMAGE=$* bats/bin/bats $(CURDIR)/tests/tests_$(shell echo $* |  cut -d "_" -f 1).bats $(bats_flags) --formatter junit | tee target/junit-results-$*.xml
+	IMAGE=$(call strip_experimental,$*) bats/bin/bats $(CURDIR)/tests/tests_$(shell echo $(call strip_experimental,$*) |  cut -d "_" -f 1).bats $(bats_flags) --formatter junit | tee target/junit-results-$*.xml
 else
-	IMAGE=$* bats/bin/bats $(CURDIR)/tests/tests_$(shell echo $* |  cut -d "_" -f 1).bats $(bats_flags)
+	IMAGE=$(call strip_experimental,$*) bats/bin/bats $(CURDIR)/tests/tests_$(shell echo $(call strip_experimental,$*) |  cut -d "_" -f 1).bats $(bats_flags)
 endif
 
 test: prepare-test
