@@ -14,6 +14,18 @@ variable "jdks_in_preview" {
   default = []
 }
 
+# List of inbound agent target(s) to use as base of experimental images.
+# Default to inbound-agent image as it makes more sense to test that than the base agent one.
+# Note: omit "inbound-agent_" from the target you chose from `make list`
+variable "experimental_jlink_targets" {
+  default = ["debian_jdk25"]
+}
+
+# Set to "true" to enable experimental image(s) tag publication
+variable "PUBLISH_EXPERIMENTAL" {
+  default = "false"
+}
+
 variable "JAVA17_VERSION" {
   default = "17.0.17_10"
 }
@@ -180,6 +192,26 @@ target "windowsservercore" {
   platforms = ["windows/amd64"]
 }
 
+## Experimental targets
+target "experimental_jlink" {
+  matrix = {
+    bake_target = experimental_jlink_targets
+  }
+  name = "inbound-agent_${bake_target}_experimental-jlink"
+  inherits = ["inbound-agent_${bake_target}"]
+  args = {
+    EXPERIMENTAL_JLINK = "true"
+  }
+  labels = {
+    "org.opencontainers.image.title" = "Jenkins experimental ${bake_target} image using jlink"
+  }
+  # Assuming only experimenting on inbound-agent targets for now, can be revised if needed.
+  tags = ["${REGISTRY}/${orgrepo("inbound-agent")}:${REMOTING_VERSION}-${BUILD_NUMBER}-${bake_target}-experimental-jlink-not-prod-ready"]
+  # Output as image only if PUBLISH_EXPERIMENTAL is set to "true"
+  # Ref: https://docs.docker.com/build/bake/reference/#targetoutput
+  output = equal(PUBLISH_EXPERIMENTAL, "true") ? ["type=image"] : ["type=cacheonly"]
+}
+
 ## Internal targets
 target "_base" {
   args = {
@@ -203,7 +235,8 @@ group "linux" {
   targets = [
     "alpine",
     "debian",
-    "rhel_ubi9"
+    "rhel_ubi9",
+    "experimental"
   ]
 }
 
@@ -241,6 +274,12 @@ group "linux-ppc64le" {
   ]
 }
 
+## Experimental groups
+group "experimental" {
+  targets = [
+    "experimental_jlink"
+  ]
+}
 
 ## Common functions
 # Return the registry organization and repository depending on the agent type
