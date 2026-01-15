@@ -37,6 +37,7 @@ docker.io/jenkins/agent:trixie
 docker.io/jenkins/agent:trixie-jdk17
 docker.io/jenkins/agent:trixie-jdk21
 docker.io/jenkins/agent:trixie-jdk25
+docker.io/jenkins/inbound-agent:3355.v388858a_47b_33-1-debian_jdk25-experimental-jlink-not-prod-ready
 docker.io/jenkins/inbound-agent:alpine
 docker.io/jenkins/inbound-agent:alpine-jdk17
 docker.io/jenkins/inbound-agent:alpine-jdk21

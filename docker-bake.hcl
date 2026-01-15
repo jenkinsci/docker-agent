@@ -14,6 +14,18 @@ variable "jdks_in_preview" {
   default = []
 }
 
+# List of inbound agent target(s) to use as base of experimental image(s).
+# Default to inbound-agent image(s) as it makes more sense as test subject than the base agent one.
+# Note: omit "inbound-agent_" from the target you chose from `make list`
+variable "experimental_targets" {
+  default = ["debian_jdk25"]
+}
+
+# Set to "true" to enable experimental image(s) tag publication
+variable "PUBLISH_EXPERIMENTAL" {
+  default = "false"
+}
+
 variable "JAVA17_VERSION" {
   default = "17.0.17_10"
 }
@@ -95,13 +107,12 @@ target "alpine" {
     jdk  = jdks_to_build
   }
   name       = "${type}_alpine_jdk${jdk}"
+  inherits = ["_common_args_jdk${jdk}"]
   target     = type
   dockerfile = "alpine/Dockerfile"
   context    = "."
   args = {
     ALPINE_TAG   = ALPINE_FULL_TAG
-    VERSION      = REMOTING_VERSION
-    JAVA_VERSION = "${javaversion(jdk)}"
   }
   tags      = concat(linux_tags(type, jdk, "alpine"), linux_tags(type, jdk, "alpine${ALPINE_SHORT_TAG}"))
   platforms = alpine_platforms(jdk)
@@ -113,13 +124,12 @@ target "debian" {
     jdk  = jdks_to_build
   }
   name       = "${type}_debian_jdk${jdk}"
+  inherits = ["_common_args_jdk${jdk}"]
   target     = type
   dockerfile = "debian/Dockerfile"
   context    = "."
   args = {
-    VERSION        = REMOTING_VERSION
     DEBIAN_RELEASE = DEBIAN_RELEASE
-    JAVA_VERSION   = "${javaversion(jdk)}"
   }
   tags      = linux_tags(type, jdk, "debian")
   platforms = debian_platforms(jdk)
@@ -131,13 +141,12 @@ target "rhel_ubi9" {
     jdk  = jdks_to_build
   }
   name       = "${type}_rhel_ubi9_jdk${jdk}"
+  inherits = ["_common_args_jdk${jdk}"]
   target     = type
   dockerfile = "rhel/ubi9/Dockerfile"
   context    = "."
   args = {
     UBI9_TAG     = UBI9_TAG
-    VERSION      = REMOTING_VERSION
-    JAVA_VERSION = "${javaversion(jdk)}"
   }
   tags      = linux_tags(type, jdk, "rhel-ubi9")
   platforms = rhel_ubi9_platforms(jdk)
@@ -150,13 +159,12 @@ target "nanoserver" {
     windows_version = windowsversions("nanoserver")
   }
   name       = "${type}_nanoserver-${windows_version}_jdk${jdk}"
+  inherits = ["_common_args_jdk${jdk}"]
   dockerfile = "windows/nanoserver/Dockerfile"
   context    = "."
   args = {
     JAVA_HOME             = "C:/openjdk-${jdk}"
-    JAVA_VERSION          = "${replace(javaversion(jdk), "_", "+")}"
     TOOLS_WINDOWS_VERSION = "${toolsversion(windows_version)}"
-    VERSION               = REMOTING_VERSION
     WINDOWS_VERSION_TAG   = windows_version
   }
   target    = type
@@ -171,13 +179,12 @@ target "windowsservercore" {
     windows_version = windowsversions("windowsservercore")
   }
   name       = "${type}_windowsservercore-${windows_version}_jdk${jdk}"
+  inherits = ["_common_args_jdk${jdk}"]
   dockerfile = "windows/windowsservercore/Dockerfile"
   context    = "."
   args = {
     JAVA_HOME             = "C:/openjdk-${jdk}"
-    JAVA_VERSION          = "${replace(javaversion(jdk), "_", "+")}"
     TOOLS_WINDOWS_VERSION = "${toolsversion(windows_version)}"
-    VERSION               = REMOTING_VERSION
     WINDOWS_VERSION_TAG   = windows_version
   }
   target    = type
@@ -185,12 +192,51 @@ target "windowsservercore" {
   platforms = ["windows/amd64"]
 }
 
+## Experimental targets
+target "experimental_jlink" {
+  matrix = {
+    bake_target = experimental_targets
+  }
+  name = "inbound-agent_${bake_target}_experimental-jlink"
+  inherits = ["inbound-agent_${bake_target}"]
+  args = {
+    EXPERIMENTAL_JLINK = "true"
+  }
+  labels = {
+    "org.opencontainers.image.title" = "Jenkins experimental ${bake_target} image using jlink"
+  }
+  # Assuming only experimenting on inbound-agent targets for now, can be revised if needed.
+  tags = ["${REGISTRY}/${orgrepo("inbound-agent")}:${REMOTING_VERSION}-${BUILD_NUMBER}-${bake_target}-experimental-jlink-not-prod-ready"]
+  # Output as image only if PUBLISH_EXPERIMENTAL is set to "true"
+  # Ref: https://docs.docker.com/build/bake/reference/#targetoutput
+  output = equal(PUBLISH_EXPERIMENTAL, "true") ? ["type=image"] : ["type=cacheonly"]
+}
+
+## Internal targets
+target "_base" {
+  args = {
+    VERSION = REMOTING_VERSION
+  }
+}
+
+target "_common_args" {
+  inherits = ["_base"]
+  matrix = {
+    jdk             = jdks_to_build
+  }
+  name = "_common_args_jdk${jdk}"
+  args = {
+    JAVA_VERSION = "${replace(javaversion(jdk), "_", "+")}"
+  }
+}
+
 ## Groups
 group "linux" {
   targets = [
     "alpine",
     "debian",
-    "rhel_ubi9"
+    "rhel_ubi9",
+    "experimental"
   ]
 }
 
@@ -228,6 +274,12 @@ group "linux-ppc64le" {
   ]
 }
 
+## Experimental groups
+group "experimental" {
+  targets = [
+    "experimental_jlink"
+  ]
+}
 
 ## Common functions
 # Return the registry organization and repository depending on the agent type
