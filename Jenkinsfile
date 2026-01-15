@@ -56,7 +56,7 @@ def parallelStages = [failFast: false]
             "IMAGE_TYPE=${imageType}",
             "REGISTRY_ORG=${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}",
             // Set to "true" to enable experimental image(s) publication
-            "PUBLISH_EXPERIMENTAL=false"
+            "PUBLISH_EXPERIMENTAL=true"
         ]) {
             int retryCounter = 0
             retry(count: 2, conditions: [agent(), nonresumable()]) {
