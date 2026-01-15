@@ -52,7 +52,12 @@ def parallelStages = [failFast: false]
     'windowsservercore-ltsc2022'
 ].each { imageType ->
     parallelStages[imageType] = {
-        withEnv(["IMAGE_TYPE=${imageType}", "REGISTRY_ORG=${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}"]) {
+        withEnv([
+            "IMAGE_TYPE=${imageType}",
+            "REGISTRY_ORG=${infra.isTrusted() ? 'jenkins' : 'jenkins4eval'}",
+            // Set to "true" to enable experimental image(s) publication
+            "PUBLISH_EXPERIMENTAL=false"
+        ]) {
             int retryCounter = 0
             retry(count: 2, conditions: [agent(), nonresumable()]) {
                 // Use local variable to manage concurrency and increment BEFORE spinning up any agent
