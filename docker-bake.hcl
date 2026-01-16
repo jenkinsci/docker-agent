@@ -7,7 +7,7 @@ variable "jdks_to_build" {
   default = [17, 21, 25]
 }
 variable "default_jdk" {
-  default = 17
+  default = 21
 }
 
 variable "jdks_in_preview" {
